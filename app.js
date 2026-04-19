@@ -30,9 +30,22 @@
     var pdfAbsolute = new URL(url, window.location.href).href;
     var viewerUrl = new URL("pdfjs/web/viewer.html", window.location.href);
     viewerUrl.searchParams.set("file", pdfAbsolute);
-    pdfFrame.src = viewerUrl.href;
+
     pdfTitle.textContent = title || "Документ";
-    pdfOpenSafari.href = pdfAbsolute;
+    pdfOpenSafari.href = viewerUrl.href;
+
+    var isPhone =
+      navigator.maxTouchPoints > 0 &&
+      window.matchMedia("(max-width: 900px)").matches;
+
+    if (isPhone) {
+      var tab = window.open(viewerUrl.href, "_blank", "noopener,noreferrer");
+      if (tab) {
+        return;
+      }
+    }
+
+    pdfFrame.src = viewerUrl.href;
     pdfViewer.hidden = false;
     document.body.style.overflow = "hidden";
   }
