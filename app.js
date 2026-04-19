@@ -1,4 +1,3 @@
-// app.js - Исправленная логика кликов и блюра
 let appData = null;
 
 async function init() {
@@ -9,11 +8,12 @@ async function init() {
         setupNavigation();
         setupTheme();
         setupCharts();
-    } catch (e) { console.error("Load error", e); }
+    } catch (e) { console.error("Ошибка загрузки:", e); }
 }
 
 function renderMain() {
     const container = document.getElementById('tabs-main');
+    if(!container) return;
     container.innerHTML = appData.blocks.map((b, i) => `
         <button class="action-main-btn" onclick="openBlock(${i})">${b.title}</button>
     `).join('');
@@ -29,31 +29,57 @@ window.openBlock = (index) => {
     document.getElementById('modal').hidden = false;
 };
 
+function setupNavigation() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const screens = document.querySelectorAll('.tab-content');
+
+    navItems.forEach(btn => {
+        btn.onclick = () => {
+            const target = btn.getAttribute('data-screen');
+            
+            // Сбрасываем активные классы
+            navItems.forEach(b => b.classList.remove('active'));
+            screens.forEach(s => s.classList.remove('active'));
+            
+            // Активируем нужные
+            btn.classList.add('active');
+            const screen = document.getElementById(`screen-${target}`);
+            if(screen) screen.classList.add('active');
+            
+            // Закрываем модалку при переходе
+            document.getElementById('modal').hidden = true;
+        };
+    });
+}
+
 function setupCharts() {
-    const showWork = document.getElementById('showScheduleBtn');
+    const showWorkBtn = document.getElementById('showScheduleBtn');
     const container = document.getElementById('schedule-container');
     const initBox = document.getElementById('charts-init');
-    const table = document.getElementById('work-schedule');
 
-    showWork.onclick = async () => {
-        const res = await fetch('./data/schedule.json');
-        const data = await res.json();
-        renderSchedule(data);
-        initBox.hidden = true;
-        container.hidden = false;
-    };
+    if(showWorkBtn) {
+        showWorkBtn.onclick = async () => {
+            const res = await fetch('./data/schedule.json');
+            const data = await res.json();
+            renderSchedule(data);
+            initBox.hidden = true;
+            container.hidden = false;
+        };
+    }
 
-    document.getElementById('backToCharts').onclick = () => {
-        container.hidden = true;
-        initBox.hidden = false;
-        table.classList.remove('has-focus');
-    };
+    const backBtn = document.getElementById('backToCharts');
+    if(backBtn) {
+        backBtn.onclick = () => {
+            container.hidden = true;
+            initBox.hidden = false;
+            document.getElementById('work-schedule').classList.remove('has-focus');
+        };
+    }
 }
 
 function renderSchedule(data) {
     const table = document.getElementById('work-schedule');
-    const monthTitle = document.getElementById('tableMonthTitle');
-    monthTitle.innerText = data.month;
+    document.getElementById('tableMonthTitle').innerText = data.month;
 
     let html = `<thead><tr><th class="name-col">ФИО</th>`;
     for(let d=1; d<=data.daysInMonth; d++) html += `<th>${d}</th>`;
@@ -77,29 +103,17 @@ function renderSchedule(data) {
 
 window.focusRow = (row) => {
     const table = document.getElementById('work-schedule');
-    const isFocused = row.classList.contains('focused-row');
+    const alreadyFocused = row.classList.contains('focused-row');
     
     document.querySelectorAll('#work-schedule tr').forEach(r => r.classList.remove('focused-row'));
     
-    if (!isFocused) {
+    if (!alreadyFocused) {
         table.classList.add('has-focus');
         row.classList.add('focused-row');
     } else {
         table.classList.remove('has-focus');
     }
 };
-
-function setupNavigation() {
-    document.querySelectorAll('.nav-item').forEach(btn => {
-        btn.onclick = () => {
-            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
-            document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
-            document.getElementById('modal').hidden = true;
-        };
-    });
-}
 
 function setupTheme() {
     const btn = document.getElementById('themeToggle');
