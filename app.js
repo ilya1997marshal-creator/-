@@ -14,12 +14,12 @@
 
   let data = null;
 
-  // 1. ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (BOTTOM NAV)
+  // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (BOTTOM NAV)
   navButtons.forEach(btn => {
     btn.onclick = () => {
       const screenId = btn.getAttribute("data-screen");
 
-      // Сброс активных классов
+      // Сброс активных классов (на кнопках и экранах)
       navButtons.forEach(b => b.classList.remove("active"));
       screens.forEach(s => s.classList.remove("active"));
 
@@ -45,7 +45,7 @@
     };
   });
 
-  // 2. ЛОГИКА ТЕМЫ
+  // Управление темой
   themeToggle.onclick = () => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -53,21 +53,21 @@
     localStorage.setItem('theme', newTheme);
   };
 
-  // 3. ОТКРЫТИЕ PDF
+  // Логика PDF: открытие через Google Docs Viewer (для обхода ограничений GitHub)
   function openPdf(url) {
     const absoluteUrl = new URL(url, window.location.href).href;
     const googleViewer = "https://docs.google.com/viewer?url=" + encodeURIComponent(absoluteUrl);
     window.open(googleViewer, '_blank');
   }
 
-  // 4. МОДАЛЬНОЕ ОКНО
+  // Модальное окно (Показ PDF списка категории)
   function showCategory(category) {
     const items = (data.items || []).filter(i => i.categoryId === category.id);
     modalTitle.textContent = category.title;
-    modalList.innerHTML = "";
+    modalList.innerHTML = ""; // Очистка старого
 
     if (items.length === 0) {
-      modalList.innerHTML = `<li style="text-align:center; padding: 20px; color: var(--text-muted);">Файлов пока нет</li>`;
+      modalList.innerHTML = `<li style="text-align:center; padding: 25px; color: var(--text-muted); font-weight:500;">Файлов пока нет</li>`;
     } else {
       items.forEach(item => {
         const li = document.createElement("li");
@@ -85,20 +85,23 @@
     modal.hidden = false;
   }
 
+  // Закрытие модального окна
   modalClose.onclick = () => modal.hidden = true;
   modalBackdrop.onclick = () => modal.hidden = true;
 
-  // 5. ЗАГРУЗКА ДАННЫХ
+  // ЗАГРУЗКА ДАННЫХ
   fetch("data/instructions.json")
     .then(r => r.json())
     .then(json => {
       data = json;
-      tabsMain.innerHTML = ""; // Очистка
+      tabsMain.innerHTML = ""; // Очистка (защита от дублей)
+      
+      // Генерация кнопок категорий
       data.categories.forEach(cat => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = cat.title;
-        btn.onclick = () => showCategory(cat);
+        btn.onclick = () => showCategory(cat); // Привязка открытия модалки
         tabsMain.appendChild(btn);
       });
     })
