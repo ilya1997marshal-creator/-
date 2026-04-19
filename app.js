@@ -44,24 +44,17 @@
     tableEl.innerHTML = html;
   }
 
-  // ФУНКЦИЯ ФОКУСА (ИСПРАВЛЕННАЯ)
   window.toggleFocus = function(rowElement) {
     const isFocused = rowElement.classList.contains("focused-row");
-    
-    // Сбрасываем фокус со всех строк
     document.querySelectorAll("#work-schedule tr").forEach(r => r.classList.remove("focused-row"));
-    
     if (isFocused) {
-      // Если строка уже была в фокусе — выключаем режим блюра
       tableEl.classList.remove("has-focus");
     } else {
-      // Иначе включаем блюр и выделяем текущую строку
       tableEl.classList.add("has-focus");
       rowElement.classList.add("focused-row");
     }
   };
 
-  // НАВИГАЦИЯ
   navButtons.forEach(btn => {
     btn.onclick = () => {
       const screenId = btn.getAttribute("data-screen");
@@ -91,7 +84,6 @@
     localStorage.setItem('theme', next);
   };
 
-  // ДАННЫЕ PDF
   fetch("data/instructions.json").then(r => r.json()).then(json => {
     const container = document.getElementById("tabs-main");
     json.categories.forEach(c => {
@@ -105,7 +97,7 @@
       };
       container.appendChild(b);
     });
-  });
+  }).catch(e => console.log("JSON load error"));
 
   document.getElementById("modalClose").onclick = () => document.getElementById("modal").hidden = true;
   document.getElementById("modalBackdrop").onclick = () => document.getElementById("modal").hidden = true;
