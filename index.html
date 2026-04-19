@@ -2,25 +2,31 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="theme-color" content="#e7edf2" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="База ЦТАИ">
+  <meta name="theme-color" content="#f1f5f9" />
+  
   <title>База данных ЦТАИ АСУТП</title>
+  
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app">
     <header class="header">
       <div class="header-inner">
-        <h1 class="title">База данных ЦТАИ АСУТП</h1>
-        <p class="subtitle">Выберите блок — откроется список инструкций в формате PDF.</p>
+        <h1 class="title">База данных ЦТАИ</h1>
+        <p class="subtitle">Инструкции АСУТП в PDF</p>
       </div>
     </header>
 
     <main class="main">
       <section class="panel" aria-labelledby="blocks-heading">
         <h2 id="blocks-heading" class="panel-title">Блоки</h2>
-        <p class="panel-hint">Нажмите на блок, чтобы открыть список файлов.</p>
-
         <nav class="blocks" id="tabs" aria-label="Блоки"></nav>
       </section>
     </main>
@@ -50,6 +56,6 @@
     <iframe id="pdfFrame" class="pdf-frame" title="Просмотр PDF"></iframe>
   </div>
 
-  <script src="app.js?v=12"></script>
+  <script src="app.js?v=13"></script>
 </body>
 </html>
