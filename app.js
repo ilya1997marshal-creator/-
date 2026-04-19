@@ -1,172 +1,117 @@
-(function () {
-  const navButtons = document.querySelectorAll(".nav-item");
-  const screens = document.querySelectorAll(".tab-content");
-  const pageTitle = document.getElementById("pageTitle");
-  const pageSubtitle = document.getElementById("pageSubtitle");
-  const themeToggle = document.getElementById("themeToggle");
+// app.js - Исправленная логика кликов и блюра
+let appData = null;
 
-  const showScheduleBtn = document.getElementById("showScheduleBtn");
-  const showEduScheduleBtn = document.getElementById("showEduScheduleBtn");
-  const backToCharts = document.getElementById("backToCharts");
-  const chartsInit = document.getElementById("charts-init");
-  const scheduleContainer = document.getElementById("schedule-container");
-  const tableEl = document.getElementById("work-schedule");
-  const tableMonthTitle = document.getElementById("tableMonthTitle");
-  const scheduleLegend = document.getElementById("schedule-legend");
+async function init() {
+    try {
+        const res = await fetch('./data/instructions.json');
+        appData = await res.json();
+        renderMain();
+        setupNavigation();
+        setupTheme();
+        setupCharts();
+    } catch (e) { console.error("Load error", e); }
+}
 
-  // Общий список фамилий
-  const staffNames = ["Лагутенков Р.С.", "Миронов С.А.", "Куштанов А.А.", "Рыжих И.Н.", "Бондаренко Т.А."];
+function renderMain() {
+    const container = document.getElementById('tabs-main');
+    container.innerHTML = appData.blocks.map((b, i) => `
+        <button class="action-main-btn" onclick="openBlock(${i})">${b.title}</button>
+    `).join('');
+}
 
-  // Данные для графика работы
-  const workData = [
-    { name: "Лагутенков Р.С.", shifts: { 3: "1219", 4: "1219", 7: "0828", 8: "1202", 12: "1219", 15: "1219", 16: "1202", 18: "1202", 20: "1202", 23: "1219", 24: "1202", 25: "1202", 27: "1219", 28: "1202" } },
-    { name: "Миронов С.А.", shifts: { 3: "1219", 4: "1219", 9: "1202", 11: "0804", 12: "1219", 15: "1219", 16: "1202", 18: "1202", 20: "1202", 23: "1219", 24: "1202", 25: "1202", 27: "1219", 28: "1202" } },
-    { name: "Куштанов А.А.", shifts: { 2: "1219", 3: "1202", 4: "1202", 7: "0828", 8: "1202", 11: "1219", 12: "1202", 14: "1219", 15: "1202", 18: "1219", 21: "1219", 24: "1219", 25: "1202", 28: "1202", 30: "1219" } },
-    { name: "Рыжих И.Н.", shifts: { 18: "1219", 21: "1219", 22: "1202", 25: "1202", 30: "1219" } },
-    { name: "Бондаренко Т.А.", shifts: { 29: "ОТП", 30: "ОТП" } }
-  ];
+window.openBlock = (index) => {
+    const block = appData.blocks[index];
+    document.getElementById('modalTitle').innerText = block.title;
+    const list = document.getElementById('modalList');
+    list.innerHTML = block.items.map(item => `
+        <li><a href="${item.url}" target="_blank" rel="noopener">${item.name}</a></li>
+    `).join('');
+    document.getElementById('modal').hidden = false;
+};
 
-  const weekends = [4, 5, 11, 12, 18, 19, 25, 26];
+function setupCharts() {
+    const showWork = document.getElementById('showScheduleBtn');
+    const container = document.getElementById('schedule-container');
+    const initBox = document.getElementById('charts-init');
+    const table = document.getElementById('work-schedule');
 
-  // Генерация данных обучения (1 раз в год для каждого)
-  const eduData = staffNames.map(name => {
-    return {
-      name: name,
-      month: Math.floor(Math.random() * 12) + 1, // Месяц 1-12
-      day: Math.floor(Math.random() * 25) + 1   // День 1-25
+    showWork.onclick = async () => {
+        const res = await fetch('./data/schedule.json');
+        const data = await res.json();
+        renderSchedule(data);
+        initBox.hidden = true;
+        container.hidden = false;
     };
-  });
 
-  // Рендер таблицы ГРАФИК РАБОТЫ
-  function renderWorkTable() {
-    tableMonthTitle.textContent = "Апрель 2026";
-    scheduleLegend.innerHTML = `
-      <div class="legend-item"><span class="dot d1219"></span> 08:00 – 20:00</div>
-      <div class="legend-item"><span class="dot d1202"></span> 20:00 – 08:00</div>
-      <div class="legend-item"><span class="dot dotp"></span> Отпуск</div>
-    `;
+    document.getElementById('backToCharts').onclick = () => {
+        container.hidden = true;
+        initBox.hidden = false;
+        table.classList.remove('has-focus');
+    };
+}
 
-    let html = `<thead><tr><th class="name-col">Сотрудник</th>`;
-    for (let i = 1; i <= 30; i++) {
-      html += `<th class="${weekends.includes(i) ? 'weekend' : ''}">${i}</th>`;
-    }
+function renderSchedule(data) {
+    const table = document.getElementById('work-schedule');
+    const monthTitle = document.getElementById('tableMonthTitle');
+    monthTitle.innerText = data.month;
+
+    let html = `<thead><tr><th class="name-col">ФИО</th>`;
+    for(let d=1; d<=data.daysInMonth; d++) html += `<th>${d}</th>`;
     html += `</tr></thead><tbody>`;
 
-    workData.forEach(row => {
-      html += `<tr><td class="name-col" onclick="toggleFocus(this.parentElement)">${row.name}</td>`;
-      for (let i = 1; i <= 30; i++) {
-        const val = row.shifts[i] || "";
-        let c = "";
-        if (val === "1219") c = "cell-1219";
-        else if (val === "1202") c = "cell-1202";
-        else if (val === "ОТП") c = "cell-otp";
-        html += `<td class="${c} ${weekends.includes(i) ? 'weekend' : ''}">${val}</td>`;
-      }
-      html += `</tr>`;
+    data.employees.forEach(emp => {
+        html += `<tr onclick="focusRow(this)">
+            <td class="name-col">${emp.name}</td>`;
+        emp.days.forEach(day => {
+            let cls = "";
+            if(day === "12/19") cls = "cell-1219";
+            else if(day === "12/02") cls = "cell-1202";
+            else if(day === "ОТП") cls = "cell-otp";
+            else if(day === "УЧ") cls = "cell-edu";
+            html += `<td class="${cls}">${day || ""}</td>`;
+        });
+        html += `</tr>`;
     });
-    tableEl.innerHTML = html + "</tbody>";
-  }
+    table.innerHTML = html + `</tbody>`;
+}
 
-  // Рендер таблицы ГРАФИК ОБУЧЕНИЯ
-  function renderEduTable() {
-    tableMonthTitle.textContent = "Обучение 2026 (Охрана труда)";
-    scheduleLegend.innerHTML = `
-      <div class="legend-item"><span class="dot dedu"></span> День обучения</div>
-    `;
-
-    const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+window.focusRow = (row) => {
+    const table = document.getElementById('work-schedule');
+    const isFocused = row.classList.contains('focused-row');
     
-    let html = `<thead><tr><th class="name-col">Сотрудник</th>`;
-    monthNames.forEach(m => html += `<th>${m}</th>`);
-    html += `</tr></thead><tbody>`;
-
-    staffNames.forEach(name => {
-      const edu = eduData.find(e => e.name === name);
-      html += `<tr><td class="name-col" onclick="toggleFocus(this.parentElement)">${name}</td>`;
-      for (let m = 1; m <= 12; m++) {
-        const isEduMonth = (edu.month === m);
-        html += `<td class="${isEduMonth ? 'cell-edu' : ''}">${isEduMonth ? edu.day : ''}</td>`;
-      }
-      html += `</tr>`;
-    });
-    tableEl.innerHTML = html + "</tbody>";
-  }
-
-  // Функция фокуса на строке
-  window.toggleFocus = function(rowElement) {
-    const isFocused = rowElement.classList.contains("focused-row");
-    document.querySelectorAll("#work-schedule tr").forEach(r => r.classList.remove("focused-row"));
-    if (isFocused) {
-      tableEl.classList.remove("has-focus");
+    document.querySelectorAll('#work-schedule tr').forEach(r => r.classList.remove('focused-row'));
+    
+    if (!isFocused) {
+        table.classList.add('has-focus');
+        row.classList.add('focused-row');
     } else {
-      tableEl.classList.add("has-focus");
-      rowElement.classList.add("focused-row");
+        table.classList.remove('has-focus');
     }
-  };
+};
 
-  // Навигация
-  navButtons.forEach(btn => {
-    btn.onclick = () => {
-      const screenId = btn.getAttribute("data-screen");
-      navButtons.forEach(b => b.classList.remove("active"));
-      screens.forEach(s => s.classList.remove("active"));
-      btn.classList.add("active");
-      document.getElementById(`screen-${screenId}`).classList.add("active");
-      
-      const titles = { 
-        main: ["База данных", "ЦТАИ"], 
-        charts: ["Графики", "Смены"], 
-        edu: ["Обучение", "Тесты"], 
-        support: ["Помощь", "Связь"] 
-      };
-      pageTitle.textContent = titles[screenId][0];
-      pageSubtitle.textContent = titles[screenId][1];
-
-      if (screenId !== 'charts') {
-        chartsInit.hidden = false;
-        scheduleContainer.hidden = true;
-        tableEl.classList.remove("has-focus");
-      }
-    };
-  });
-
-  // Кнопки графиков
-  showScheduleBtn.onclick = () => { renderWorkTable(); chartsInit.hidden = true; scheduleContainer.hidden = false; };
-  showEduScheduleBtn.onclick = () => { renderEduTable(); chartsInit.hidden = true; scheduleContainer.hidden = false; };
-  backToCharts.onclick = () => { scheduleContainer.hidden = true; chartsInit.hidden = false; tableEl.classList.remove("has-focus"); };
-
-  // Тема
-  themeToggle.onclick = () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  };
-
-  // Загрузка инструкций
-  fetch("data/instructions.json")
-    .then(r => r.json())
-    .then(json => {
-      const container = document.getElementById("tabs-main");
-      json.categories.forEach(c => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "action-main-btn";
-        b.textContent = c.title;
-        b.onclick = () => {
-          const items = json.items.filter(it => it.categoryId === c.id);
-          document.getElementById("modalTitle").textContent = c.title;
-          document.getElementById("modalList").innerHTML = items.map(it => `
-            <li>
-              <a href="#" onclick="window.open('https://docs.google.com/viewer?url=' + encodeURIComponent(new URL('${it.pdf}', window.location.href).href), '_blank')">${it.title}</a>
-            </li>
-          `).join("");
-          document.getElementById("modal").hidden = false;
+function setupNavigation() {
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        btn.onclick = () => {
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen-${btn.dataset.screen}`).classList.add('active');
+            document.getElementById('modal').hidden = true;
         };
-        container.appendChild(b);
-      });
-    })
-    .catch(e => console.log("JSON Load Error", e));
+    });
+}
 
-  document.getElementById("modalClose").onclick = () => document.getElementById("modal").hidden = true;
-  document.getElementById("modalBackdrop").onclick = () => document.getElementById("modal").hidden = true;
-})();
+function setupTheme() {
+    const btn = document.getElementById('themeToggle');
+    btn.onclick = () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    };
+}
+
+document.getElementById('modalClose').onclick = () => document.getElementById('modal').hidden = true;
+document.getElementById('modalBackdrop').onclick = () => document.getElementById('modal').hidden = true;
+
+init();
