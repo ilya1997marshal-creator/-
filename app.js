@@ -1,207 +1,113 @@
 /**
- * app.js - Основная логика приложения
- * База данных ЦТАИ АСУ ТП
+ * app.js - Full logic
  */
 
 let appData = null;
 
-// ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ
-async function init() {
+async function startApp() {
     try {
-        // Загружаем данные инструкций
         const res = await fetch('./data/instructions.json');
         appData = await res.json();
         
-        // Запускаем компоненты
-        renderMainBlocks();
-        setupNavigation();
-        setupThemeHandler();
-        setupChartsHandler();
-        setupModalEvents();
+        renderBlocks();
+        initNavigation();
+        initTheme();
+        initCharts();
+        initModalActions();
         
-        console.log("Приложение успешно инициализировано");
-    } catch (error) {
-        console.error("Критическая ошибка при загрузке данных:", error);
+        console.log("App ready");
+    } catch (e) {
+        console.error("Data load error", e);
     }
 }
 
-// РЕНДЕРИНГ ГЛАВНЫХ БЛОКОВ (ИНСТРУКЦИИ)
-function renderMainBlocks() {
-    const container = document.getElementById('tabs-main');
+function renderBlocks() {
+    const container = document.getElementById('blocksContainer');
     if (!container || !appData) return;
 
-    container.innerHTML = appData.blocks.map((block, index) => `
-        <button class="action-main-btn" onclick="openBlockDetails(${index})">
+    container.innerHTML = appData.blocks.map((block, idx) => `
+        <button class="action-main-btn" onclick="openModal(${idx})">
             ${block.title}
         </button>
     `).join('');
 }
 
-// ОТКРЫТИЕ МОДАЛЬНОГО ОКНА С СОДЕРЖИМЫМ БЛОКА
-window.openBlockDetails = (index) => {
-    const block = appData.blocks[index];
+window.openModal = (idx) => {
+    const block = appData.blocks[idx];
     const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalList = document.getElementById('modalList');
-
-    if (!block || !modal) return;
-
-    modalTitle.innerText = block.title;
-    modalList.innerHTML = block.items.map(item => `
-        <li>
-            <a href="${item.url}" target="_blank" rel="noopener noreferrer">
-                ${item.name}
-            </a>
-        </li>
+    document.getElementById('modalTitle').innerText = block.title;
+    document.getElementById('modalList').innerHTML = block.items.map(item => `
+        <li><a href="${item.url}" target="_blank" rel="noopener">${item.name}</a></li>
     `).join('');
-
     modal.hidden = false;
 };
 
-// НАВИГАЦИЯ МЕЖДУ ЭКРАНАМИ
-function setupNavigation() {
-    const navButtons = document.querySelectorAll('.nav-item');
+function initNavigation() {
+    const buttons = document.querySelectorAll('.nav-item');
     const screens = document.querySelectorAll('.tab-content');
 
-    navButtons.forEach(button => {
-        button.onclick = () => {
-            const targetScreenId = button.getAttribute('data-screen');
+    buttons.forEach(btn => {
+        btn.onclick = () => {
+            const screenId = btn.getAttribute('data-screen');
             
-            // Смена активной кнопки
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
+            buttons.forEach(b => b.classList.remove('active'));
+            screens.forEach(s => s.classList.remove('active'));
             
-            // Смена экрана
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-                if (screen.id === `screen-${targetScreenId}`) {
-                    screen.classList.add('active');
-                }
-            });
-            
-            // Закрываем модалку при переходе, если она была открыта
+            btn.classList.add('active');
+            document.getElementById(`screen-${screenId}`).classList.add('active');
             document.getElementById('modal').hidden = true;
         };
     });
 }
 
-// РАБОТА С ГРАФИКАМИ
-function setupChartsHandler() {
-    const showWorkBtn = document.getElementById('showScheduleBtn');
-    const scheduleContainer = document.getElementById('schedule-container');
-    const chartsInitBox = document.getElementById('charts-init');
-    const backBtn = document.getElementById('backToCharts');
+function initCharts() {
+    const showBtn = document.getElementById('showScheduleBtn');
+    const container = document.getElementById('schedule-container');
+    const initBox = document.getElementById('charts-init');
 
-    if (showWorkBtn) {
-        showWorkBtn.onclick = async () => {
-            try {
-                const response = await fetch('./data/schedule.json');
-                const data = await response.json();
-                
-                renderWorkSchedule(data);
-                
-                chartsInitBox.hidden = true;
-                scheduleContainer.hidden = false;
-            } catch (err) {
-                alert("Не удалось загрузить график работы.");
-            }
+    if (showBtn) {
+        showBtn.onclick = async () => {
+            const res = await fetch('./data/schedule.json');
+            const data = await res.json();
+            
+            const table = document.getElementById('work-schedule');
+            document.getElementById('tableMonthTitle').innerText = data.month;
+            
+            let html = `<thead><tr><th style="position:sticky;left:0;background:var(--panel-color);z-index:2">ФИО</th>`;
+            for(let i=1; i<=data.daysInMonth; i++) html += `<th>${i}</th>`;
+            html += `</tr></thead><tbody>`;
+
+            data.employees.forEach(emp => {
+                html += `<tr><td style="position:sticky;left:0;background:var(--panel-color);font-weight:700">${emp.name}</td>`;
+                emp.days.forEach(d => html += `<td>${d || ''}</td>`);
+                html += `</tr>`;
+            });
+            table.innerHTML = html + `</tbody>`;
+            
+            initBox.hidden = true;
+            container.hidden = false;
         };
     }
 
-    if (backBtn) {
-        backBtn.onclick = () => {
-            scheduleContainer.hidden = true;
-            chartsInitBox.hidden = false;
-            // Убираем фокус со всей таблицы при возврате
-            document.getElementById('work-schedule').classList.remove('has-focus');
-        };
-    }
-}
-
-// ОТРИСОВКА ТАБЛИЦЫ ГРАФИКА
-function renderWorkSchedule(data) {
-    const table = document.getElementById('work-schedule');
-    const monthTitle = document.getElementById('tableMonthTitle');
-    
-    if (!table || !monthTitle) return;
-
-    monthTitle.innerText = data.month;
-
-    // Шапка таблицы
-    let tableHtml = `<thead><tr><th class="name-col">ФИО сотрудника</th>`;
-    for (let i = 1; i <= data.daysInMonth; i++) {
-        tableHtml += `<th>${i}</th>`;
-    }
-    tableHtml += `</tr></thead><tbody>`;
-
-    // Тело таблицы
-    data.employees.forEach(emp => {
-        tableHtml += `<tr onclick="toggleEmployeeFocus(this)">
-            <td class="name-col">${emp.name}</td>`;
-        
-        emp.days.forEach(dayStatus => {
-            let statusClass = "";
-            switch (dayStatus) {
-                case "12/19": statusClass = "cell-1219"; break;
-                case "12/02": statusClass = "cell-1202"; break;
-                case "ОТП":   statusClass = "cell-otp"; break;
-                case "УЧ":    statusClass = "cell-edu"; break;
-            }
-            tableHtml += `<td class="${statusClass}">${dayStatus || ""}</td>`;
-        });
-        tableHtml += `</tr>`;
-    });
-
-    tableHtml += `</tbody>`;
-    table.innerHTML = tableHtml;
-}
-
-// ФУНКЦИЯ ФОКУСИРОВКИ НА СОТРУДНИКЕ (БЛЮР ОСТАЛЬНЫХ)
-window.toggleEmployeeFocus = (rowElement) => {
-    const tableElement = document.getElementById('work-schedule');
-    const isAlreadyFocused = rowElement.classList.contains('focused-row');
-    
-    // Снимаем фокус со всех строк
-    document.querySelectorAll('#work-schedule tr').forEach(row => {
-        row.classList.remove('focused-row');
-    });
-    
-    if (!isAlreadyFocused) {
-        // Устанавливаем фокус
-        tableElement.classList.add('has-focus');
-        rowElement.classList.add('focused-row');
-    } else {
-        // Если кликнули по уже выбранному — снимаем общий блюр
-        tableElement.classList.remove('has-focus');
-    }
-};
-
-// ПЕРЕКЛЮЧЕНИЕ ТЕМЫ
-function setupThemeHandler() {
-    const themeBtn = document.getElementById('themeToggle');
-    if (!themeBtn) return;
-
-    themeBtn.onclick = () => {
-        const root = document.documentElement;
-        const currentTheme = root.getAttribute('data-theme');
-        const nextTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
-        root.setAttribute('data-theme', nextTheme);
-        localStorage.setItem('theme', nextTheme);
+    document.getElementById('backToCharts').onclick = () => {
+        container.hidden = true;
+        initBox.hidden = false;
     };
 }
 
-// СОБЫТИЯ МОДАЛКИ
-function setupModalEvents() {
-    const modal = document.getElementById('modal');
-    const closeBtn = document.getElementById('modalClose');
-    const backdrop = document.getElementById('modalBackdrop');
-
-    const closeModal = () => { modal.hidden = true; };
-
-    if (closeBtn) closeBtn.onclick = closeModal;
-    if (backdrop) backdrop.onclick = closeModal;
+function initTheme() {
+    document.getElementById('themeToggle').onclick = () => {
+        const html = document.documentElement;
+        const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        html.setAttribute('data-theme', next);
+        localStorage.setItem('theme', next);
+    };
 }
 
-// ЗАПУСК
-document.addEventListener('DOMContentLoaded', init);
+function initModalActions() {
+    const close = () => document.getElementById('modal').hidden = true;
+    document.getElementById('modalClose').onclick = close;
+    document.getElementById('modalBackdrop').onclick = close;
+}
+
+window.onload = startApp;
