@@ -1,91 +1,79 @@
-/* Настройка тем (цвета, фоны, тени) */
 :root[data-theme="light"] {
-  --bg-color: #7ca8d2;
-  --panel-color: rgba(255, 255, 255, 0.95);
-  --primary-color: #24a1de;
-  --text-main: #222222;
-  --text-muted: #707579;
-  --link-color: #24a1de;
-  --modal-title-color: #1a1a1a;
-  --header-text: #f0f7ff; 
-  --support-bg: #f1f3f5;
-  --support-text: #4a5568;
+  /* Новая мягкая светлая палитра */
+  --bg-color: #f2f5f9;
+  --bg-pattern: rgba(74, 144, 226, 0.05);
+  --panel-color: rgba(255, 255, 255, 0.85);
+  --primary-color: #4a90e2;
+  --text-main: #2c3e50;
+  --text-muted: #7f8c8d;
+  --link-color: #3498db;
+  --header-text: #2c3e50;
   --modal-bg: #ffffff;
-  --item-border: #f1f1f1;
-  /* Для навигации */
-  --nav-bg: rgba(255, 255, 255, 0.85);
-  --nav-item-active: #24a1de;
-  --nav-item-inactive: #8e8e93;
+  --item-border: #f1f4f8;
+  --nav-bg: rgba(255, 255, 255, 0.9);
+  --nav-item-active: #4a90e2;
+  --nav-item-inactive: #a0aec0;
+  --shadow: 0 10px 30px rgba(163, 177, 198, 0.3);
 }
 
 :root[data-theme="dark"] {
   --bg-color: #0e1621;
-  --panel-color: #1a2533; /* Чуть светлее фона body */
+  --bg-pattern: rgba(255, 255, 255, 0.03);
+  --panel-color: #1a2533;
   --primary-color: #2b5278;
   --text-main: #ffffff;
   --text-muted: #a8b6c4;
   --link-color: #6fb6f6;
-  --modal-title-color: #e4ecf2;
   --header-text: #d4e3f0;
-  --support-bg: #242f3d;
-  --support-text: #a8b6c4;
   --modal-bg: #1c2733;
   --item-border: #2b3745;
-  /* Для навигации */
-  --nav-bg: rgba(20, 30, 42, 0.85); /* Glass-effect */
+  --nav-bg: rgba(20, 30, 42, 0.85);
   --nav-item-active: #6fb6f6;
   --nav-item-inactive: #7f91a4;
+  --shadow: 0 15px 40px rgba(0,0,0,0.4);
 }
 
-/* Общие стили */
 * {
   box-sizing: border-box;
-  -webkit-tap-highlight-color: transparent; /* Убирает вспышку на iOS */
+  -webkit-tap-highlight-color: transparent;
   margin: 0;
   padding: 0;
 }
 
 body {
-  font-family: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "SF Pro Rounded", -apple-system, sans-serif;
   background-color: var(--bg-color);
-  
-  /* Фоновый паттерн электроники (SVG) */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80' stroke-width='0.5' stroke='%23ffffff' fill='none' fill-opacity='0.03'%3E%3Cpath d='M10 10h5a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2zM30 10l5 5h10l5-5h5a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-30a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2zM10 30h2l5 5h10M40 40a5 5 0 1 1 0-10 5 5 0 0 1 0 10zM60 60h5v5h-5z'/%3E%3C/svg%3E");
-  background-attachment: fixed;
-  background-size: 100px 100px;
-  
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  
-  /* Исправление вертикального съезда: Контейнер body становится Flex */
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  /* Фоновый рисунок */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80' stroke-width='0.5' stroke='%234a90e2' fill='none' fill-opacity='0.1'%3E%3Cpath d='M10 10h5v5h-5zM30 10h10v10H30zM55 10a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM10 30l5 5h10M40 40a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");
+  background-attachment: fixed;
 }
 
-/* Главный контейнер приложения */
+[data-theme="dark"] body {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80' stroke-width='0.5' stroke='%23ffffff' fill='none' fill-opacity='0.03'%3E%3Cpath d='M10 10h5v5h-5zM30 10h10v10H30zM55 10a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM10 30l5 5h10M40 40a5 5 0 1 1 0-10 5 5 0 0 1 0 10z'/%3E%3C/svg%3E");
+}
+
 .app {
-  flex: 1; /* Занимает все пространство */
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* ЦЕНТРИРОВАНИЕ ВСЕГО ПО ВЕРТИКАЛИ */
-  
-  /* Отступ под нижнюю панель */
-  padding-bottom: calc(85px + env(safe-area-inset-bottom, 10px));
+  justify-content: center;
+  /* Резервируем место под нижнюю панель */
+  padding-bottom: calc(90px + env(safe-area-inset-bottom, 20px));
 }
 
-/* Шапка страницы */
 .header {
   text-align: center;
-  /* ИСПРАВЛЕНИЕ: Учет Safe Area iOS сверху, чтобы не накладывалось на время */
-  padding: calc(30px + env(safe-area-inset-top, 20px)) 20px 20px;
+  padding: calc(40px + env(safe-area-inset-top, 20px)) 20px 30px;
 }
 
 .header-top {
   position: absolute;
-  /* Учет Safe Area для переключателя */
   top: calc(10px + env(safe-area-inset-top, 0px));
   right: 16px;
-  z-index: 10;
 }
 
 .theme-toggle {
@@ -94,7 +82,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: var(--shadow);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -105,62 +93,52 @@ body {
 [data-theme="light"] .moon-icon { display: none; }
 [data-theme="dark"] .sun-icon { display: none; }
 
-.title { 
-  font-size: 32px; 
-  font-weight: 800; 
+.title {
+  font-size: 32px;
+  font-weight: 800;
   color: var(--header-text);
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
 
-.subtitle { 
-  font-size: 19px; 
-  color: var(--header-text); 
-  opacity: 0.85;
+.subtitle {
+  font-size: 19px;
+  color: var(--header-text);
+  opacity: 0.7;
   font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-/* Стилизация экранов вкладок */
-.main {
-  width: 100%;
 }
 
 .tab-content {
-  display: none; /* Скрыты по умолчанию */
+  display: none;
   padding: 0 20px;
 }
 
 .tab-content.active {
-  display: block; /* Показ активного */
-  animation: fadeIn 0.35s ease;
+  display: block;
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Анимация переключения экранов */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(15px); }
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Панель с блоками */
 .panel {
   max-width: 500px;
   margin: 0 auto;
-  padding: 26px;
+  padding: 24px;
   background: var(--panel-color);
-  border-radius: 30px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.3);
-  backdrop-filter: blur(20px);
+  border-radius: 35px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* Сетка кнопок (Блок 1, Блок 2...) */
 .blocks {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 
-/* Стили кнопок блоков (дизайн из скриншота, округленные и жирные) */
 button[type="button"]:not(.theme-toggle, .modal-close) {
   padding: 24px 14px;
   font-size: 16px;
@@ -168,135 +146,128 @@ button[type="button"]:not(.theme-toggle, .modal-close) {
   color: #fff;
   background: var(--primary-color);
   border: none;
-  border-radius: 18px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  font-family: inherit; /* Чтобы rounded шрифт наследовался */
+  border-radius: 22px;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 button[type="button"]:active {
   transform: scale(0.95);
-  opacity: 0.9;
 }
 
-/* Разделительная линия и кнопка поддержки */
-.support-area {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--item-border);
+/* Экран поддержки */
+.support-page {
   text-align: center;
+  padding: 20px 10px;
 }
 
-.support-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  max-width: 300px;
-  padding: 16px 20px;
-  background: var(--support-bg);
+.support-large-icon {
+  font-size: 64px;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.support-page h3 {
+  font-size: 24px;
+  margin-bottom: 12px;
   color: var(--text-main);
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 700;
-  border-radius: 16px;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(128,128,128,0.1);
 }
 
-.support-btn:active {
-  transform: scale(0.97);
+.support-page p {
+  color: var(--text-muted);
+  margin-bottom: 30px;
+  line-height: 1.5;
+  font-size: 16px;
+}
+
+.support-action-btn {
+  display: block;
   background: var(--primary-color);
   color: #fff;
+  text-decoration: none;
+  padding: 20px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
 }
 
-.support-icon { font-size: 20px; }
-
-/* Пустые экраны (заглушки) */
 .empty-state {
   text-align: center;
-  padding: 50px 20px;
+  padding: 60px 20px;
   color: var(--text-muted);
 }
 
 .empty-icon {
   font-size: 70px;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   display: block;
+  opacity: 0.4;
 }
 
-/* НИЖНЯЯ ПАНЕЛЬ НАВИГАЦИИ (Дизайн "в тему" приложения) */
+/* НИЖНЯЯ ПАНЕЛЬ */
 .bottom-nav {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: 85px; /* Высота самой панели */
-  
+  height: 85px;
   background: var(--nav-bg);
-  backdrop-filter: blur(15px); /* Эффект стекла */
-  
+  backdrop-filter: blur(20px);
   display: flex;
   justify-content: space-around;
-  align-items: center;
-  
-  /* Учет Safe Area iOS снизу (динамический отступ) */
-  padding-bottom: env(safe-area-inset-bottom, 10px); 
-  
-  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: env(safe-area-inset-bottom, 15px);
+  border-top: 1px solid rgba(128,128,128,0.08);
   z-index: 1000;
-  box-shadow: 0 -5px 25px rgba(0,0,0,0.2);
+  box-shadow: 0 -5px 25px rgba(0,0,0,0.05);
 }
 
-/* Элемент навигации */
 .nav-item {
   background: none;
   border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   color: var(--nav-item-inactive);
-  flex: 1; /* Одинаковая ширина */
-  transition: all 0.25s ease;
-  cursor: pointer;
-  height: 100%; /* Занимает всю высоту */
-  justify-content: center; /* Центр */
+  flex: 1;
+  transition: 0.3s ease;
 }
 
-/* Активное состояние (ярко-голубое) */
 .nav-item.active {
   color: var(--nav-item-active);
 }
 
-/* Иконка в навигации */
 .nav-icon {
-  font-size: 26px; /* Чуть крупнее */
-  margin-bottom: 5px;
+  font-size: 24px;
+  margin-bottom: 4px;
 }
 
-/* Подпись под иконкой */
 .nav-label {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.2px;
+  font-size: 11px;
+  font-weight: 700;
 }
 
-/* Модальное окно */
+/* МОДАЛЬНОЕ ОКНО */
 .modal { position: fixed; inset: 0; z-index: 1100; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .modal[hidden] { display: none !important; }
-.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); }
-.modal-content { position: relative; width: 100%; max-width: 450px; background: var(--modal-bg); border-radius: 30px; box-shadow: 0 25px 60px rgba(0,0,0,0.4); animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); overflow: hidden; }
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); }
+.modal-content { 
+  position: relative; width: 100%; max-width: 450px; 
+  background: var(--modal-bg); border-radius: 35px; 
+  box-shadow: 0 30px 60px rgba(0,0,0,0.25); 
+  animation: popUp 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28);
+  overflow: hidden; 
+}
 
-@keyframes popIn {
-  from { transform: scale(0.85); opacity: 0; }
+@keyframes popUp {
+  from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
-.modal-head { padding: 24px 20px 14px; display: flex; justify-content: space-between; align-items: center; }
-.modal-title { font-size: 22px; font-weight: 800; margin: 0; flex-grow: 1; text-align: center; color: var(--modal-title-color); }
-.modal-close { background: rgba(128,128,128,0.15); border: none; width: 34px; height: 34px; border-radius: 50%; color: var(--text-muted); font-weight: bold; cursor: pointer; }
-.modal-body { max-height: 65vh; overflow-y: auto; padding-bottom: 16px; }
-.modal-list { list-style: none; margin: 0; padding: 0; }
-.modal-list li { padding: 18px 24px; border-bottom: 1px solid var(--item-border); }
-.modal-list a { text-decoration: none; color: var(--link-color); font-weight: 600; font-size: 17px; display: block; line-height: 1.4; }
-.modal-list a:active { opacity: 0.5; }
-.phantom { width: 34px; }
+.modal-head { padding: 25px 20px 15px; display: flex; justify-content: space-between; align-items: center; }
+.modal-title { font-size: 22px; font-weight: 800; color: var(--text-main); text-align: center; flex: 1; }
+.modal-close { background: var(--bg-color); border: none; width: 38px; height: 38px; border-radius: 50%; color: var(--text-muted); font-size: 18px; cursor: pointer; }
+.modal-body { max-height: 60vh; overflow-y: auto; padding-bottom: 20px; }
+.modal-list { list-style: none; }
+.modal-list li { padding: 20px 24px; border-bottom: 1px solid var(--item-border); }
+.modal-list a { text-decoration: none; color: var(--link-color); font-weight: 700; font-size: 17px; display: block; }
+.phantom { width: 38px; }

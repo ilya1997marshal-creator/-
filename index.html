@@ -10,13 +10,13 @@
   
   <title>База данных ЦТАИ АСУ ТП</title>
   
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=17">
-  <link rel="icon" type="image/png" href="apple-touch-icon.png?v=17">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=18">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png?v=18">
   
-  <link rel="stylesheet" href="styles.css?v=17">
-  
+  <link rel="stylesheet" href="styles.css?v=18">
   <script>
-    const savedTheme = localStorage.getItem('theme') || 'dark'; // По умолчанию темная
+    // Предотвращение вспышки темы при загрузке
+    const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
 </head>
@@ -24,7 +24,7 @@
   <div class="app">
     <header class="header">
       <div class="header-top">
-        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Смена темы">
+        <button type="button" id="themeToggle" class="theme-toggle" aria-label="Сменить тему">
           <span class="sun-icon">☀️</span>
           <span class="moon-icon">🌙</span>
         </button>
@@ -39,21 +39,15 @@
       <section id="screen-main" class="tab-content active">
         <div class="panel">
           <nav class="blocks" id="tabs-main"></nav>
-          
-          <div class="support-area">
-            <a href="mailto:i.rygih@mail.ru?subject=Поддержка: База ЦТАИ&body=Здравствуйте! У меня возникла проблема / есть предложение: %0D%0A%0D%0A" class="support-btn">
-              <span class="support-icon">✉️</span> Написать в поддержку
-            </a>
-          </div>
         </div>
       </section>
 
       <section id="screen-charts" class="tab-content">
         <div class="panel">
           <div class="empty-state">
-            <span class="empty-icon">📊</span>
+            <span class="empty-icon">📈</span>
             <h3>Графики</h3>
-            <p>В этом разделе будут размещены графики смен, отпусков и обучения.</p>
+            <p>Здесь скоро появятся графики смен, отпусков и планы обучения персонала.</p>
           </div>
         </div>
       </section>
@@ -61,26 +55,43 @@
       <section id="screen-edu" class="tab-content">
         <div class="panel">
           <div class="empty-state">
-            <span class="empty-icon">🎓</span>
+            <span class="empty-icon">👨‍🎓</span>
             <h3>Обучение</h3>
-            <p>Здесь будут тесты по охране труда, ПТЭ и другие обучающие материалы.</p>
+            <p>Раздел в разработке: здесь будут тесты по охране труда и ПТЭ.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-support" class="tab-content">
+        <div class="panel">
+          <div class="support-page">
+            <span class="support-large-icon">✉️</span>
+            <h3>Поддержка</h3>
+            <p>Есть идеи по улучшению базы или нашли ошибку? Напишите разработчику напрямую.</p>
+            <a href="mailto:i.rygih@mail.ru?subject=База ЦТАИ: Поддержка" class="support-action-btn">
+              Написать письмо
+            </a>
           </div>
         </div>
       </section>
     </main>
 
     <nav class="bottom-nav">
-      <button class="nav-item active" data-screen="main" aria-label="Главная">
+      <button class="nav-item active" data-screen="main">
         <span class="nav-icon">🏠</span>
         <span class="nav-label">Главная</span>
       </button>
-      <button class="nav-item" data-screen="charts" aria-label="Графики">
+      <button class="nav-item" data-screen="charts">
         <span class="nav-icon">📈</span>
         <span class="nav-label">Графики</span>
       </button>
-      <button class="nav-item" data-screen="edu" aria-label="Обучение">
-        <span class="nav-icon">👨‍🎓</span>
-        <span class="nav-label">Обучение</span>
+      <button class="nav-item" data-screen="edu">
+        <span class="nav-icon">🎓</span>
+        <span class="nav-label">Тесты</span>
+      </button>
+      <button class="nav-item" data-screen="support">
+        <span class="nav-icon">💬</span>
+        <span class="nav-label">Помощь</span>
       </button>
     </nav>
   </div>
@@ -89,7 +100,8 @@
     <div class="modal-backdrop" id="modalBackdrop"></div>
     <div class="modal-content">
       <div class="modal-head">
-        <div class="phantom"></div> <h2 id="modalTitle" class="modal-title"></h2>
+        <div class="phantom"></div>
+        <h2 id="modalTitle" class="modal-title"></h2>
         <button type="button" class="modal-close" id="modalClose">✕</button>
       </div>
       <div class="modal-body">
@@ -98,6 +110,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=17"></script>
+  <script src="app.js?v=18"></script>
 </body>
 </html>

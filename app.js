@@ -14,20 +14,20 @@
 
   let data = null;
 
-  // ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК (BOTTOM NAV)
+  // ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ЭКРАНОВ
   navButtons.forEach(btn => {
     btn.onclick = () => {
       const screenId = btn.getAttribute("data-screen");
 
-      // Сброс активных классов (на кнопках и экранах)
+      // Убираем активное состояние у всех кнопок и экранов
       navButtons.forEach(b => b.classList.remove("active"));
       screens.forEach(s => s.classList.remove("active"));
 
-      // Активация выбранной вкладки
+      // Добавляем активное состояние текущей кнопке и экрану
       btn.classList.add("active");
       document.getElementById(`screen-${screenId}`).classList.add("active");
 
-      // Динамическая смена заголовка страницы
+      // Обновление заголовков в зависимости от выбранной вкладки
       switch(screenId) {
         case 'main':
           pageTitle.textContent = "База данных";
@@ -41,11 +41,15 @@
           pageTitle.textContent = "Обучение";
           pageSubtitle.textContent = "Тесты и ПТЭ";
           break;
+        case 'support':
+          pageTitle.textContent = "Помощь";
+          pageSubtitle.textContent = "Обратная связь";
+          break;
       }
     };
   });
 
-  // Управление темой
+  // ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ
   themeToggle.onclick = () => {
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
@@ -53,21 +57,21 @@
     localStorage.setItem('theme', newTheme);
   };
 
-  // Логика PDF: открытие через Google Docs Viewer (для обхода ограничений GitHub)
+  // ФУНКЦИЯ ОТКРЫТИЯ PDF
   function openPdf(url) {
     const absoluteUrl = new URL(url, window.location.href).href;
     const googleViewer = "https://docs.google.com/viewer?url=" + encodeURIComponent(absoluteUrl);
     window.open(googleViewer, '_blank');
   }
 
-  // Модальное окно (Показ PDF списка категории)
+  // ПОКАЗ КАТЕГОРИИ В МОДАЛЬНОМ ОКНЕ
   function showCategory(category) {
     const items = (data.items || []).filter(i => i.categoryId === category.id);
     modalTitle.textContent = category.title;
-    modalList.innerHTML = ""; // Очистка старого
+    modalList.innerHTML = ""; // Очистка старого контента
 
     if (items.length === 0) {
-      modalList.innerHTML = `<li style="text-align:center; padding: 25px; color: var(--text-muted); font-weight:500;">Файлов пока нет</li>`;
+      modalList.innerHTML = `<li style="text-align:center; padding: 25px; color: var(--text-muted);">Файлов пока нет</li>`;
     } else {
       items.forEach(item => {
         const li = document.createElement("li");
@@ -85,25 +89,24 @@
     modal.hidden = false;
   }
 
-  // Закрытие модального окна
+  // ЗАКРЫТИЕ МОДАЛКИ
   modalClose.onclick = () => modal.hidden = true;
   modalBackdrop.onclick = () => modal.hidden = true;
 
-  // ЗАГРУЗКА ДАННЫХ
+  // ЗАГРУЗКА ДАННЫХ ИЗ JSON
   fetch("data/instructions.json")
     .then(r => r.json())
     .then(json => {
       data = json;
-      tabsMain.innerHTML = ""; // Очистка (защита от дублей)
+      tabsMain.innerHTML = ""; 
       
-      // Генерация кнопок категорий
       data.categories.forEach(cat => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = cat.title;
-        btn.onclick = () => showCategory(cat); // Привязка открытия модалки
+        btn.onclick = () => showCategory(cat);
         tabsMain.appendChild(btn);
       });
     })
-    .catch(err => console.error("Ошибка загрузки данных:", err));
+    .catch(err => console.error("Ошибка при получении данных:", err));
 })();
