@@ -43,9 +43,12 @@ body {
   margin: 0;
   font-family: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-color);
-  /* НОВЫЙ ФОНОВЫЙ ПАТТЕРН ЭЛЕКТРОНИКИ (SVG) */
-  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M10 10h5v5h-5zM30 10h10v10H30zM55 10a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM80 10h5v2h-5zM10 30h2v5h-2zM35 30h5v10h-5zM60 35a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM85 30h5v5h-5zM15 55h10v5H15zM40 55h5v2h-5zM60 55a5 5 0 1 1 0-10 5 5 0 0 1 0 10zM85 55h5v5h-5zM10 80h5v5h-5zM30 80h10v10H30zM60 80h2v5h-2zM80 80a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM0 0h5v1H0zM20 0h1v5H20zM45 0h5v5h-5zM70 0h10v1H70zM95 0h5v5h-5z'/%3E%3Cpath d='M0 20h1v10H0zM25 25h10v1H25zM50 20h5v5h-5zM75 25h2v5h-2zM0 50h5v5H0zM20 45h5v10h-5zM45 50h1v5h-1zM70 45h10v10H70zM95 50h1v1H95zM0 75h1v10H0zM25 70h5v10h-5zM50 75h1v5h-1zM75 75h5v1H75zM0 95h5v1H0zM20 95h1v5H20zM45 95h5v5h-5zM70 95h10v1H70zM95 95h5v5h-5z'/%3E%3C/g%3E%3C/svg%3E");
+  
+  /* НОВЫЙ ДЕТАЛИЗИРОВАННЫЙ ФОН: АВТОМАТИКА АСУ ТП (SVG) */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 800 1200' preserveAspectRatio='xMidYMid slice'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3C!-- ПЛК Siemens-style --%3E%3Crect x='100' y='100' width='150' height='200' rx='5'/%3E%3Crect x='110' y='120' width='30' height='10' rx='2'/%3E%3Crect x='110' y='140' width='30' height='10' rx='2'/%3E%3Crect x='110' y='160' width='30' height='10' rx='2'/%3E%3Crect x='160' y='120' width='70' height='160' rx='2'/%3E%3C!-- Датчик давления --%3E%3Ccircle cx='400' cy='300' r='60'/%3E%3Crect x='390' y='360' width='20' height='100'/%3E%3Cpath d='M360 460h80l-40 40z'/%3E%3Cpath d='M360 300a40 40 0 0 1 80 0' stroke='%23ffffff' stroke-width='4' fill='none'/%3E%3Crect x='398' y='270' width='4' height='40' transform='rotate(45 400 300)'/%3E%3C!-- Микросхема --%3E%3Crect x='600' y='150' width='120' height='120' rx='10'/%3E%3Crect x='580' y='170' width='20' height='10'/%3E%3Crect x='580' y='190' width='20' height='10'/%3E%3Crect x='580' y='210' width='20' height='10'/%3E%3Crect x='580' y='230' width='20' height='10'/%3E%3Crect x='720' y='170' width='20' height='10'/%3E%3Crect x='720' y='190' width='20' height='10'/%3E%3Crect x='720' y='210' width='20' height='10'/%3E%3Crect x='720' y='230' width='20' height='10'/%3E%3Crect x='620' y='130' width='10' height='20'/%3E%3Crect x='640' y='130' width='10' height='20'/%3E%3Crect x='660' y='130' width='10' height='20'/%3E%3Crect x='680' y='130' width='10' height='20'/%3E%3Crect x='620' y='270' width='10' height='20'/%3E%3Crect x='640' y='270' width='10' height='20'/%3E%3Crect x='660' y='270' width='10' height='20'/%3E%3Crect x='680' y='270' width='10' height='20'/%3E%3C!-- Компоненты автоматики --%3E%3Crect x='50' y='500' width='80' height='120' rx='5'/%3E%3Ccircle cx='90' cy='540' r='15'/%3E%3Crect x='70' y='570' width='40' height='40'/%3E%3Crect x='200' y='550' width='120' height='80' rx='5'/%3E%3Crect x='220' y='570' width='80' height='10'/%3E%3Crect x='220' y='590' width='80' height='10'/%3E%3Crect x='450' y='600' width='250' height='100' rx='5'/%3E%3Crect x='470' y='620' width='10' height='60'/%3E%3Crect x='490' y='620' width='10' height='60'/%3E%3Crect x='510' y='620' width='10' height='60'/%3E%3Crect x='530' y='620' width='10' height='60'/%3E%3Crect x='550' y='620' width='10' height='60'/%3E%3C!-- Печатная плата --%3E%3Crect x='150' y='750' width='500' height='300' rx='10'/%3E%3Ccircle cx='200' cy='800' r='10'/%3E%3Ccircle cx='200' cy='850' r='10'/%3E%3Ccircle cx='200' cy='900' r='10'/%3E%3Ccircle cx='200' cy='950' r='10'/%3E%3Ccircle cx='600' cy='800' r='10'/%3E%3Ccircle cx='600' cy='850' r='10'/%3E%3Ccircle cx='600' cy='900' r='10'/%3E%3Ccircle cx='600' cy='950' r='10'/%3E%3Cpath d='M200 800h400M200 850h400M200 900h400M200 950h400' stroke='%23ffffff' stroke-width='2' fill='none'/%3E%3Crect x='300' y='820' width='200' height='160' rx='5'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
+  background-position: center;
+  background-size: cover; /* Изображение растягивается на весь экран */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -92,7 +95,7 @@ body {
   font-weight: 800; 
   color: var(--header-text);
   letter-spacing: -0.5px;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+  text-shadow: 0 2px 10px rgba(0,0,0,0.15); /* Тень для лучшей читаемости */
 }
 
 .subtitle { 
@@ -102,6 +105,7 @@ body {
   opacity: 0.8;
   font-weight: 600;
   letter-spacing: 0.5px;
+  text-shadow: 0 1px 5px rgba(0,0,0,0.1);
 }
 
 .main { padding: 0 20px; width: 100%; }
@@ -248,5 +252,3 @@ button[type="button"]:active { transform: scale(0.95); opacity: 0.9; }
   font-size: 17px;
   display: block;
 }
-
-.modal-list a:active { opacity: 0.5; }
