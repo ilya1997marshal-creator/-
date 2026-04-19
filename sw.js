@@ -1,18 +1,34 @@
-const CACHE_NAME = 'ctai-base-v37';
+const CACHE_NAME = 'ctai-base-v38';
 const assets = [
-  './', './index.html', './styles.css', './app.js', './manifest.json',
-  './data/instructions.json', './apple-touch-icon.png', './pattern.png'
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './manifest.json',
+  './data/instructions.json',
+  './apple-touch-icon.png',
+  './pattern.png'
 ];
 
-self.addEventListener('install', (e) => {
+self.addEventListener('install', (event) => {
   self.skipWaiting();
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(assets)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(assets))
+  );
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))
+      );
+    })
+  );
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => response || fetch(event.request))
+  );
 });
