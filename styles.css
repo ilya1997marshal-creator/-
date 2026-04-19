@@ -7,8 +7,8 @@
   --link-color: #24a1de;
   --modal-title-color: #1a1a1a;
   --header-text: #f0f7ff; 
-  --support-bg: #f8f9fa;
-  --support-text: #505050;
+  --support-bg: #f1f3f5;
+  --support-text: #4a5568;
   --shadow-main: 0 10px 25px rgba(0,0,0,0.1);
   --radius-main: 28px;
   --radius-sm: 18px;
@@ -43,7 +43,8 @@ body {
   margin: 0;
   font-family: "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--bg-color);
-  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M50 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zM10 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zM30 50c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10zM70 10c0-5.523 4.477-10 10-10s10 4.477 10 10-4.477 10-10 10-10-4.477-10-10z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  /* НОВЫЙ ФОНОВЫЙ ПАТТЕРН ЭЛЕКТРОНИКИ (SVG) */
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M10 10h5v5h-5zM30 10h10v10H30zM55 10a5 5 0 1 0 0-10 5 5 0 0 0 0 10zM80 10h5v2h-5zM10 30h2v5h-2zM35 30h5v10h-5zM60 35a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM85 30h5v5h-5zM15 55h10v5H15zM40 55h5v2h-5zM60 55a5 5 0 1 1 0-10 5 5 0 0 1 0 10zM85 55h5v5h-5zM10 80h5v5h-5zM30 80h10v10H30zM60 80h2v5h-2zM80 80a2 2 0 1 1 0-4 2 2 0 0 1 0 4zM0 0h5v1H0zM20 0h1v5H20zM45 0h5v5h-5zM70 0h10v1H70zM95 0h5v5h-5z'/%3E%3Cpath d='M0 20h1v10H0zM25 25h10v1H25zM50 20h5v5h-5zM75 25h2v5h-2zM0 50h5v5H0zM20 45h5v10h-5zM45 50h1v5h-1zM70 45h10v10H70zM95 50h1v1H95zM0 75h1v10H0zM25 70h5v10h-5zM50 75h1v5h-1zM75 75h5v1H75zM0 95h5v1H0zM20 95h1v5H20zM45 95h5v5h-5zM70 95h10v1H70zM95 95h5v5h-5z'/%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
   min-height: 100vh;
   display: flex;
