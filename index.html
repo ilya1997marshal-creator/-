@@ -12,16 +12,15 @@
   
   <title>База данных ЦТАИ АСУ ТП</title>
   
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=27">
-  <link rel="icon" type="image/png" href="apple-touch-icon.png?v=27">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=28">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png?v=28">
   
-  <link rel="stylesheet" href="styles.css?v=27">
+  <link rel="stylesheet" href="styles.css?v=28">
   
   <script>
     const savedTheme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', savedTheme);
 
-    // Регистрация Service Worker для работы офлайн
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -125,6 +124,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=27"></script>
+  <script src="app.js?v=28"></script>
 </body>
 </html>

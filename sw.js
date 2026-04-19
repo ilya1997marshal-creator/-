@@ -1,5 +1,4 @@
-const CACHE_NAME = 'ctai-base-v1';
-// Список файлов для сохранения (добавь свои, если есть еще)
+const CACHE_NAME = 'ctai-base-v28'; // Увеличил версию
 const assets = [
   './',
   './index.html',
@@ -10,8 +9,8 @@ const assets = [
   './apple-touch-icon.png'
 ];
 
-// Установка: скачиваем файлы в кэш
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(assets);
@@ -19,7 +18,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Активация: чистим старый кэш
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -30,7 +28,6 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Запрос: сначала берем из кэша, если нет — идем в сеть
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
