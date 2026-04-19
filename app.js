@@ -27,10 +27,12 @@
 
   function openPdfViewer(url, title) {
     if (!pdfFrame || !pdfViewer) return;
-    const absolute = new URL(url, window.location.href).href;
+    var pdfAbsolute = new URL(url, window.location.href).href;
+    var viewerUrl = new URL("pdfjs/web/viewer.html", window.location.href);
+    viewerUrl.searchParams.set("file", pdfAbsolute);
+    pdfFrame.src = viewerUrl.href;
     pdfTitle.textContent = title || "Документ";
-    pdfFrame.src = absolute;
-    pdfOpenSafari.href = absolute;
+    pdfOpenSafari.href = pdfAbsolute;
     pdfViewer.hidden = false;
     document.body.style.overflow = "hidden";
   }
