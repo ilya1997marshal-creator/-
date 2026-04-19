@@ -38,35 +38,37 @@
   function openPdfViewer(url, title) {
     if (!pdfFrame || !pdfViewer) return;
     
-    // Формируем прямую ссылку на файл
+    // 1. Прямая ссылка на PDF
     const pdfAbsolute = new URL(url, window.location.href).href;
     
-    // Формируем ссылку на вьюер PDF.js
+    // 2. Ссылка для PDF.js (для ПК и iPhone)
     const viewerUrl = new URL("pdfjs/web/viewer.html", window.location.href);
     viewerUrl.searchParams.set("file", pdfAbsolute);
 
     pdfTitle.textContent = title || "Документ";
     if (pdfOpenSafari) pdfOpenSafari.href = pdfAbsolute;
 
-    // Проверка устройства
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || 
+    // Определяем браузер и устройство
+    const ua = navigator.userAgent;
+    const isYaBrowser = ua.includes("YaBrowser") || ua.includes("YandexSearch");
+    const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) || 
                   (navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches);
 
-    if (isAndroid) {
-      // ПЛАН Б для Android: Открываем ПРЯМУЮ ссылку на файл.
-      // Браузер сам решит: открыть его в Google PDF Viewer или скачать.
+    // СПЕЦИАЛЬНАЯ ЛОГИКА ДЛЯ ЯНДЕКСА И АНДРОИД
+    if (isAndroid || isYaBrowser) {
+      // Открываем файл напрямую. Яндекс предложит либо открыть его внутри, либо скачать.
+      // Это исключает ошибку "пустого экрана" вьюера.
       openInNewTab(pdfAbsolute);
       return;
     }
 
     if (isIOS) {
-      // Для iOS оставляем открытие через вьюер в новой вкладке
       openInNewTab(viewerUrl.href);
       return;
     }
 
-    // Для ПК оставляем встроенный фрейм
+    // Для обычных компьютеров (Chrome/Edge/Firefox на Windows/Mac)
     pdfFrame.src = viewerUrl.href;
     pdfViewer.hidden = false;
     document.body.style.overflow = "hidden";
@@ -80,10 +82,7 @@
   }
 
   function showBlock(category) {
-    const items = (data.items || []).filter(function (i) {
-      return i.categoryId === category.id;
-    });
-
+    const items = (data.items || []).filter(i => i.categoryId === category.id);
     modalTitle.textContent = category.title;
     modalList.innerHTML = "";
 
@@ -93,12 +92,12 @@
       p.textContent = "В этом блоке пока нет PDF.";
       modalList.appendChild(p);
     } else {
-      items.forEach(function (item) {
+      items.forEach(item => {
         const li = document.createElement("li");
         const a = document.createElement("a");
         a.href = item.pdf;
         a.textContent = item.title;
-        a.addEventListener("click", function (e) {
+        a.addEventListener("click", e => {
           e.preventDefault();
           openPdfViewer(item.pdf, item.title);
         });
@@ -112,13 +111,11 @@
   function renderTabs() {
     if (!tabsEl) return;
     tabsEl.innerHTML = "";
-    data.categories.forEach(function (cat) {
+    data.categories.forEach(cat => {
       const btn = document.createElement("button");
       btn.type = "button";
       btn.textContent = cat.title;
-      btn.addEventListener("click", function () {
-        showBlock(cat);
-      });
+      btn.addEventListener("click", () => showBlock(cat));
       tabsEl.appendChild(btn);
     });
   }
@@ -133,12 +130,5 @@
       data = json;
       renderTabs();
     })
-    .catch(err => console.error("Ошибка загрузки данных:", err));
-
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") {
-      if (!pdfViewer.hidden) closePdfViewer();
-      else if (!modal.hidden) closeModal();
-    }
-  });
+    .catch(err => console.error("Ошибка загрузки:", err));
 })();
