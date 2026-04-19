@@ -4,7 +4,8 @@
   --primary-color: #24a1de;
   --text-main: #222222;
   --text-muted: #707579;
-  --link-color: #24a1de; /* Ссылки в светлой теме */
+  --link-color: #24a1de;
+  --modal-title-color: #222222; /* Темный заголовок для светлой темы */
   --shadow-main: 0 10px 25px rgba(0,0,0,0.1);
   --radius-main: 28px;
   --radius-sm: 16px;
@@ -18,7 +19,8 @@
   --primary-color: #2b5278;
   --text-main: #ffffff;
   --text-muted: #7f91a4;
-  --link-color: #6fb6f6; /* Светло-голубой для отличной видимости в темноте */
+  --link-color: #6fb6f6;
+  --modal-title-color: #6fb6f6; /* Светло-голубой заголовок для темной темы */
   --shadow-main: 0 10px 30px rgba(0,0,0,0.5);
   --radius-main: 28px;
   --radius-sm: 16px;
@@ -105,14 +107,13 @@ button[type="button"]:not(.theme-toggle, .modal-close) {
 
 button[type="button"]:active { transform: scale(0.94); }
 
-/* Всплывающее окно (Pop-up) по центру */
 .modal {
   position: fixed;
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: center; /* Центрирование по вертикали */
-  justify-content: center; /* Центрирование по горизонтали */
+  align-items: center;
+  justify-content: center;
   padding: 20px;
 }
 
@@ -148,7 +149,14 @@ button[type="button"]:active { transform: scale(0.94); }
   align-items: center;
 }
 
-.modal-title { font-size: 20px; font-weight: 800; margin: 0; }
+.modal-title { 
+  font-size: 20px; 
+  font-weight: 800; 
+  margin: 0; 
+  flex-grow: 1;
+  text-align: center; /* Центрирование названия блока */
+  color: var(--modal-title-color); /* Специальный цвет для темы */
+}
 
 .modal-close {
   background: rgba(128,128,128,0.1);
@@ -175,7 +183,7 @@ button[type="button"]:active { transform: scale(0.94); }
 
 .modal-list a {
   text-decoration: none;
-  color: var(--link-color); /* Использование яркой переменной */
+  color: var(--link-color);
   font-weight: 600;
   font-size: 16px;
   display: block;
