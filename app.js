@@ -14,7 +14,6 @@
 
   let data = null;
 
-  // Функция для открытия ссылки (надежный метод)
   function openInNewTab(href) {
     const a = document.createElement("a");
     a.href = href;
@@ -39,29 +38,35 @@
   function openPdfViewer(url, title) {
     if (!pdfFrame || !pdfViewer) return;
     
-    // Создаем ПОЛНЫЙ путь к PDF файлу
+    // Формируем прямую ссылку на файл
     const pdfAbsolute = new URL(url, window.location.href).href;
     
-    // Создаем путь к вьюеру
+    // Формируем ссылку на вьюер PDF.js
     const viewerUrl = new URL("pdfjs/web/viewer.html", window.location.href);
-    
-    // Важно: кодируем путь к файлу, чтобы не было проблем со спецсимволами
     viewerUrl.searchParams.set("file", pdfAbsolute);
 
     pdfTitle.textContent = title || "Документ";
-    if (pdfOpenSafari) pdfOpenSafari.href = pdfAbsolute; // Прямая ссылка на файл как запасной вариант
+    if (pdfOpenSafari) pdfOpenSafari.href = pdfAbsolute;
 
-    // Проверка на мобильное устройство
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
-                     || (navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches);
+    // Проверка устройства
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || 
+                  (navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches);
 
-    if (isMobile) {
-      // На Android пробуем открыть через вьюер в новой вкладке
+    if (isAndroid) {
+      // ПЛАН Б для Android: Открываем ПРЯМУЮ ссылку на файл.
+      // Браузер сам решит: открыть его в Google PDF Viewer или скачать.
+      openInNewTab(pdfAbsolute);
+      return;
+    }
+
+    if (isIOS) {
+      // Для iOS оставляем открытие через вьюер в новой вкладке
       openInNewTab(viewerUrl.href);
       return;
     }
 
-    // На ПК
+    // Для ПК оставляем встроенный фрейм
     pdfFrame.src = viewerUrl.href;
     pdfViewer.hidden = false;
     document.body.style.overflow = "hidden";
@@ -101,7 +106,6 @@
         modalList.appendChild(li);
       });
     }
-
     openModal();
   }
 
@@ -123,23 +127,15 @@
   if (modalClose) modalClose.addEventListener("click", closeModal);
   if (pdfClose) pdfClose.addEventListener("click", closePdfViewer);
 
-  // Загрузка данных
   fetch("data/instructions.json")
-    .then(function (r) {
-      if (!r.ok) throw new Error("Ошибка загрузки JSON");
-      return r.json();
-    })
-    .then(function (json) {
+    .then(r => r.json())
+    .then(json => {
       data = json;
       renderTabs();
     })
-    .catch(function (err) {
-      console.error(err);
-      if (tabsEl) tabsEl.innerHTML = "<p style='color:red'>Ошибка загрузки данных</p>";
-    });
+    .catch(err => console.error("Ошибка загрузки данных:", err));
 
-  // Закрытие по Escape
-  document.addEventListener("keydown", function (e) {
+  document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
       if (!pdfViewer.hidden) closePdfViewer();
       else if (!modal.hidden) closeModal();
