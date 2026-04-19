@@ -13,11 +13,22 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=3">
   <link rel="icon" type="image/png" href="apple-touch-icon.png?v=3">
   
-  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="stylesheet" href="styles.css?v=3">
+  <script>
+    // Мгновенная установка темы до рендеринга страницы
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
 </head>
 <body>
   <div class="app">
     <header class="header">
+      <div class="header-top">
+        <button type="button" id="themeToggle" class="theme-toggle">
+          <span class="sun-icon">☀️</span>
+          <span class="moon-icon">🌙</span>
+        </button>
+      </div>
       <div class="header-inner">
         <h1 class="title">База данных ЦТАИ</h1>
         <p class="subtitle">Инструкции АСУТП</p>
@@ -44,6 +55,6 @@
     </div>
   </div>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
