@@ -5,13 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="База ЦТАИ">
   <meta name="theme-color" content="#f1f5f9" />
   
   <title>База данных ЦТАИ АСУТП</title>
   
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="apple-touch-icon.png">
   
   <link rel="stylesheet" href="styles.css" />
 </head>
@@ -20,42 +21,30 @@
     <header class="header">
       <div class="header-inner">
         <h1 class="title">База данных ЦТАИ</h1>
-        <p class="subtitle">Инструкции АСУТП в PDF</p>
+        <p class="subtitle">Инструкции АСУТП</p>
       </div>
     </header>
 
     <main class="main">
-      <section class="panel" aria-labelledby="blocks-heading">
-        <h2 id="blocks-heading" class="panel-title">Блоки</h2>
-        <nav class="blocks" id="tabs" aria-label="Блоки"></nav>
+      <section class="panel">
+        <h2 class="panel-title">Блоки</h2>
+        <nav class="blocks" id="tabs"></nav>
       </section>
     </main>
   </div>
 
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+  <div id="modal" class="modal" role="dialog" aria-modal="true" hidden>
     <div class="modal-backdrop" id="modalBackdrop"></div>
     <div class="modal-sheet">
-      <div class="modal-handle" aria-hidden="true"></div>
+      <div class="modal-handle"></div>
       <div class="modal-head">
         <h2 id="modalTitle" class="modal-title"></h2>
-        <button type="button" class="modal-close" id="modalClose" aria-label="Закрыть">
-          <span aria-hidden="true">✕</span>
-        </button>
+        <button type="button" class="modal-close" id="modalClose">✕</button>
       </div>
       <ul id="modalList" class="modal-list"></ul>
     </div>
   </div>
 
-  <div id="pdfViewer" class="pdf-viewer" hidden>
-    <div class="pdf-viewer-bar">
-      <button type="button" class="pdf-back" id="pdfClose" aria-label="Закрыть документ">← Назад</button>
-      <div class="pdf-bar-center">
-        <span id="pdfTitle" class="pdf-doc-title"></span>
-      </div>
-    </div>
-    <iframe id="pdfFrame" class="pdf-frame" title="Просмотр PDF"></iframe>
-  </div>
-
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=15"></script>
 </body>
 </html>

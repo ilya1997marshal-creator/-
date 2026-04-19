@@ -6,11 +6,6 @@
   const modalClose = document.getElementById("modalClose");
   const tabsEl = document.getElementById("tabs");
 
-  const pdfViewer = document.getElementById("pdfViewer");
-  const pdfFrame = document.getElementById("pdfFrame");
-  const pdfTitle = document.getElementById("pdfTitle");
-  const pdfClose = document.getElementById("pdfClose");
-
   let data = null;
 
   function openModal() {
@@ -20,39 +15,23 @@
 
   function closeModal() {
     modal.hidden = true;
-    if (pdfViewer.hidden) document.body.style.overflow = "";
+    document.body.style.overflow = "";
   }
 
-  function openPdfViewer(url, title) {
-    // Формируем абсолютную ссылку на PDF
+  function openPdf(url) {
+    // Создаем полную ссылку
     const pdfAbsolute = new URL(url, window.location.href).href;
-    
     const ua = navigator.userAgent;
     const isMobile = /Android|iPhone|iPad|iPod/i.test(ua) || (navigator.maxTouchPoints > 0 && window.matchMedia("(max-width: 900px)").matches);
 
     if (isMobile) {
-      // ИСПОЛЬЗУЕМ GOOGLE VIEWER ДЛЯ ПРОСМОТРА БЕЗ СКАЧИВАНИЯ
-      // Эта ссылка заставит браузер открыть PDF в новой вкладке как страницу
+      // На мобильных — через Google Viewer в новой вкладке
       const googleViewerUrl = "https://docs.google.com/viewer?url=" + encodeURIComponent(pdfAbsolute);
       window.open(googleViewerUrl, '_blank');
-      return;
+    } else {
+      // На ПК — просто в новой вкладке
+      window.open(pdfAbsolute, '_blank');
     }
-
-    // Для ПК (оставляем встроенный вьюер PDF.js)
-    if (pdfFrame && pdfViewer) {
-      const viewerUrl = new URL("pdfjs/web/viewer.html", window.location.href);
-      viewerUrl.searchParams.set("file", pdfAbsolute);
-      pdfTitle.textContent = title || "Документ";
-      pdfFrame.src = viewerUrl.href;
-      pdfViewer.hidden = false;
-      document.body.style.overflow = "hidden";
-    }
-  }
-
-  function closePdfViewer() {
-    pdfViewer.hidden = true;
-    pdfFrame.src = "about:blank";
-    if (modal.hidden) document.body.style.overflow = "";
   }
 
   function showBlock(category) {
@@ -61,18 +40,16 @@
     modalList.innerHTML = "";
 
     if (items.length === 0) {
-      modalList.innerHTML = "<li>В этом блоке пока нет PDF.</li>";
+      modalList.innerHTML = "<li>Файлы еще не добавлены</li>";
     } else {
       items.forEach(item => {
         const li = document.createElement("li");
         const a = document.createElement("a");
-        // Добавляем timestamp для обхода кэша
-        const pdfWithVersion = item.pdf + "?v=" + new Date().getTime();
-        a.href = pdfWithVersion;
+        a.href = "#";
         a.textContent = item.title;
         a.onclick = (e) => {
           e.preventDefault();
-          openPdfViewer(pdfWithVersion, item.title);
+          openPdf(item.pdf);
         };
         li.appendChild(a);
         modalList.appendChild(li);
@@ -82,7 +59,7 @@
   }
 
   function renderTabs() {
-    if (!tabsEl) return;
+    if (!tabsEl || !data) return;
     tabsEl.innerHTML = "";
     data.categories.forEach(cat => {
       const btn = document.createElement("button");
@@ -95,13 +72,13 @@
 
   if (modalBackdrop) modalBackdrop.onclick = closeModal;
   if (modalClose) modalClose.onclick = closeModal;
-  if (pdfClose) pdfClose.onclick = closePdfViewer;
 
+  // Загрузка данных
   fetch("data/instructions.json")
     .then(r => r.json())
     .then(json => {
       data = json;
       renderTabs();
     })
-    .catch(err => console.error("Ошибка данных:", err));
+    .catch(err => console.error("Ошибка загрузки:", err));
 })();
