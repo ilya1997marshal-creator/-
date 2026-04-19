@@ -1,0 +1,26 @@
+{
+  "categories": [
+    { "id": "b1", "title": "Блок - 1" },
+    { "id": "b2", "title": "Блок - 2" },
+    { "id": "b3", "title": "Блок - 3" },
+    { "id": "b4", "title": "Блок - 4" },
+    { "id": "b5", "title": "Блок - 5" },
+    { "id": "b7", "title": "Блок - 7" },
+    { "id": "other", "title": "Остальная информация" },
+    { "id": "zip", "title": "Остатки ЗИП" }
+  ],
+  "items": [
+    {
+      "id": "b1-1",
+      "categoryId": "b1",
+      "title": "Руководство Siemens S-400",
+      "pdf": "pdfs/blok-1/S7-400_instalation.pdf"
+    },
+    {
+      "id": "b2-1",
+      "categoryId": "b2",
+      "title": "Пример PDF для блока 2",
+      "pdf": "pdfs/blok-2/primer.pdf"
+    }
+  ]
+}
