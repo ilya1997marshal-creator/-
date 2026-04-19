@@ -1,228 +1,126 @@
 :root[data-theme="light"] {
-    --bg-gradient: linear-gradient(125deg, #f0f4f8 0%, #d9e2ec 100%);
+    --bg-color: #f0f4f8;
+    --bg-gradient: linear-gradient(180deg, #deebf7 0%, #f0f4f8 100%);
     --panel-color: #ffffff;
     --primary-color: #4a90e2;
     --text-main: #2c3e50;
     --text-muted: #7f8c8d;
-    --nav-bg: rgba(255, 255, 255, 0.9);
-    --shadow: 0 10px 25px rgba(0,0,0,0.05);
+    --nav-bg: rgba(255, 255, 255, 0.95);
     --border: #e2e8f0;
+    --shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
 :root[data-theme="dark"] {
-    --bg-gradient: linear-gradient(135deg, #1c2733 0%, #0e1621 100%);
+    --bg-color: #0e1621;
+    --bg-gradient: linear-gradient(180deg, #1c2733 0%, #0e1621 100%);
     --panel-color: #17212b;
     --primary-color: #5288c1;
     --text-main: #ffffff;
     --text-muted: #a8b6c4;
-    --nav-bg: rgba(23, 33, 43, 0.9);
-    --shadow: 0 15px 40px rgba(0,0,0,0.3);
+    --nav-bg: rgba(23, 33, 43, 0.95);
     --border: #242f3d;
+    --shadow: 0 15px 40px rgba(0,0,0,0.3);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
 body {
     font-family: -apple-system, system-ui, sans-serif;
-    background-color: #000;
+    background-color: var(--bg-color);
     color: var(--text-main);
     height: 100vh;
     overflow: hidden;
 }
 
-/* Telegram Style Background */
-.tg-background {
+/* Фон */
+.bg-layer {
     position: fixed;
     inset: 0;
-    z-index: -1;
     background: var(--bg-gradient);
+    z-index: -1;
 }
 
 .app {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    z-index: 1;
 }
 
 .header {
     text-align: center;
-    padding: calc(60px + env(safe-area-inset-top)) 20px 20px;
+    padding: calc(50px + env(safe-area-inset-top)) 20px 20px;
     flex-shrink: 0;
 }
 
 .header-top {
     position: absolute;
-    top: calc(20px + env(safe-area-inset-top));
+    top: calc(15px + env(safe-area-inset-top));
     right: 20px;
 }
 
 .theme-toggle {
-    background: var(--panel-color);
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    cursor: pointer;
-    color: var(--text-main);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
+    background: var(--panel-color); border: none; width: 42px; height: 42px;
+    border-radius: 50%; box-shadow: var(--shadow); cursor: pointer; color: var(--text-main);
+    display: flex; align-items: center; justify-content: center; font-size: 18px;
 }
-
 [data-theme="light"] .moon-icon, [data-theme="dark"] .sun-icon { display: none; }
 
-.title { font-size: 24px; font-weight: 800; }
-.subtitle { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+.title { font-size: 22px; font-weight: 800; }
+.subtitle { font-size: 13px; color: var(--text-muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-.main {
-    flex: 1;
-    position: relative;
-    overflow: hidden;
-}
+.main { flex: 1; position: relative; overflow: hidden; }
 
 .tab-content {
-    display: none;
-    position: absolute;
-    inset: 0;
-    padding: 0 16px 120px;
-    flex-direction: column;
-    align-items: center;
-    overflow-y: auto;
+    display: none; position: absolute; inset: 0;
+    padding: 10px 16px 120px; flex-direction: column; align-items: center;
 }
-
-.tab-content.active {
-    display: flex;
-    animation: fadeIn 0.3s ease;
-}
+.tab-content.active { display: flex; animation: fadeIn 0.2s ease; }
 
 .panel {
-    background: var(--panel-color);
-    border-radius: 24px;
-    padding: 20px;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    background: var(--panel-color); border-radius: 24px; padding: 20px;
+    width: 100%; max-width: 480px; box-shadow: var(--shadow);
+    overflow-y: auto; max-height: 95%;
 }
 
-.blocks {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-
+.blocks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .action-main-btn {
-    background: var(--primary-color);
-    color: #fff;
-    border: none;
-    padding: 18px 10px;
-    border-radius: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 14px;
-    transition: transform 0.1s;
+    background: var(--primary-color); color: #fff; border: none; padding: 18px 10px;
+    border-radius: 16px; font-weight: 700; cursor: pointer; font-size: 14px;
 }
 
-.action-main-btn:active { transform: scale(0.96); }
-
-/* Bottom Nav */
+/* Навигация */
 .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: calc(85px + env(safe-area-inset-bottom));
-    background: var(--nav-bg);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    display: flex;
-    border-top: 1px solid var(--border);
-    padding-bottom: env(safe-area-inset-bottom);
-    z-index: 1000;
+    position: fixed; bottom: 0; left: 0; right: 0; height: calc(80px + env(safe-area-inset-bottom));
+    background: var(--nav-bg); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+    display: flex; border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom);
 }
-
 .nav-item {
-    flex: 1;
-    border: none;
-    background: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    cursor: pointer;
+    flex: 1; border: none; background: none; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; color: var(--text-muted);
 }
-
 .nav-item.active { color: var(--primary-color); }
-.nav-icon { font-size: 22px; }
-.nav-label { font-size: 10px; font-weight: 700; margin-top: 4px; text-transform: uppercase; }
+.nav-icon { font-size: 20px; margin-bottom: 4px; }
+.nav-label { font-size: 9px; font-weight: 700; text-transform: uppercase; }
 
-/* Modal */
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-}
-
+/* Модалка */
+.modal { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: flex-end; justify-content: center; }
 .modal[hidden] { display: none !important; }
-
-.modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-}
-
+.modal-backdrop { position: absolute; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
 .modal-content {
-    position: relative;
-    background: var(--panel-color);
-    width: 100%;
-    max-width: 500px;
-    border-radius: 24px 24px 0 0;
-    max-height: 80vh;
-    overflow-y: auto;
-    animation: slideUp 0.3s ease;
+    position: relative; background: var(--panel-color); width: 100%; max-width: 500px;
+    border-radius: 24px 24px 0 0; max-height: 85vh; overflow-y: auto; animation: slideUp 0.3s ease;
 }
+.modal-head { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+.modal-close { background: var(--border); border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; }
+.modal-list li { padding: 18px 20px; border-bottom: 1px solid var(--border); list-style: none; }
+.modal-list a { color: var(--primary-color); text-decoration: none; font-weight: 600; display: block; }
 
-.modal-head {
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: sticky;
-    top: 0;
-    background: var(--panel-color);
-    border-bottom: 1px solid var(--border);
-    z-index: 5;
-}
-
-.modal-close {
-    background: var(--border);
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.modal-list li {
-    padding: 18px 20px;
-    border-bottom: 1px solid var(--border);
-    list-style: none;
-}
-
-.modal-list a {
-    color: var(--primary-color);
-    text-decoration: none;
-    font-weight: 600;
-    display: block;
-}
-
-/* Animations */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* Таблица */
+.table-wrapper { overflow-x: auto; margin-top: 15px; border: 1px solid var(--border); border-radius: 12px; }
+table { width: 100%; border-collapse: collapse; font-size: 11px; }
+th, td { border: 1px solid var(--border); padding: 10px 5px; text-align: center; }
+th { background: var(--border); color: var(--text-muted); }

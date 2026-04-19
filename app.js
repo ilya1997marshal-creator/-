@@ -1,5 +1,5 @@
 /**
- * app.js - Full logic
+ * app.js - Full Fixed Version
  */
 
 let appData = null;
@@ -13,11 +13,10 @@ async function startApp() {
         initNavigation();
         initTheme();
         initCharts();
-        initModalActions();
         
-        console.log("App ready");
+        console.log("App Loaded Successfully");
     } catch (e) {
-        console.error("Data load error", e);
+        console.error("Critical Load Error:", e);
     }
 }
 
@@ -47,16 +46,18 @@ function initNavigation() {
     const screens = document.querySelectorAll('.tab-content');
 
     buttons.forEach(btn => {
-        btn.onclick = () => {
+        btn.addEventListener('click', () => {
             const screenId = btn.getAttribute('data-screen');
             
             buttons.forEach(b => b.classList.remove('active'));
             screens.forEach(s => s.classList.remove('active'));
             
             btn.classList.add('active');
-            document.getElementById(`screen-${screenId}`).classList.add('active');
+            const target = document.getElementById(`screen-${screenId}`);
+            if (target) target.classList.add('active');
+            
             document.getElementById('modal').hidden = true;
-        };
+        });
     });
 }
 
@@ -67,25 +68,27 @@ function initCharts() {
 
     if (showBtn) {
         showBtn.onclick = async () => {
-            const res = await fetch('./data/schedule.json');
-            const data = await res.json();
-            
-            const table = document.getElementById('work-schedule');
-            document.getElementById('tableMonthTitle').innerText = data.month;
-            
-            let html = `<thead><tr><th style="position:sticky;left:0;background:var(--panel-color);z-index:2">ФИО</th>`;
-            for(let i=1; i<=data.daysInMonth; i++) html += `<th>${i}</th>`;
-            html += `</tr></thead><tbody>`;
+            try {
+                const res = await fetch('./data/schedule.json');
+                const data = await res.json();
+                
+                const table = document.getElementById('work-schedule');
+                document.getElementById('tableMonthTitle').innerText = data.month;
+                
+                let html = `<thead><tr><th style="position:sticky;left:0;background:var(--panel-color)">ФИО</th>`;
+                for(let i=1; i<=data.daysInMonth; i++) html += `<th>${i}</th>`;
+                html += `</tr></thead><tbody>`;
 
-            data.employees.forEach(emp => {
-                html += `<tr><td style="position:sticky;left:0;background:var(--panel-color);font-weight:700">${emp.name}</td>`;
-                emp.days.forEach(d => html += `<td>${d || ''}</td>`);
-                html += `</tr>`;
-            });
-            table.innerHTML = html + `</tbody>`;
-            
-            initBox.hidden = true;
-            container.hidden = false;
+                data.employees.forEach(emp => {
+                    html += `<tr><td style="position:sticky;left:0;background:var(--panel-color);font-weight:700;text-align:left;padding-left:10px;">${emp.name}</td>`;
+                    emp.days.forEach(d => html += `<td>${d || ''}</td>`);
+                    html += `</tr>`;
+                });
+                table.innerHTML = html + `</tbody>`;
+                
+                initBox.hidden = true;
+                container.hidden = false;
+            } catch (err) { alert("Ошибка загрузки графика"); }
         };
     }
 
@@ -96,7 +99,8 @@ function initCharts() {
 }
 
 function initTheme() {
-    document.getElementById('themeToggle').onclick = () => {
+    const toggle = document.getElementById('themeToggle');
+    toggle.onclick = () => {
         const html = document.documentElement;
         const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
         html.setAttribute('data-theme', next);
@@ -104,10 +108,8 @@ function initTheme() {
     };
 }
 
-function initModalActions() {
-    const close = () => document.getElementById('modal').hidden = true;
-    document.getElementById('modalClose').onclick = close;
-    document.getElementById('modalBackdrop').onclick = close;
-}
+// Закрытие модалки
+document.getElementById('modalClose').onclick = () => document.getElementById('modal').hidden = true;
+document.getElementById('modalBackdrop').onclick = () => document.getElementById('modal').hidden = true;
 
 window.onload = startApp;
