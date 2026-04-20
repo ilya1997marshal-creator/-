@@ -34,6 +34,7 @@
             min-height: 300px;
             display: flex;
             flex-direction: column;
+            justify-content: center;
         }
         .schedule-table { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; min-width: 1050px; }
         .schedule-table th, .schedule-table td {
@@ -131,7 +132,7 @@
                         <span class="font-bold text-zinc-100 uppercase tracking-widest text-[10px]">Почта</span>
                     </a>
                 </div>
-                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.6</p>
+                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.7</p>
             </div>
         </div>
     </div>
@@ -179,40 +180,47 @@
         }
 
         function renderSchedule(monthName) {
-            document.getElementById('current-month-display').textContent = `${monthName} 2026`;
             const viewport = document.getElementById('schedule-viewport');
+            const display = document.getElementById('current-month-display');
+            
+            // Сбрасываем всё
+            display.textContent = `${monthName} 2026`;
             viewport.innerHTML = ''; 
             currentlyHighlighted = null;
 
             const currentMonthIdx = 3; // Апрель
             const selectedMonthIdx = monthsMap[monthName];
 
-            // Проверяем данные ДО начала отрисовки таблицы
-            const hasData = (typeof scheduleData !== 'undefined' && scheduleData[monthName] && scheduleData[monthName].length > 0);
+            // 1. Проверяем наличие данных
+            let hasData = false;
+            if (typeof scheduleData !== 'undefined' && scheduleData[monthName] && scheduleData[monthName].length > 0) {
+                hasData = true;
+            }
 
+            // 2. Если данных НЕТ (например, выбрали Май)
             if (!hasData) {
-                let message = "";
+                let msg = "";
                 let icon = "";
                 
                 if (selectedMonthIdx < currentMonthIdx) {
                     icon = "📑";
-                    message = "Отчетный период закрыт.<br>Смены завершены.";
+                    msg = "Отчетный период закрыт.<br>Смены завершены.";
                 } else {
                     icon = "📅";
-                    message = "График на данный период<br>находится на утверждении.";
+                    msg = "График на данный период<br>находится на утверждении.";
                 }
 
                 viewport.innerHTML = `
-                    <div class="flex-1 flex flex-col items-center justify-center py-24 px-6 text-center">
-                        <div class="text-5xl mb-6 opacity-20">${icon}</div>
-                        <div class="text-zinc-400 font-medium text-sm tracking-wide leading-relaxed">
-                            ${message}
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; min-height: 250px; width: 100%; text-align: center; padding: 20px;">
+                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;">${icon}</div>
+                        <div style="color: #a1a1aa; font-size: 14px; font-weight: 500; line-height: 1.6; letter-spacing: 0.02em;">
+                            ${msg}
                         </div>
                     </div>`;
                 return;
             }
 
-            // Если данные есть
+            // 3. Если данные ЕСТЬ (Апрель и т.д.)
             const data = scheduleData[monthName];
             const year = 2026;
             const daysInMonth = new Date(year, selectedMonthIdx + 1, 0).getDate();
