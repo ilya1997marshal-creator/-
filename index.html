@@ -31,6 +31,7 @@
             border: 1px solid #1e1e1e;
             background-color: #0f172a;
             -webkit-overflow-scrolling: touch;
+            min-height: 200px;
         }
         .schedule-table { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; min-width: 1050px; }
         .schedule-table th, .schedule-table td {
@@ -128,7 +129,7 @@
                         <span class="font-bold text-zinc-100 uppercase tracking-widest text-[10px]">Почта</span>
                     </a>
                 </div>
-                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.1</p>
+                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.2</p>
             </div>
         </div>
     </div>
@@ -176,18 +177,19 @@
         }
 
         function renderSchedule(monthName) {
+            // 1. Сразу обновляем текст и полностью чистим контейнер
             document.getElementById('current-month-display').textContent = `${monthName} 2026`;
             const viewport = document.getElementById('schedule-viewport');
-            
-            // Проверка наличия данных в data.js
-            const hasData = typeof scheduleData !== 'undefined' && scheduleData[monthName];
-            const data = hasData ? scheduleData[monthName] : null;
+            viewport.innerHTML = ''; 
+            currentlyHighlighted = null;
 
-            if (!data) {
-                viewport.innerHTML = `<div class="py-20 text-center text-zinc-500 font-medium italic px-4">Данные для месяца ${monthName} отсутствуют</div>`;
+            // 2. Проверяем наличие данных
+            if (typeof scheduleData === 'undefined' || !scheduleData[monthName]) {
+                viewport.innerHTML = `<div class="py-20 text-center text-zinc-500 font-medium italic px-4">Данные для месяца ${monthName} ещё не внесены</div>`;
                 return;
             }
 
+            const data = scheduleData[monthName];
             const year = 2026;
             const monthIdx = monthsMap[monthName];
             const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
@@ -215,7 +217,6 @@
                 html += `<td class="col-total font-bold">${person.s}</td><td class="col-total font-bold">${person.h}</td></tr>`;
             });
             viewport.innerHTML = html + `</tbody></table>`;
-            currentlyHighlighted = null;
         }
 
         const blocksCont = document.getElementById('blocks-container');
