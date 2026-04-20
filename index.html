@@ -125,6 +125,13 @@
         }
         .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
 
+        /* Вьювер документов */
+        #doc-viewer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 300; display: none; flex-direction: column;
+        }
+        #doc-iframe { width: 100%; flex: 1; border: none; }
+
         @keyframes slideIn { from { width: 0; opacity: 0; } to { width: 30%; opacity: 1; } }
     </style>
 </head>
@@ -219,10 +226,6 @@
                         <div class="w-14 h-14 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-sky-500/20">💬</div>
                         <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Telegram</span>
                     </a>
-                    <a href="mailto:i.rygih@mail.ru" class="w-full bg-[#111827] border border-zinc-800 py-6 px-5 rounded-3xl flex flex-col items-center justify-center group active:scale-[0.98] transition-all hover:border-red-500/30">
-                        <div class="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-red-500/20">📟</div>
-                        <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Почта</span>
-                    </a>
                 </div>
             </div>
         </div>
@@ -243,12 +246,24 @@
                 <h3 id="modal-block-title" class="font-bold text-xl text-white"></h3>
                 <button onclick="closeBlockModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400">✕</button>
             </div>
+            <div class="px-6 py-3 border-b border-zinc-800 bg-black/20">
+                <input type="text" id="file-search" placeholder="Поиск по названию..." oninput="filterFiles()" class="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+            </div>
             <div id="instructions-list" class="flex-1 overflow-auto p-6 space-y-3"></div>
         </div>
     </div>
 
+    <div id="doc-viewer">
+        <div class="h-16 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between px-6 shrink-0 pt-4">
+            <h4 id="view-doc-title" class="text-white font-bold text-xs truncate uppercase tracking-widest mr-4">Документ</h4>
+            <button onclick="closeDocViewer()" class="bg-red-500/20 text-red-500 px-4 py-1.5 rounded-lg font-bold text-xs">ЗАКРЫТЬ</button>
+        </div>
+        <iframe id="doc-iframe" src=""></iframe>
+    </div>
+
     <script>
         let currentlyHighlighted = null;
+        let currentModalFiles = []; // Храним список текущих файлов для поиска
         const monthsMap = { "Январь":0, "Февраль":1, "Март":2, "Апрель":3, "Май":4, "Июнь":5, "Июль":6, "Август":7, "Сентябрь":8, "Октябрь":9, "Ноябрь":10, "Декабрь":11 };
 
         function switchTab(index) {
@@ -268,13 +283,8 @@
                 currentlyHighlighted = null;
             } else {
                 rows.forEach(r => {
-                    if (r === row) {
-                        r.classList.add('highlighted-row');
-                        r.classList.remove('blurred-row');
-                    } else {
-                        r.classList.add('blurred-row');
-                        r.classList.remove('highlighted-row');
-                    }
+                    if (r === row) { r.classList.add('highlighted-row'); r.classList.remove('blurred-row'); }
+                    else { r.classList.add('blurred-row'); r.classList.remove('highlighted-row'); }
                 });
                 currentlyHighlighted = row;
             }
@@ -283,78 +293,83 @@
         function renderSchedule(monthName) {
             document.getElementById('current-month-display').textContent = `${monthName} 2026`;
             const viewport = document.getElementById('schedule-viewport');
-            const legend = document.getElementById('schedule-legend');
             viewport.innerHTML = '';
             const data = (typeof scheduleData !== 'undefined') ? scheduleData[monthName] : null;
-
-            if (!data || !Array.isArray(data) || data.length === 0) {
-                if (legend) legend.style.display = 'none';
-                viewport.innerHTML = `<div class="py-32 text-center text-zinc-600 font-bold uppercase text-[11px] tracking-[0.2em] px-6">График отсутствует</div>`;
-                return;
-            }
-
-            if (legend) legend.style.display = 'flex';
+            if (!data) return;
             const year = 2026, monthIdx = monthsMap[monthName];
             const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
-            
             let html = `<table class="schedule-table"><thead><tr><th class="col-name">Ф.И.О.</th>`;
             for(let d=1; d<=daysInMonth; d++) {
                 const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
                 html += `<th class="col-date ${isWE ? 'bg-zinc-800/50 text-red-400' : ''}">${d}</th>`;
             }
             html += `<th class="col-stat">С</th><th class="col-stat">Ч</th></tr></thead><tbody>`;
-            
             data.forEach(person => {
                 html += `<tr onclick="highlightRow(this)"><td class="col-name">${person.name}</td>`;
                 for(let d=1; d<=daysInMonth; d++) {
                     const val = person.shifts[d-1] || '';
                     const isVisual = ['D','N','S'].includes(val);
                     const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
-                    const cellContent = isVisual ? '' : (val === 'W' ? '' : val);
-                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''}">${cellContent}</td>`;
+                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''}">${isVisual ? '' : (val === 'W' ? '' : val)}</td>`;
                 }
                 html += `<td class="col-stat">${person.s}</td><td class="col-stat">${person.h}</td></tr>`;
             });
             viewport.innerHTML = html + `</tbody></table>`;
-            currentlyHighlighted = null;
         }
 
-        const blocksData = { 1: [{ name: "Руководство S7-400", file: "pdfs/blok-1/S7-400_instalation.pdf" }], 2: [], 3: [], 4: [], 5: [], 6: [], other: [], zip: [] };
+        const blocksData = { 
+            1: [{ name: "Инструкция S7-400", file: "pdfs/blok-1/S7-400_instalation.pdf" }], 
+            2: [], 3: [], 4: [], 5: [], 6: [], other: [], zip: [] 
+        };
+
         const blocksCont = document.getElementById('blocks-container');
-        if(blocksCont) {
-            for(let i=1; i<=6; i++) {
-                blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all mb-1"><div class="flex items-center gap-4"><span class="text-blue-500 font-extrabold text-lg">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
-            }
+        for(let i=1; i<=6; i++) {
+            blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between mb-1 group active:scale-[0.97] transition-all"><div class="flex items-center gap-4"><span class="text-blue-500 font-extrabold text-lg">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
         }
 
-        // КРИТИЧЕСКИЙ ФИКС ДЛЯ iOS PWA: Прямая ссылка вместо JS-события
+        // МОДАЛЬНОЕ ОКНО СО СПИСКОМ
         function openBlockModal(key) {
-            const data = blocksData[key] || [];
+            currentModalFiles = blocksData[key] || [];
             document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
-            const container = document.getElementById('instructions-list');
-            container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-600 text-sm uppercase tracking-widest">Пусто</div>';
-            
-            data.forEach(item => {
-                const absoluteUrl = new URL(item.file, window.location.href).href;
-                const itemLink = document.createElement('a');
-                itemLink.href = absoluteUrl;
-                itemLink.target = '_blank';
-                itemLink.rel = 'noopener noreferrer';
-                itemLink.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors cursor-pointer no-underline block";
-                itemLink.innerHTML = `<span class="text-2xl">📄</span><span class="font-bold text-xs text-zinc-100 uppercase tracking-wide">${item.name}</span>`;
-                
-                // Обработка клика только для PWA-режима iOS
-                if (window.navigator.standalone) {
-                    itemLink.onclick = (e) => {
-                        e.preventDefault();
-                        if (confirm("Открыть файл во внешнем браузере Safari для полноценного просмотра?")) {
-                            window.location.href = absoluteUrl; // В PWA это перенаправляет в Safari
-                        }
-                    };
-                }
-                container.appendChild(itemLink);
-            });
+            document.getElementById('file-search').value = ''; 
+            renderFileList(currentModalFiles);
             document.getElementById('block-modal').classList.remove('hidden');
+        }
+
+        // ФУНКЦИЯ ФИЛЬТРАЦИИ (ПОИСКОВИК ПО СПИСКУ)
+        function filterFiles() {
+            const query = document.getElementById('file-search').value.toLowerCase();
+            const filtered = currentModalFiles.filter(f => f.name.toLowerCase().includes(query));
+            renderFileList(filtered);
+        }
+
+        // РЕНДЕР СПИСКА ФАЙЛОВ
+        function renderFileList(list) {
+            const container = document.getElementById('instructions-list');
+            container.innerHTML = list.length ? '' : '<div class="text-center py-10 text-zinc-600 text-sm uppercase tracking-widest">Ничего не найдено</div>';
+            list.forEach(item => {
+                const btn = document.createElement('div');
+                btn.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors cursor-pointer";
+                btn.onclick = () => openDocViewer(item.file, item.name);
+                btn.innerHTML = `<span class="text-2xl">📄</span><span class="font-bold text-xs text-zinc-100 uppercase tracking-wide">${item.name}</span>`;
+                container.appendChild(btn);
+            });
+        }
+
+        // ВСТРОЕННЫЙ ПРОСМОТРЩИК (РЕШАЕТ ПРОБЛЕМУ iOS)
+        function openDocViewer(url, name) {
+            const iframe = document.getElementById('doc-iframe');
+            document.getElementById('view-doc-title').textContent = name;
+            // Добавляем параметр для Safari, чтобы он не скачивал, а показывал
+            iframe.src = url; 
+            document.getElementById('doc-viewer').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Запрет прокрутки фона
+        }
+
+        function closeDocViewer() {
+            document.getElementById('doc-viewer').style.display = 'none';
+            document.getElementById('doc-iframe').src = '';
+            document.body.style.overflow = 'auto';
         }
 
         function closeBlockModal() { document.getElementById('block-modal').classList.add('hidden'); }
