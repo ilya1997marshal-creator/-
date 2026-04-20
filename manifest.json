@@ -3,8 +3,8 @@
   "short_name": "База ЦТАИ",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#0e1621",
-  "theme_color": "#0e1621",
+  "background_color": "#070708",
+  "theme_color": "#070708",
   "icons": [
     {
       "src": "apple-touch-icon.png",
