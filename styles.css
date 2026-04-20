@@ -68,7 +68,6 @@ body {
     vertical-align: middle;
 }
 
-/* Стили заголовков */
 .head-fio { 
     color: var(--accent) !important; 
     background: var(--bg-item) !important;
@@ -76,8 +75,7 @@ body {
     letter-spacing: 0.1em;
     font-weight: 900 !important;
     border-bottom: 2px solid var(--accent) !important;
-    text-align: center !important; /* ФИО по центру */
-    padding-left: 0 !important;
+    text-align: center !important;
 }
 
 .col-name { 
@@ -87,15 +85,9 @@ body {
     border-right: 2px solid var(--accent) !important;
 }
 
-/* Колонки итогов */
-.col-stat { 
-    width: 52px !important; 
-    font-weight: 900; 
-    background: rgba(59, 130, 246, 0.05); /* Легкое выделение */
-    color: var(--accent);
-}
+.col-stat { width: 52px !important; font-weight: 900; background: rgba(59, 130, 246, 0.05); color: var(--accent); }
 
-/* Стили смен */
+/* СМЕНЫ */
 .shift-D, .shift-N, .shift-S, .shift-O { position: relative; }
 .shift-D::after, .shift-N::after, .shift-S::after, .shift-O::after {
     content: ''; position: absolute; inset: 6px; border-radius: 8px;
@@ -105,18 +97,8 @@ body {
 .shift-S::after { background-color: #f59e0b; }
 .shift-O::after { background-color: rgba(100, 116, 139, 0.3); }
 
-/* МОДАЛКА */
+/* ПОМОЩЬ И МОДАЛКА */
 .card-bg { background-color: var(--bg-card); }
-.doc-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 24px 32px;
-    border-bottom: 1px solid var(--border);
-}
-.doc-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-main); }
-
-/* ПОМОЩЬ */
 .help-icon {
     width: 60px; height: 60px;
     background: rgba(59, 130, 246, 0.1);
