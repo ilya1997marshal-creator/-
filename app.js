@@ -11,8 +11,44 @@ function switchTab(index) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(tabs[index]).classList.add('active');
     document.querySelectorAll('.nav-item').forEach((btn, i) => btn.classList.toggle('active', i === index));
+    
+    if(index === 0) updateOnDutyWidget(); // Обновляем дежурных при входе на главную
     if(index === 1) renderSchedule(document.getElementById('month-selector').value);
+    
     window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// НОВАЯ ФУНКЦИЯ: Подтягивание дежурных из данных
+function updateOnDutyWidget() {
+    const dutyList = document.getElementById('duty-list');
+    if (!dutyList) return;
+
+    const now = new Date();
+    const day = now.getDate(); // Текущее число (например, 20)
+    const monthIndex = now.getMonth(); 
+
+    // Проверяем, есть ли данные на этот месяц (у нас пока только Апрель)
+    const currentMonthData = scheduleData["Апрель"];
+    
+    if (!currentMonthData) {
+        dutyList.innerHTML = '<span class="opacity-40">Нет данных на сегодня</span>';
+        return;
+    }
+
+    // Ищем тех, у кого сегодня смена D (День), S (Спец) или N (Ночь)
+    // Так как у нас сейчас апрель 2026, скрипт будет искать именно по текущему числу
+    const onDuty = currentMonthData
+        .filter(p => {
+            const shift = p.name === "Бондаренко Т.А." ? 'O' : (p.shifts[day - 1] || '');
+            return shift === 'D' || shift === 'S' || shift === 'N';
+        })
+        .map(p => p.name);
+
+    if (onDuty.length > 0) {
+        dutyList.innerHTML = onDuty.join(', ');
+    } else {
+        dutyList.innerHTML = '<span class="opacity-40">Сегодня нет запланированных смен</span>';
+    }
 }
 
 function renderSchedule(monthName) {
@@ -40,13 +76,9 @@ function renderSchedule(monthName) {
         html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             let val = p.shifts[d-1] || '';
-            
-            // ПРАВКА: Отпуск для Бондаренко Т.А.
             if (p.name === "Бондаренко Т.А.") val = 'O';
-
             let cellClass = val ? `shift-${val}` : '';
             html += `<td class="${cellClass}"></td>`;
-            
             if(val === 'D' || val === 'N' || val === 'S') {
                 shiftsCount++;
                 hoursCount += (val === 'S' ? 8 : 12);
@@ -99,5 +131,6 @@ window.onload = () => {
         }
     }
     if(localStorage.getItem('theme') === 'light') toggleTheme();
+    updateOnDutyWidget(); // Запускаем при загрузке
     switchTab(0);
 };
