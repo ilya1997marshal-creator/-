@@ -327,7 +327,7 @@
             }
         }
 
-        // ИСПРАВЛЕННАЯ ФУНКЦИЯ ОТКРЫТИЯ PDF
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Принудительный выход из PWA в браузер
         function openBlockModal(key) {
             const data = blocksData[key] || [];
             document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
@@ -339,13 +339,17 @@
                 itemDiv.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors cursor-pointer";
                 itemDiv.innerHTML = `<span class="text-2xl">📄</span><span class="font-bold text-xs text-zinc-100 uppercase tracking-wide">${item.name}</span>`;
                 
-                // Используем принудительное открытие в новом окне через <a>
                 itemDiv.onclick = () => {
-                    const link = document.createElement('a');
-                    link.href = item.file;
-                    link.target = '_blank';
-                    link.rel = 'noopener noreferrer';
-                    link.click();
+                    // Создаем АБСОЛЮТНУЮ ссылку (принуждает PWA выйти в браузер)
+                    const absoluteUrl = new URL(item.file, window.location.href).href;
+                    const a = document.createElement('a');
+                    a.href = absoluteUrl;
+                    a.target = '_blank';
+                    // rel="external" дополнительно подсказывает системе, что это внешняя ссылка
+                    a.rel = 'external noopener noreferrer'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
                 };
                 
                 container.appendChild(itemDiv);
