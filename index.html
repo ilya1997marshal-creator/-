@@ -96,7 +96,7 @@
         }
         .month-select-hidden { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        /* ОБНОВЛЕННАЯ НАВИГАЦИЯ СО СВЕЧЕНИЕМ */
+        /* НАВИГАЦИЯ */
         .safe-nav { padding-bottom: env(safe-area-inset-bottom); height: calc(65px + env(safe-area-inset-bottom)); }
         .nav-btn { 
             height: 65px; 
@@ -108,13 +108,7 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
             color: #52525b; 
         }
-
-        /* Активная кнопка */
-        .nav-btn.active { 
-            color: #3b82f6 !important; 
-        }
-
-        /* Светящаяся полоска сверху кнопки */
+        .nav-btn.active { color: #3b82f6 !important; }
         .nav-btn.active::after {
             content: '';
             position: absolute;
@@ -126,24 +120,16 @@
             box-shadow: 0 0 15px #3b82f6, 0 0 5px #3b82f6;
             animation: slideIn 0.3s ease;
         }
-
-        /* Мягкий ореол за иконкой */
         .nav-btn.active::before { 
             content: ''; position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; 
             background: rgba(59, 130, 246, 0.15); border-radius: 50%; transform: translate(-50%, -50%); 
             filter: blur(10px); z-index: -1;
         }
-
         .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
 
         @keyframes slideIn {
             from { width: 0; opacity: 0; }
             to { width: 30%; opacity: 1; }
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
         }
     </style>
 </head>
@@ -228,25 +214,30 @@
             <div class="w-full flex flex-col items-center">
                 <div class="text-center mb-12">
                     <div class="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-2xl">
-                        <span class="text-4xl">🛠️</span>
+                        <span class="text-4xl">📡</span>
                     </div>
                     <h2 class="text-3xl font-extrabold text-white tracking-tight">Поддержка</h2>
                 </div>
 
-                <div class="w-full space-y-3 px-2">
-                    <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-sky-500/20 text-sky-400 rounded-xl flex items-center justify-center text-2xl shadow-inner">✈️</div>
-                            <div class="flex flex-col text-left"><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Telegram</span></div>
+                <div class="w-full grid grid-cols-1 gap-4 px-2">
+                    <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full bg-[#111827] border border-zinc-800 py-8 px-5 rounded-[2rem] flex flex-col items-center justify-center group active:scale-[0.97] transition-all hover:border-sky-500/50 shadow-lg">
+                        <div class="w-16 h-16 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner ring-1 ring-sky-500/20">
+                            💬
                         </div>
-                        <span class="text-zinc-700">›</span>
+                        <div class="flex flex-col items-center">
+                            <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.15em]">Telegram</span>
+                            <span class="text-zinc-500 text-[10px] mt-1 font-bold uppercase">Связаться с инженером</span>
+                        </div>
                     </a>
-                    <a href="mailto:i.rygih@mail.ru" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center text-2xl shadow-inner">📧</div>
-                            <div class="flex flex-col text-left"><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Почта</span></div>
+
+                    <a href="mailto:i.rygih@mail.ru" class="w-full bg-[#111827] border border-zinc-800 py-8 px-5 rounded-[2rem] flex flex-col items-center justify-center group active:scale-[0.97] transition-all hover:border-red-500/50 shadow-lg">
+                        <div class="w-16 h-16 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner ring-1 ring-red-500/20">
+                            📟
                         </div>
-                        <span class="text-zinc-700">›</span>
+                        <div class="flex flex-col items-center">
+                            <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.15em]">Почта</span>
+                            <span class="text-zinc-500 text-[10px] mt-1 font-bold uppercase">Официальный запрос</span>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -255,22 +246,10 @@
 
     <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-zinc-900 max-w-xl mx-auto z-[100] safe-nav">
         <div class="flex h-full">
-            <button id="nav-btn-0" onclick="switchTab(0)" class="flex-1 nav-btn active">
-                <span class="text-2xl mb-1">🏠</span>
-                <span class="nav-text">Главная</span>
-            </button>
-            <button id="nav-btn-1" onclick="switchTab(1)" class="flex-1 nav-btn">
-                <span class="text-2xl mb-1">📅</span>
-                <span class="nav-text">График</span>
-            </button>
-            <button id="nav-btn-2" onclick="switchTab(2)" class="flex-1 nav-btn">
-                <span class="text-2xl mb-1">📋</span>
-                <span class="nav-text">Тесты</span>
-            </button>
-            <button id="nav-btn-3" onclick="switchTab(3)" class="flex-1 nav-btn">
-                <span class="text-2xl mb-1">🛠️</span>
-                <span class="nav-text">Помощь</span>
-            </button>
+            <button id="nav-btn-0" onclick="switchTab(0)" class="flex-1 nav-btn active"><span class="text-2xl mb-1">🏠</span><span class="nav-text">Главная</span></button>
+            <button id="nav-btn-1" onclick="switchTab(1)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📅</span><span class="nav-text">График</span></button>
+            <button id="nav-btn-2" onclick="switchTab(2)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📋</span><span class="nav-text">Тесты</span></button>
+            <button id="nav-btn-3" onclick="switchTab(3)" class="flex-1 nav-btn"><span class="text-2xl mb-1">🛠️</span><span class="nav-text">Помощь</span></button>
         </div>
     </nav>
 
@@ -290,17 +269,10 @@
 
         function switchTab(index) {
             const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
-            
-            // Скрываем все табы
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            // Показываем нужный
             document.getElementById(tabs[index]).classList.add('active');
-            
-            // Сбрасываем кнопки навигации
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-            // Активируем нужную кнопку
             document.getElementById(`nav-btn-${index}`).classList.add('active');
-            
             if(index === 1) renderSchedule(document.getElementById('month-selector').value);
             window.scrollTo(0, 0);
         }
