@@ -28,77 +28,72 @@
         /* Контейнер таблицы */
         .schedule-container {
             overflow-x: auto;
-            border-radius: 1rem;
-            border: 1px solid #27272a;
-            background-color: #111827;
+            border-radius: 12px;
+            border: 1px solid #1e1e1e;
+            background-color: #0f172a;
             -webkit-overflow-scrolling: touch;
         }
         
+        /* Таблица стала компактнее */
         .schedule-table { 
             border-collapse: separate; 
             border-spacing: 0; 
             width: 100%; 
             table-layout: fixed;
-            min-width: 1200px;
+            min-width: 1050px; /* Уменьшили общую ширину для плотности */
         }
         
         .schedule-table th, .schedule-table td {
-            font-size: 11px; 
-            height: 50px; 
+            font-size: 10px; /* Меньше шрифт */
+            height: 38px;   /* Меньше высота строки */
             text-align: center;
             vertical-align: middle; 
-            border-right: 0.5px solid #27272a; 
-            border-bottom: 0.5px solid #27272a;
-            overflow: hidden;
+            border-right: 1px solid #1e293b; 
+            border-bottom: 1px solid #1e293b;
+            color: #cbd5e1;
         }
 
+        /* Столбец с фамилией стал чуть уже */
         .col-name { 
             position: sticky; 
             left: 0; 
             z-index: 10;
-            width: 160px;
+            width: 130px; 
             text-align: left !important; 
-            padding-left: 12px !important;
-            background-color: #111827;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.5);
-            font-size: 12px !important;
+            padding-left: 10px !important;
+            background-color: #1e293b;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.5);
+            font-size: 11px !important;
+            color: #f8fafc !important;
         }
 
-        .col-day { width: 35px; }
-        .col-total { width: 45px; background-color: #0f172a; font-weight: bold; }
+        /* Дни стали узкими - теперь их влезет больше */
+        .col-day { width: 28px; }
+        .col-total { width: 38px; background-color: #020617; font-weight: 700; color: #60a5fa; }
 
-        thead th { background-color: #1e293b; color: #94a3b8; font-weight: 600; }
-        thead th.col-name { z-index: 20; color: #fff; }
+        thead th { background-color: #334155; color: #f8fafc; font-weight: 600; text-transform: uppercase; font-size: 9px; letter-spacing: 0.05em; }
+        thead th.col-name { z-index: 20; background-color: #2563eb; }
 
-        /* Цвета смен */
-        .day-shift   { background-color: #166534 !important; }
-        .night-shift { background-color: #4338ca !important; }
-        .sp-shift    { background-color: #b45309 !important; }
-        .off-status  { background-color: #3f3f46 !important; color: #a1a1aa; font-size: 10px; }
-        .weekend     { background-color: #1f2937 !important; color: #94a3b8; }
+        /* Цвета смен (сделали чуть мягче) */
+        .day-shift   { background-color: #059669 !important; }
+        .night-shift { background-color: #4f46e5 !important; }
+        .sp-shift    { background-color: #d97706 !important; }
+        .off-status  { background-color: #1e293b !important; color: #64748b; font-size: 9px; }
+        .weekend     { background-color: #0f172a !important; color: #475569; }
 
         /* Выделение строки */
-        .highlighted-row td { background-color: #1e293b; color: #fff; }
-        .highlighted-row td.col-name { background-color: #2563eb !important; }
-        .blurred-row { opacity: 0.2; filter: grayscale(0.8); }
+        .highlighted-row td { background-color: #1e293b !important; color: #fff; }
+        .highlighted-row td.col-name { background-color: #3b82f6 !important; }
+        .blurred-row { opacity: 0.25; filter: blur(0.5px); }
 
-        /* ИСПРАВЛЕННАЯ НАВИГАЦИЯ */
+        /* Навигация iOS */
         .safe-nav {
             padding-bottom: env(safe-area-inset-bottom);
-            height: calc(65px + env(safe-area-inset-bottom));
-            pointer-events: auto; /* Явно разрешаем нажатия */
+            height: calc(60px + env(safe-area-inset-bottom));
         }
-        
-        .nav-btn { 
-            height: 65px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            transition: all 0.2s; 
-        }
+        .nav-btn { height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        .dot { width: 12px; height: 12px; border-radius: 4px; }
+        .dot { width: 10px; height: 10px; border-radius: 3px; }
     </style>
 </head>
 <body class="bg-[#0a0a0a] text-zinc-100 min-h-screen pb-32">
@@ -130,17 +125,17 @@
             </div>
         </div>
 
-        <div id="tab-schedule" class="tab-content px-4 pt-8">
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-bold mb-1">График работы</h2>
-                <p class="text-zinc-500 text-sm">Апрель 2026</p>
+        <div id="tab-schedule" class="tab-content px-2 pt-6">
+            <div class="flex items-center justify-between px-2 mb-4">
+                <h2 class="text-xl font-bold">График работы</h2>
+                <span class="bg-blue-600/20 text-blue-400 text-[10px] px-2 py-1 rounded-full font-bold">АПРЕЛЬ 2026</span>
             </div>
             
-            <div class="schedule-container">
+            <div class="schedule-container shadow-2xl">
                 <table id="schedule-table" class="schedule-table">
                     <thead>
                         <tr>
-                            <th class="col-name">Фамилия</th>
+                            <th class="col-name">ФАМИЛИЯ</th>
                             <script>
                                 for(let i=1; i<=30; i++) {
                                     let isW = (i==4||i==5||i==11||i==12||i==18||i==19||i==25||i==26);
@@ -150,7 +145,7 @@
                             <th class="col-total">С</th><th class="col-total">Ч</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-zinc-800">
+                    <tbody class="divide-y divide-zinc-800/50">
                         <tr onclick="highlightRow(this)"><td class="col-name font-medium">Лагутенков Р.С.</td><td class="off-status">ПХ</td><td></td><td class="day-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="sp-shift"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="night-shift"></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td></td><td class="col-total">14</td><td class="col-total">164</td></tr>
                         <tr onclick="highlightRow(this)"><td class="col-name font-medium">Миронов С.А.</td><td class="off-status">ПХ</td><td></td><td class="day-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td></td><td class="night-shift"></td><td></td><td class="sp-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="night-shift"></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td></td><td class="col-total">14</td><td class="col-total">164</td></tr>
                         <tr onclick="highlightRow(this)"><td class="col-name font-medium">Куштанов А.А.</td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="sp-shift"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="day-shift"></td><td class="weekend"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td></td><td class="col-total">14</td><td class="col-total">164</td></tr>
@@ -160,11 +155,11 @@
                 </table>
             </div>
 
-            <div class="mt-8 grid grid-cols-2 gap-y-3 px-2 mb-20">
-                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-emerald-600"></div> День</div>
-                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-indigo-600"></div> Ночь</div>
-                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-amber-600"></div> Спецподготовка</div>
-                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-zinc-600"></div> Выходной / Отпуск</div>
+            <div class="mt-6 grid grid-cols-2 gap-y-2 px-2 mb-20">
+                <div class="flex items-center gap-2 text-[10px] text-zinc-400"><div class="dot bg-emerald-600"></div> ДЕНЬ</div>
+                <div class="flex items-center gap-2 text-[10px] text-zinc-400"><div class="dot bg-indigo-600"></div> НОЧЬ</div>
+                <div class="flex items-center gap-2 text-[10px] text-zinc-400"><div class="dot bg-amber-600"></div> СПЕЦ</div>
+                <div class="flex items-center gap-2 text-[10px] text-zinc-400"><div class="dot bg-slate-700"></div> ОТПУСК</div>
             </div>
         </div>
 
@@ -191,23 +186,23 @@
                     <div><h4 class="font-bold text-lg text-zinc-100">Почта</h4><p class="text-zinc-500 text-sm">i.rygih@mail.ru</p></div>
                 </a>
             </div>
-            <p class="text-center text-[10px] text-zinc-600 mt-12 uppercase tracking-widest font-bold">Версия: 1.1.3</p>
+            <p class="text-center text-[10px] text-zinc-600 mt-12 uppercase tracking-widest font-bold">Версия: 1.1.5</p>
         </div>
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-xl border-t border-zinc-800 max-w-xl mx-auto z-[100] safe-nav">
         <div class="flex h-full">
-            <button onclick="switchTab(0)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">🏠</span><span class="text-[10px] font-bold">ГЛАВНАЯ</span></button>
-            <button onclick="switchTab(1)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">📅</span><span class="text-[10px] font-bold">ГРАФИК</span></button>
-            <button onclick="switchTab(2)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">📝</span><span class="text-[10px] font-bold">ТЕСТЫ</span></button>
-            <button onclick="switchTab(3)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">⚙️</span><span class="text-[10px] font-bold">ПОМОЩЬ</span></button>
+            <button onclick="switchTab(0)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">🏠</span><span class="text-[9px] font-bold">ГЛАВНАЯ</span></button>
+            <button onclick="switchTab(1)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">📅</span><span class="text-[9px] font-bold">ГРАФИК</span></button>
+            <button onclick="switchTab(2)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">📝</span><span class="text-[9px] font-bold">ТЕСТЫ</span></button>
+            <button onclick="switchTab(3)" class="flex-1 nav-btn text-zinc-500 active:text-blue-500"><span class="text-2xl mb-1">⚙️</span><span class="text-[9px] font-bold">ПОМОЩЬ</span></button>
         </div>
     </nav>
 
     <div id="block-modal" onclick="if(event.target===this) closeBlockModal()" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
         <div class="card-bg border border-zinc-800 rounded-[2rem] w-full max-w-md max-h-[70vh] flex flex-col overflow-hidden">
             <div class="px-6 py-5 border-b border-zinc-800 flex items-center justify-between">
-                <h3 id="modal-block-title" class="font-bold text-xl text-zinc-100"></h3>
+                <h3 id="modal-block-title" class="font-bold text-lg text-zinc-100"></h3>
                 <button onclick="closeBlockModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400">✕</button>
             </div>
             <div id="instructions-list" class="flex-1 overflow-auto p-4 space-y-2"></div>
@@ -249,11 +244,11 @@
             document.getElementById('modal-block-title').textContent = 
                 key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
             const container = document.getElementById('instructions-list');
-            container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-500">Раздел пуст</div>';
+            container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-500 text-sm">Раздел пуст</div>';
             data.forEach(item => {
                 const btn = document.createElement('div');
-                btn.className = "p-5 rounded-2xl card-bg border border-zinc-800 flex items-center gap-4 cursor-pointer active:bg-zinc-800";
-                btn.innerHTML = `<span class="text-2xl text-zinc-400">📄</span><span class="font-medium text-sm text-zinc-100">${item.name}</span>`;
+                btn.className = "p-4 rounded-xl card-bg border border-zinc-800 flex items-center gap-4 cursor-pointer active:bg-zinc-800";
+                btn.innerHTML = `<span class="text-xl">📄</span><span class="font-medium text-xs text-zinc-100">${item.name}</span>`;
                 btn.onclick = () => window.open(item.file, '_blank');
                 container.appendChild(btn);
             });
