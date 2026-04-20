@@ -39,7 +39,6 @@
             transition: all 0.1s ease;
         }
 
-        /* ИЗМЕНЕННЫЙ ЦВЕТ КОЛОНКИ Ф.И.О. */
         .col-name { 
             position: sticky; 
             left: 0; 
@@ -47,22 +46,22 @@
             width: 130px; 
             text-align: left !important; 
             padding-left: 12px !important; 
-            background-color: #111827 !important; /* Более темный фон для контраста */
+            background-color: #111827 !important; 
             color: #94a3b8 !important; 
             font-weight: 700;
-            border-right: 2px solid #3b82f6 !important; /* Синяя разделительная линия */
+            border-right: 2px solid #3b82f6 !important; 
         }
         
         thead th { background-color: #1e293b; color: #f8fafc; font-weight: 700; text-transform: uppercase; font-size: 9px; letter-spacing: 0.05em; }
         thead th.col-name { background-color: #0f172a !important; color: #3b82f6 !important; }
 
-        /* Цвета смен */
+        /* Смены */
         .shift-D { background-color: #059669 !important; color: white !important; } 
         .shift-N { background-color: #4f46e5 !important; color: white !important; } 
         .shift-S { background-color: #d97706 !important; color: white !important; } 
         .shift-O, .shift-ПХ { background-color: #1e293b !important; color: #64748b; font-size: 9px; } 
 
-        /* Подсветка */
+        /* Подсветка строки */
         .highlighted-row {
             outline: 2px solid #ffffff !important;
             outline-offset: -2px;
@@ -79,7 +78,6 @@
         .highlighted-row td.shift-N { background-color: #4f46e5 !important; }
         .highlighted-row td.shift-S { background-color: #d97706 !important; }
 
-        /* При выделении Ф.И.О. становится ярче */
         .highlighted-row .col-name { 
             background-color: #1e40af !important; 
             color: white !important;
@@ -98,16 +96,50 @@
         }
         .month-select-hidden { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
-        /* Навигация */
+        /* ОБНОВЛЕННАЯ НАВИГАЦИЯ СО СВЕЧЕНИЕМ */
         .safe-nav { padding-bottom: env(safe-area-inset-bottom); height: calc(65px + env(safe-area-inset-bottom)); }
-        .nav-btn { height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.3s; color: #71717a; }
-        .nav-btn.active { color: #ffffff !important; }
-        .nav-btn.active::before { 
-            content: ''; position: absolute; top: 50%; left: 50%; width: 45px; height: 45px; 
-            background: rgba(59, 130, 246, 0.2); border-radius: 50%; transform: translate(-50%, -50%); 
-            filter: blur(12px); z-index: -1; animation: pulse-glow 2s infinite;
+        .nav-btn { 
+            height: 65px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            position: relative; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            color: #52525b; 
         }
-        .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.02em; }
+
+        /* Активная кнопка */
+        .nav-btn.active { 
+            color: #3b82f6 !important; 
+        }
+
+        /* Светящаяся полоска сверху кнопки */
+        .nav-btn.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 30%;
+            height: 3px;
+            background: #3b82f6;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 0 0 15px #3b82f6, 0 0 5px #3b82f6;
+            animation: slideIn 0.3s ease;
+        }
+
+        /* Мягкий ореол за иконкой */
+        .nav-btn.active::before { 
+            content: ''; position: absolute; top: 50%; left: 50%; width: 40px; height: 40px; 
+            background: rgba(59, 130, 246, 0.15); border-radius: 50%; transform: translate(-50%, -50%); 
+            filter: blur(10px); z-index: -1;
+        }
+
+        .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
+
+        @keyframes slideIn {
+            from { width: 0; opacity: 0; }
+            to { width: 30%; opacity: 1; }
+        }
 
         @keyframes pulse-glow {
             0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
@@ -223,10 +255,22 @@
 
     <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-zinc-900 max-w-xl mx-auto z-[100] safe-nav">
         <div class="flex h-full">
-            <button id="nav-btn-0" onclick="switchTab(0)" class="flex-1 nav-btn active"><span class="text-2xl mb-1">🏠</span><span class="nav-text">Главная</span></button>
-            <button id="nav-btn-1" onclick="switchTab(1)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📅</span><span class="nav-text">График</span></button>
-            <button id="nav-btn-2" onclick="switchTab(2)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📝</span><span class="nav-text">Тесты</span></button>
-            <button id="nav-btn-3" onclick="switchTab(3)" class="flex-1 nav-btn"><span class="text-2xl mb-1">⚙️</span><span class="nav-text">Помощь</span></button>
+            <button id="nav-btn-0" onclick="switchTab(0)" class="flex-1 nav-btn active">
+                <span class="text-2xl mb-1">🏠</span>
+                <span class="nav-text">Главная</span>
+            </button>
+            <button id="nav-btn-1" onclick="switchTab(1)" class="flex-1 nav-btn">
+                <span class="text-2xl mb-1">📅</span>
+                <span class="nav-text">График</span>
+            </button>
+            <button id="nav-btn-2" onclick="switchTab(2)" class="flex-1 nav-btn">
+                <span class="text-2xl mb-1">📋</span>
+                <span class="nav-text">Тесты</span>
+            </button>
+            <button id="nav-btn-3" onclick="switchTab(3)" class="flex-1 nav-btn">
+                <span class="text-2xl mb-1">🛠️</span>
+                <span class="nav-text">Помощь</span>
+            </button>
         </div>
     </nav>
 
@@ -246,10 +290,17 @@
 
         function switchTab(index) {
             const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
+            
+            // Скрываем все табы
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            // Показываем нужный
             document.getElementById(tabs[index]).classList.add('active');
+            
+            // Сбрасываем кнопки навигации
             document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+            // Активируем нужную кнопку
             document.getElementById(`nav-btn-${index}`).classList.add('active');
+            
             if(index === 1) renderSchedule(document.getElementById('month-selector').value);
             window.scrollTo(0, 0);
         }
