@@ -75,6 +75,7 @@
         }
 
         .col-date { width: 22px; } 
+        
         .col-stat { 
             width: 32px; 
             font-weight: 900; 
@@ -89,9 +90,19 @@
         .shift-S { background-color: #d97706 !important; } 
         .shift-O, .shift-ПХ { background-color: #1e293b !important; color: #475569; font-size: 8px; } 
 
-        .highlighted-row { outline: 2px solid #ffffff !important; outline-offset: -2px; z-index: 50; position: relative; }
+        .highlighted-row {
+            outline: 2px solid #ffffff !important;
+            outline-offset: -2px;
+            z-index: 50;
+            position: relative;
+        }
         .highlighted-row td { opacity: 1 !important; filter: none !important; }
-        .highlighted-row .col-name { background-color: #1e40af !important; color: white !important; border-right-color: rgba(255, 255, 255, 0.3) !important; }
+        .highlighted-row .col-name { 
+            background-color: #1e40af !important; 
+            color: white !important;
+            border-right-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        
         .blurred-row { opacity: 0.15; filter: grayscale(1) blur(0.5px); }
 
         .month-picker-btn {
@@ -102,9 +113,16 @@
         .month-select-hidden { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
         .safe-nav { padding-bottom: env(safe-area-inset-bottom); height: calc(65px + env(safe-area-inset-bottom)); }
-        .nav-btn { height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #52525b; }
+        .nav-btn { 
+            height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #52525b; 
+        }
         .nav-btn.active { color: #3b82f6 !important; }
-        .nav-btn.active::after { content: ''; position: absolute; top: 0; width: 30%; height: 3px; background: #3b82f6; border-radius: 0 0 4px 4px; box-shadow: 0 0 15px #3b82f6; animation: slideIn 0.3s ease; }
+        .nav-btn.active::after {
+            content: ''; position: absolute; top: 0; width: 30%; height: 3px;
+            background: #3b82f6; border-radius: 0 0 4px 4px; box-shadow: 0 0 15px #3b82f6;
+            animation: slideIn 0.3s ease;
+        }
         .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
 
         @keyframes slideIn { from { width: 0; opacity: 0; } to { width: 30%; opacity: 1; } }
@@ -167,7 +185,12 @@
             </div>
 
             <div id="schedule-viewport" class="schedule-container shadow-2xl"></div>
-            <div id="schedule-legend" class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 px-2 mb-20"></div>
+            
+            <div id="schedule-legend" class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 px-2 mb-20">
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-emerald-600"></div> День</div>
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-indigo-600"></div> Ночь</div>
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-amber-600"></div> Спец</div>
+            </div>
         </div>
 
         <div id="tab-tests" class="tab-content px-4 pt-10">
@@ -190,10 +213,15 @@
                     </div>
                     <h2 class="text-3xl font-extrabold text-white tracking-tight">Поддержка</h2>
                 </div>
+
                 <div class="w-full grid grid-cols-1 gap-3 px-4">
                     <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full bg-[#111827] border border-zinc-800 py-6 px-5 rounded-3xl flex flex-col items-center justify-center group active:scale-[0.98] transition-all hover:border-sky-500/30">
                         <div class="w-14 h-14 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-sky-500/20">💬</div>
                         <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Telegram</span>
+                    </a>
+                    <a href="mailto:i.rygih@mail.ru" class="w-full bg-[#111827] border border-zinc-800 py-6 px-5 rounded-3xl flex flex-col items-center justify-center group active:scale-[0.98] transition-all hover:border-red-500/30">
+                        <div class="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-red-500/20">📟</div>
+                        <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Почта</span>
                     </a>
                 </div>
             </div>
@@ -240,8 +268,13 @@
                 currentlyHighlighted = null;
             } else {
                 rows.forEach(r => {
-                    if (r === row) { r.classList.add('highlighted-row'); r.classList.remove('blurred-row'); }
-                    else { r.classList.add('blurred-row'); r.classList.remove('highlighted-row'); }
+                    if (r === row) {
+                        r.classList.add('highlighted-row');
+                        r.classList.remove('blurred-row');
+                    } else {
+                        r.classList.add('blurred-row');
+                        r.classList.remove('highlighted-row');
+                    }
                 });
                 currentlyHighlighted = row;
             }
@@ -250,37 +283,51 @@
         function renderSchedule(monthName) {
             document.getElementById('current-month-display').textContent = `${monthName} 2026`;
             const viewport = document.getElementById('schedule-viewport');
+            const legend = document.getElementById('schedule-legend');
             viewport.innerHTML = '';
             const data = (typeof scheduleData !== 'undefined') ? scheduleData[monthName] : null;
-            if (!data) return;
+
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                if (legend) legend.style.display = 'none';
+                viewport.innerHTML = `<div class="py-32 text-center text-zinc-600 font-bold uppercase text-[11px] tracking-[0.2em] px-6">График отсутствует</div>`;
+                return;
+            }
+
+            if (legend) legend.style.display = 'flex';
             const year = 2026, monthIdx = monthsMap[monthName];
             const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+            
             let html = `<table class="schedule-table"><thead><tr><th class="col-name">Ф.И.О.</th>`;
             for(let d=1; d<=daysInMonth; d++) {
                 const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
                 html += `<th class="col-date ${isWE ? 'bg-zinc-800/50 text-red-400' : ''}">${d}</th>`;
             }
             html += `<th class="col-stat">С</th><th class="col-stat">Ч</th></tr></thead><tbody>`;
+            
             data.forEach(person => {
                 html += `<tr onclick="highlightRow(this)"><td class="col-name">${person.name}</td>`;
                 for(let d=1; d<=daysInMonth; d++) {
                     const val = person.shifts[d-1] || '';
                     const isVisual = ['D','N','S'].includes(val);
                     const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
-                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''}">${isVisual ? '' : (val === 'W' ? '' : val)}</td>`;
+                    const cellContent = isVisual ? '' : (val === 'W' ? '' : val);
+                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''}">${cellContent}</td>`;
                 }
                 html += `<td class="col-stat">${person.s}</td><td class="col-stat">${person.h}</td></tr>`;
             });
             viewport.innerHTML = html + `</tbody></table>`;
+            currentlyHighlighted = null;
         }
 
         const blocksData = { 1: [{ name: "Руководство S7-400", file: "pdfs/blok-1/S7-400_instalation.pdf" }], 2: [], 3: [], 4: [], 5: [], 6: [], other: [], zip: [] };
         const blocksCont = document.getElementById('blocks-container');
-        for(let i=1; i<=6; i++) {
-            blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between mb-1"><div class="flex items-center gap-4"><span class="text-blue-500 font-extrabold text-lg">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
+        if(blocksCont) {
+            for(let i=1; i<=6; i++) {
+                blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all mb-1"><div class="flex items-center gap-4"><span class="text-blue-500 font-extrabold text-lg">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
+            }
         }
 
-        // МОЩНЫЙ МЕТОД ОТКРЫТИЯ ДЛЯ PWA (ВЫХОД В БРАУЗЕР)
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Принудительный выбор браузера на iOS PWA
         function openBlockModal(key) {
             const data = blocksData[key] || [];
             document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
@@ -289,36 +336,30 @@
             
             data.forEach(item => {
                 const itemDiv = document.createElement('div');
-                itemDiv.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 cursor-pointer";
+                itemDiv.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors cursor-pointer";
                 itemDiv.innerHTML = `<span class="text-2xl">📄</span><span class="font-bold text-xs text-zinc-100 uppercase tracking-wide">${item.name}</span>`;
                 
                 itemDiv.onclick = () => {
                     const absoluteUrl = new URL(item.file, window.location.href).href;
-                    
-                    // Если это iPhone/Android в режиме приложения
-                    if (window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches) {
-                        // Трюк: создаем ссылку, которая принудительно открывается вне Standalone окна
+
+                    // Если открыто как приложение на iPhone (standalone режим)
+                    if (("standalone" in window.navigator) && window.navigator.standalone) {
+                        if (confirm("Для сохранения и поиска по файлу необходимо открыть его в Safari. Перейти в браузер?")) {
+                            // window.location.assign в PWA на iOS — это единственный способ принудительно открыть Safari
+                            window.location.assign(absoluteUrl);
+                        }
+                    } else {
+                        // Если открыто просто в браузере — открываем в новой вкладке
                         const a = document.createElement('a');
                         a.href = absoluteUrl;
                         a.target = '_blank';
                         a.rel = 'noopener noreferrer';
-                        // download подсказывает системе, что файл нужно скачать/сохранить
-                        a.setAttribute('download', '');
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
-
-                        // Резервный метод для iOS: если через секунду не выкинуло, спрашиваем пользователя
-                        setTimeout(() => {
-                            if(confirm("Для сохранения и поиска по файлу необходимо открыть его в браузере. Перейти?")) {
-                                window.location.assign(absoluteUrl);
-                            }
-                        }, 500);
-                    } else {
-                        // В обычном браузере просто открываем в новой вкладке
-                        window.open(absoluteUrl, '_blank');
                     }
                 };
+                
                 container.appendChild(itemDiv);
             });
             document.getElementById('block-modal').classList.remove('hidden');
