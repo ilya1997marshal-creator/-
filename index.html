@@ -25,7 +25,6 @@
         
         .card-bg { background-color: #111827; border-color: #334155; }
 
-        /* Контейнер таблицы */
         .schedule-container {
             overflow-x: auto;
             border-radius: 12px;
@@ -50,7 +49,7 @@
             border-right: 1px solid #1e293b; 
             border-bottom: 1px solid #1e293b;
             color: #cbd5e1;
-            transition: background-color 0.2s;
+            transition: all 0.3s ease;
         }
 
         .col-name { 
@@ -79,20 +78,26 @@
         .off-status  { background-color: #1e293b !important; color: #64748b; font-size: 9px; }
         .weekend     { background-color: #0f172a !important; color: #475569; }
 
-        /* ИСПРАВЛЕННАЯ ПОДСВЕТКА */
-        tr.highlighted-row td { background-color: #1d4ed8 !important; color: #ffffff !important; }
-        tr.highlighted-row td.col-name { background-color: #2563eb !important; }
-        tr.highlighted-row td.off-status { background-color: #3b82f6 !important; color: #ffffff !important; }
+        /* ПРАВИЛЬНАЯ ПОДСВЕТКА И БЛЮР */
+        /* Выбранная строка остается яркой */
+        tr.highlighted-row td { 
+            opacity: 1 !important;
+            filter: none !important;
+            border-bottom: 1px solid #3b82f6;
+        }
         
-        .blurred-row { opacity: 0.25; filter: grayscale(0.5); }
+        /* Остальные строки блюрятся */
+        .blurred-row { 
+            opacity: 0.15; 
+            filter: blur(1.5px) grayscale(0.8); 
+            pointer-events: none; /* Чтобы нельзя было случайно тыкнуть в блюр */
+        }
 
-        /* Навигация */
         .safe-nav {
             padding-bottom: env(safe-area-inset-bottom);
             height: calc(60px + env(safe-area-inset-bottom));
         }
-        .nav-btn { height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.2s; }
-        .nav-btn:active { opacity: 0.6; }
+        .nav-btn { height: 60px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
         .dot { width: 10px; height: 10px; border-radius: 3px; }
     </style>
@@ -136,7 +141,7 @@
                 <table id="schedule-table" class="schedule-table">
                     <thead>
                         <tr>
-                            <th class="col-name">ФАМИЛИЯ</th>
+                            <th class="col-name">Ф.И.О.</th>
                             <script>
                                 for(let i=1; i<=30; i++) {
                                     let isW = (i==4||i==5||i==11||i==12||i==18||i==19||i==25||i==26);
@@ -187,7 +192,7 @@
                     <div><h4 class="font-bold text-lg text-zinc-100">Почта</h4><p class="text-zinc-500 text-sm">i.rygih@mail.ru</p></div>
                 </a>
             </div>
-            <p class="text-center text-[10px] text-zinc-600 mt-12 uppercase tracking-widest font-bold">Версия: 1.1.6</p>
+            <p class="text-center text-[10px] text-zinc-600 mt-12 uppercase tracking-widest font-bold">Версия: 1.1.7</p>
         </div>
     </div>
 
@@ -215,12 +220,15 @@
 
         function highlightRow(row) {
             const rows = document.querySelectorAll('#schedule-table tbody tr');
+            
+            // Если кликнули на уже выделенную строку — убираем всё выделение
             if (currentlyHighlighted === row) {
                 rows.forEach(r => { 
                     r.classList.remove('highlighted-row', 'blurred-row'); 
                 });
                 currentlyHighlighted = null;
             } else {
+                // Иначе выделяем текущую и блюрим остальные
                 rows.forEach(r => {
                     if (r === row) {
                         r.classList.add('highlighted-row');
@@ -234,32 +242,24 @@
             }
         }
 
-        const blocksData = {
-            1: [{ name: "S7-400 Installation (PDF)", file: "pdfs/blok-1/S7-400_instalation.pdf" }],
-            2: [], 3: [], 4: [], 5: [], 6: [], 
-            other: [], zip: []
-        };
+        const blocksData = { 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], other: [], zip: [] };
 
         function switchTab(index) {
             const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.getElementById(tabs[index]).classList.add('active');
             window.scrollTo(0, 0);
+            
+            // Сбрасываем выделение при смене вкладок
+            document.querySelectorAll('#schedule-table tr').forEach(r => r.classList.remove('highlighted-row', 'blurred-row'));
+            currentlyHighlighted = null;
         }
 
         function openBlockModal(key) {
             const data = blocksData[key] || [];
-            document.getElementById('modal-block-title').textContent = 
-                key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
+            document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
             const container = document.getElementById('instructions-list');
             container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-500 text-sm">Раздел пуст</div>';
-            data.forEach(item => {
-                const btn = document.createElement('div');
-                btn.className = "p-4 rounded-xl card-bg border border-zinc-800 flex items-center gap-4 cursor-pointer active:bg-zinc-800";
-                btn.innerHTML = `<span class="text-xl">📄</span><span class="font-medium text-xs text-zinc-100">${item.name}</span>`;
-                btn.onclick = () => window.open(item.file, '_blank');
-                container.appendChild(btn);
-            });
             document.getElementById('block-modal').classList.remove('hidden');
         }
 
