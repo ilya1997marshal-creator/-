@@ -32,7 +32,6 @@
             border: 1px solid #1f2937;
             background-color: #0f172a;
             -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth; /* Для плавного автоскролла */
         }
         .schedule-table { 
             border-collapse: separate; 
@@ -54,7 +53,7 @@
         .col-name { 
             position: sticky; 
             left: 0; 
-            z-index: 30; 
+            z-index: 10; 
             width: 120px; 
             text-align: center !important; 
             padding-left: 8px !important; 
@@ -69,54 +68,42 @@
         }
         
         thead th { background-color: #1e293b; color: #f8fafc; font-weight: 700; text-transform: uppercase; font-size: 9px; }
-        thead th.col-name { background-color: #0f172a !important; color: #3b82f6 !important; }
-
-        /* ПОДСВЕТКА СЕГОДНЯ */
-        .today-cell {
-            background-color: rgba(59, 130, 246, 0.15) !important;
-            position: relative;
-        }
-        .today-cell::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-left: 2px solid #3b82f6;
-            border-right: 2px solid #3b82f6;
-            pointer-events: none;
-            z-index: 5;
+        thead th.col-name { 
+            background-color: #0f172a !important; 
+            color: #3b82f6 !important;
+            border-right: 1px solid rgba(59, 130, 246, 0.4) !important;
         }
 
-        /* КНОПКА "СЕГОДНЯ" */
-        #btn-scroll-today {
-            display: none;
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            z-index: 150;
-            background: #3b82f6;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 99px;
-            font-size: 10px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-            animation: bounceIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        .col-date { width: 22px; } 
+        
+        .col-stat { 
+            width: 32px; 
+            font-weight: 900; 
+            color: #ffffff; 
+            background-color: #020617 !important; 
+            border-left: 1px solid rgba(59, 130, 246, 0.3) !important; 
         }
-
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        thead th.col-stat { background-color: #020617 !important; color: #60a5fa !important; }
 
         .shift-D { background-color: #059669 !important; } 
         .shift-N { background-color: #4f46e5 !important; } 
         .shift-S { background-color: #d97706 !important; } 
-        .shift-O { background-color: #1e293b !important; color: #475569; } 
+        .shift-O, .shift-ПХ { background-color: #1e293b !important; color: #475569; font-size: 8px; } 
 
-        .highlighted-row { outline: 2px solid #ffffff; z-index: 40; position: relative; }
-        .blurred-row { opacity: 0.15; filter: grayscale(1); }
+        .highlighted-row {
+            outline: 2px solid #ffffff !important;
+            outline-offset: -2px;
+            z-index: 50;
+            position: relative;
+        }
+        .highlighted-row td { opacity: 1 !important; filter: none !important; }
+        .highlighted-row .col-name { 
+            background-color: #1e40af !important; 
+            color: white !important;
+            border-right-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        .blurred-row { opacity: 0.15; filter: grayscale(1) blur(0.5px); }
 
         .month-picker-btn {
             position: relative; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3);
@@ -126,24 +113,32 @@
         .month-select-hidden { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 
         .safe-nav { padding-bottom: env(safe-area-inset-bottom); height: calc(65px + env(safe-area-inset-bottom)); }
-        .nav-btn { height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #52525b; }
+        .nav-btn { 
+            height: 65px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); color: #52525b; 
+        }
         .nav-btn.active { color: #3b82f6 !important; }
-        .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
+        .nav-btn.active::after {
+            content: ''; position: absolute; top: 0; width: 30%; height: 3px;
+            background: #3b82f6; border-radius: 0 0 4px 4px; box-shadow: 0 0 15px #3b82f6;
+            animation: slideIn 0.3s ease;
+        }
+        .nav-text { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; letter-spacing: 0.05em; }
+
+        @keyframes slideIn { from { width: 0; opacity: 0; } to { width: 30%; opacity: 1; } }
     </style>
 </head>
 <body class="pb-32">
 
-    <button id="btn-scroll-today" onclick="scrollToToday()">Сегодня</button>
-
     <div class="max-w-xl mx-auto h-full relative">
 
         <div id="tab-home" class="tab-content active px-4 pt-10">
-            <div class="flex flex-col items-center mb-12 text-center">
+            <div class="flex flex-col items-center mb-12">
                 <div class="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center mb-4 border border-blue-500/20 shadow-2xl">
                     <span class="text-4xl">⚡</span>
                 </div>
-                <h1 class="text-3xl font-extrabold text-white uppercase">ЦТАИ АСУ ТП</h1>
-                <p class="text-zinc-500 text-xs mt-2 font-medium tracking-widest uppercase">Информационная панель</p>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">ЦТАИ АСУ ТП</h1>
+                <p class="text-zinc-500 text-sm mt-2 font-medium text-center">Информационная панель <br> подразделения</p>
             </div>
 
             <div id="blocks-container" class="space-y-3 px-2"></div>
@@ -152,14 +147,14 @@
                 <button onclick="openBlockModal('other')" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-amber-500/10 text-amber-500 rounded-xl flex items-center justify-center text-xl">📌</div>
-                        <span class="font-bold text-zinc-100 text-sm uppercase">Инструкции</span>
+                        <span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Инструкции</span>
                     </div>
                     <span class="text-zinc-700">›</span>
                 </button>
                 <button onclick="openBlockModal('zip')" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all">
                     <div class="flex items-center gap-4">
                         <div class="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center text-xl">🔧</div>
-                        <span class="font-bold text-zinc-100 text-sm uppercase">ЗИП АСУ ТП</span>
+                        <span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">ЗИП АСУ ТП</span>
                     </div>
                     <span class="text-zinc-700">›</span>
                 </button>
@@ -171,7 +166,7 @@
                 <div class="w-16 h-16 bg-blue-600/10 rounded-3xl flex items-center justify-center mb-4 border border-blue-500/20">
                     <span class="text-3xl">📅</span>
                 </div>
-                <h1 class="text-2xl font-extrabold text-white uppercase">График</h1>
+                <h1 class="text-2xl font-extrabold tracking-tight text-white">График работы</h1>
             </div>
 
             <div class="flex items-center justify-end mb-4 px-2">
@@ -191,45 +186,62 @@
 
             <div id="schedule-viewport" class="schedule-container shadow-2xl"></div>
             
-            <div id="schedule-legend" class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-4 px-2 mb-20">
-                <div class="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase"><div class="w-3 h-3 rounded-sm bg-emerald-600"></div> День</div>
-                <div class="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase"><div class="w-3 h-3 rounded-sm bg-indigo-600"></div> Ночь</div>
-                <div class="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase"><div class="w-3 h-3 rounded-sm bg-amber-600"></div> Спец</div>
+            <div id="schedule-legend" class="mt-6 flex flex-wrap justify-center gap-x-6 gap-y-2 px-2 mb-20">
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-emerald-600"></div> День</div>
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-indigo-600"></div> Ночь</div>
+                <div class="flex items-center gap-2 text-[9px] text-zinc-500 font-bold uppercase tracking-widest"><div class="w-2.5 h-2.5 rounded-sm bg-amber-600"></div> Спец</div>
             </div>
         </div>
 
-        <div id="tab-tests" class="tab-content px-4 pt-10 text-center">
-            <h1 class="text-2xl font-extrabold text-white uppercase mb-4">Тесты</h1>
-            <div class="p-10 bg-[#111827] border border-zinc-800 rounded-3xl text-zinc-500 text-sm uppercase">В разработке</div>
+        <div id="tab-tests" class="tab-content px-4 pt-10">
+            <div class="flex flex-col items-center mb-12">
+                <div class="w-20 h-20 bg-indigo-600/10 rounded-3xl flex items-center justify-center mb-4 border border-indigo-500/20 shadow-2xl">
+                    <span class="text-4xl">📋</span>
+                </div>
+                <h1 class="text-3xl font-extrabold tracking-tight text-white">Тесты знаний</h1>
+            </div>
+            <div class="px-6 py-16 bg-[#111827] border border-zinc-800 rounded-[2.5rem] shadow-2xl text-center">
+                <p class="text-zinc-500 text-sm font-semibold uppercase tracking-widest">Раздел в разработке</p>
+            </div>
         </div>
 
-        <div id="tab-help" class="tab-content px-4 pt-10 text-center">
-            <h1 class="text-2xl font-extrabold text-white uppercase mb-10">Связь</h1>
-            <div class="grid gap-3 px-4 text-left">
-                <a href="https://t.me/IlyaMar5hal" class="bg-[#111827] p-6 rounded-3xl border border-zinc-800 flex items-center gap-4">
-                    <span class="text-2xl">💬</span> <span class="font-bold text-zinc-100 uppercase tracking-widest text-sm">Telegram</span>
-                </a>
-                <a href="mailto:i.rygih@mail.ru" class="bg-[#111827] p-6 rounded-3xl border border-zinc-800 flex items-center gap-4">
-                    <span class="text-2xl">📟</span> <span class="font-bold text-zinc-100 uppercase tracking-widest text-sm">Почта</span>
-                </a>
+        <div id="tab-help" class="tab-content px-4 pt-10 flex-1">
+            <div class="w-full flex flex-col items-center">
+                <div class="text-center mb-10">
+                    <div class="w-20 h-20 bg-blue-600/10 rounded-3xl flex items-center justify-center mx-auto mb-4 border border-blue-500/20 shadow-2xl">
+                        <span class="text-4xl">📡</span>
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight">Поддержка</h2>
+                </div>
+
+                <div class="w-full grid grid-cols-1 gap-3 px-4">
+                    <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full bg-[#111827] border border-zinc-800 py-6 px-5 rounded-3xl flex flex-col items-center justify-center group active:scale-[0.98] transition-all hover:border-sky-500/30">
+                        <div class="w-14 h-14 bg-sky-500/10 text-sky-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-sky-500/20">💬</div>
+                        <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Telegram</span>
+                    </a>
+                    <a href="mailto:i.rygih@mail.ru" class="w-full bg-[#111827] border border-zinc-800 py-6 px-5 rounded-3xl flex flex-col items-center justify-center group active:scale-[0.98] transition-all hover:border-red-500/30">
+                        <div class="w-14 h-14 bg-red-500/10 text-red-400 rounded-2xl flex items-center justify-center text-2xl mb-3 ring-1 ring-red-500/20">📟</div>
+                        <span class="font-black text-zinc-100 text-sm uppercase tracking-[0.2em]">Почта</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-zinc-900 max-w-xl mx-auto z-[100] safe-nav">
         <div class="flex h-full">
-            <button onclick="switchTab(0)" id="nav-btn-0" class="flex-1 nav-btn active"><span class="text-2xl">🏠</span><span class="nav-text">Главная</span></button>
-            <button onclick="switchTab(1)" id="nav-btn-1" class="flex-1 nav-btn"><span class="text-2xl">📅</span><span class="nav-text">График</span></button>
-            <button onclick="switchTab(2)" id="nav-btn-2" class="flex-1 nav-btn"><span class="text-2xl">📋</span><span class="nav-text">Тесты</span></button>
-            <button onclick="switchTab(3)" id="nav-btn-3" class="flex-1 nav-btn"><span class="text-2xl">🛠️</span><span class="nav-text">Помощь</span></button>
+            <button id="nav-btn-0" onclick="switchTab(0)" class="flex-1 nav-btn active"><span class="text-2xl mb-1">🏠</span><span class="nav-text">Главная</span></button>
+            <button id="nav-btn-1" onclick="switchTab(1)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📅</span><span class="nav-text">График</span></button>
+            <button id="nav-btn-2" onclick="switchTab(2)" class="flex-1 nav-btn"><span class="text-2xl mb-1">📋</span><span class="nav-text">Тесты</span></button>
+            <button id="nav-btn-3" onclick="switchTab(3)" class="flex-1 nav-btn"><span class="text-2xl mb-1">🛠️</span><span class="nav-text">Помощь</span></button>
         </div>
     </nav>
 
     <div id="block-modal" onclick="if(event.target===this) closeBlockModal()" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[200] p-4">
         <div class="card-bg border border-zinc-800 rounded-[2.5rem] w-full max-w-md max-h-[75vh] flex flex-col overflow-hidden shadow-2xl">
             <div class="px-8 py-6 border-b border-zinc-800 flex items-center justify-between">
-                <h3 id="modal-block-title" class="font-bold text-lg text-white uppercase"></h3>
-                <button onclick="closeBlockModal()" class="w-8 h-8 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400">✕</button>
+                <h3 id="modal-block-title" class="font-bold text-xl text-white"></h3>
+                <button onclick="closeBlockModal()" class="w-10 h-10 flex items-center justify-center rounded-full bg-zinc-800 text-zinc-400">✕</button>
             </div>
             <div id="instructions-list" class="flex-1 overflow-auto p-6 space-y-3"></div>
         </div>
@@ -240,73 +252,13 @@
         const monthsMap = { "Январь":0, "Февраль":1, "Март":2, "Апрель":3, "Май":4, "Июнь":5, "Июль":6, "Август":7, "Сентябрь":8, "Октябрь":9, "Ноябрь":10, "Декабрь":11 };
 
         function switchTab(index) {
+            const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content')[index].classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabs[index]).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`nav-btn-${index}`).classList.add('active');
-            
-            // Скрыть/показать кнопку скролла
-            const scrollBtn = document.getElementById('btn-scroll-today');
-            scrollBtn.style.display = (index === 1 && isTodayVisible()) ? 'block' : 'none';
-
             if(index === 1) renderSchedule(document.getElementById('month-selector').value);
             window.scrollTo(0, 0);
-        }
-
-        function isTodayVisible() {
-            const month = document.getElementById('month-selector').value;
-            const now = new Date();
-            return now.getMonth() === monthsMap[month] && now.getFullYear() === 2026;
-        }
-
-        function scrollToToday() {
-            const container = document.querySelector('.schedule-container');
-            const todayCell = document.querySelector('th.today-cell');
-            if (container && todayCell) {
-                // Вычисляем позицию: отступ ячейки минус отступ первой колонки (120px)
-                const scrollPos = todayCell.offsetLeft - 120;
-                container.scrollTo({ left: scrollPos, behavior: 'smooth' });
-            }
-        }
-
-        function renderSchedule(monthName) {
-            const now = new Date();
-            const currentDay = now.getDate();
-            const isCurr = (now.getMonth() === monthsMap[monthName] && now.getFullYear() === 2026);
-            
-            document.getElementById('current-month-display').textContent = `${monthName} 2026`;
-            document.getElementById('btn-scroll-today').style.display = (isCurr) ? 'block' : 'none';
-
-            const viewport = document.getElementById('schedule-viewport');
-            const data = (typeof scheduleData !== 'undefined') ? scheduleData[monthName] : [];
-
-            if (!data || data.length === 0) {
-                viewport.innerHTML = `<div class="py-20 text-center text-zinc-600 font-bold uppercase text-[10px]">Нет данных</div>`;
-                return;
-            }
-
-            const daysInMonth = new Date(2026, monthsMap[monthName] + 1, 0).getDate();
-            let html = `<table class="schedule-table"><thead><tr><th class="col-name">Ф.И.О.</th>`;
-            
-            for(let d=1; d<=daysInMonth; d++) {
-                const isWE = [0,6].includes(new Date(2026, monthsMap[monthName], d).getDay());
-                const isToday = (isCurr && d === currentDay);
-                html += `<th class="col-date ${isWE ? 'bg-zinc-800/50 text-red-400' : ''} ${isToday ? 'today-cell' : ''}">${d}</th>`;
-            }
-            html += `<th class="col-stat">С</th><th class="col-stat">Ч</th></tr></thead><tbody>`;
-            
-            data.forEach(p => {
-                html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
-                for(let d=1; d<=daysInMonth; d++) {
-                    const val = p.shifts[d-1] || '';
-                    const isToday = (isCurr && d === currentDay);
-                    const isWE = [0,6].includes(new Date(2026, monthsMap[monthName], d).getDay());
-                    const isVis = ['D','N','S'].includes(val);
-                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''} ${isToday ? 'today-cell' : ''}">${isVis ? '' : (val==='W'?'':val)}</td>`;
-                }
-                html += `<td class="col-stat">${p.s}</td><td class="col-stat">${p.h}</td></tr>`;
-            });
-            viewport.innerHTML = html + `</tbody></table>`;
         }
 
         function highlightRow(row) {
@@ -316,38 +268,94 @@
                 currentlyHighlighted = null;
             } else {
                 rows.forEach(r => {
-                    r.classList.add(r === row ? 'highlighted-row' : 'blurred-row');
-                    r.classList.remove(r === row ? 'blurred-row' : 'highlighted-row');
+                    if (r === row) {
+                        r.classList.add('highlighted-row');
+                        r.classList.remove('blurred-row');
+                    } else {
+                        r.classList.add('blurred-row');
+                        r.classList.remove('highlighted-row');
+                    }
                 });
                 currentlyHighlighted = row;
             }
         }
 
-        const blocksData = { 1: [{name:"S7-400 Manual", file:"pdfs/s7400.pdf"}], 2:[], 3:[], 4:[], 5:[], 6:[], other:[], zip:[] };
+        function renderSchedule(monthName) {
+            document.getElementById('current-month-display').textContent = `${monthName} 2026`;
+            const viewport = document.getElementById('schedule-viewport');
+            const legend = document.getElementById('schedule-legend');
+            viewport.innerHTML = '';
+            const data = (typeof scheduleData !== 'undefined') ? scheduleData[monthName] : null;
+
+            if (!data || !Array.isArray(data) || data.length === 0) {
+                if (legend) legend.style.display = 'none';
+                viewport.innerHTML = `<div class="py-32 text-center text-zinc-600 font-bold uppercase text-[11px] tracking-[0.2em] px-6">График отсутствует</div>`;
+                return;
+            }
+
+            if (legend) legend.style.display = 'flex';
+            const year = 2026, monthIdx = monthsMap[monthName];
+            const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+            
+            let html = `<table class="schedule-table"><thead><tr><th class="col-name">Ф.И.О.</th>`;
+            for(let d=1; d<=daysInMonth; d++) {
+                const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
+                html += `<th class="col-date ${isWE ? 'bg-zinc-800/50 text-red-400' : ''}">${d}</th>`;
+            }
+            html += `<th class="col-stat">С</th><th class="col-stat">Ч</th></tr></thead><tbody>`;
+            
+            data.forEach(person => {
+                html += `<tr onclick="highlightRow(this)"><td class="col-name">${person.name}</td>`;
+                for(let d=1; d<=daysInMonth; d++) {
+                    const val = person.shifts[d-1] || '';
+                    const isVisual = ['D','N','S'].includes(val);
+                    const isWE = [0,6].includes(new Date(year, monthIdx, d).getDay());
+                    const cellContent = isVisual ? '' : (val === 'W' ? '' : val);
+                    html += `<td class="shift-${val} ${isWE ? 'bg-white/5' : ''}">${cellContent}</td>`;
+                }
+                html += `<td class="col-stat">${person.s}</td><td class="col-stat">${person.h}</td></tr>`;
+            });
+            viewport.innerHTML = html + `</tbody></table>`;
+            currentlyHighlighted = null;
+        }
+
+        const blocksData = { 1: [{ name: "Руководство S7-400", file: "pdfs/blok-1/S7-400_instalation.pdf" }], 2: [], 3: [], 4: [], 5: [], 6: [], other: [], zip: [] };
         const blocksCont = document.getElementById('blocks-container');
         if(blocksCont) {
             for(let i=1; i<=6; i++) {
-                blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between mb-1"><div class="flex items-center gap-4"><span class="text-blue-500 font-black">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
+                blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full bg-[#111827] border border-zinc-800 p-5 rounded-2xl flex items-center justify-between group active:scale-[0.97] transition-all mb-1"><div class="flex items-center gap-4"><span class="text-blue-500 font-extrabold text-lg">0${i}</span><span class="font-bold text-zinc-100 text-sm uppercase tracking-wide">Блок ${i}</span></div><span class="text-zinc-700">›</span></button>`;
             }
         }
 
-        function openBlockModal(k) {
-            const data = blocksData[k] || [];
-            document.getElementById('modal-block-title').textContent = k === 'other' ? 'Инструкции' : k === 'zip' ? 'ЗИП' : `Блок ${k}`;
+        function openBlockModal(key) {
+            const data = blocksData[key] || [];
+            document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
             const container = document.getElementById('instructions-list');
-            container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-600 text-xs uppercase font-bold">Пусто</div>';
-            data.forEach(i => {
-                const d = document.createElement('div');
-                d.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors";
-                d.innerHTML = `<span>📄</span><span class="font-bold text-xs text-zinc-100 uppercase">${i.name}</span>`;
-                d.onclick = () => window.open(i.file, '_blank');
-                container.appendChild(d);
+            container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-600 text-sm uppercase tracking-widest">Пусто</div>';
+            
+            data.forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = "p-5 rounded-2xl bg-[#0f172a] border border-zinc-800 flex items-center gap-4 active:bg-blue-600 transition-colors cursor-pointer";
+                itemDiv.innerHTML = `<span class="text-2xl">📄</span><span class="font-bold text-xs text-zinc-100 uppercase tracking-wide">${item.name}</span>`;
+                
+                itemDiv.onclick = () => {
+                    const absoluteUrl = new URL(item.file, window.location.href).href;
+                    const a = document.createElement('a');
+                    a.href = absoluteUrl;
+                    a.target = '_blank';
+                    a.rel = 'external noopener noreferrer'; 
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                };
+                
+                container.appendChild(itemDiv);
             });
             document.getElementById('block-modal').classList.remove('hidden');
         }
 
         function closeBlockModal() { document.getElementById('block-modal').classList.add('hidden'); }
-        window.onload = () => renderSchedule("Апрель");
+        window.onload = () => { renderSchedule("Апрель"); };
     </script>
 </body>
 </html>
