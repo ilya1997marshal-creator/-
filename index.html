@@ -25,27 +25,27 @@
         /* Таблица */
         .schedule-table { border-collapse: separate; border-spacing: 0; width: 100%; }
         .schedule-table th, .schedule-table td {
-            font-size: 12px; height: 44px; text-align: center;
+            font-size: 12px; height: 40px; text-align: center;
             vertical-align: middle; border: 0.5px solid #27272a; white-space: nowrap;
         }
-        .col-date { width: 32px; min-width: 32px; }
+        .col-date { width: 30px; min-width: 30px; }
         .col-name { width: 180px; min-width: 180px; text-align: left !important; padding-left: 16px !important; }
-        .col-stat { width: 50px; font-weight: 600; }
+        .col-stat { width: 45px; font-weight: 600; background-color: #0f172a; }
 
-        /* Цвета смен */
-        .day-shift   { background-color: #166534; color: #fff; }
-        .night-shift { background-color: #4338ca; color: #fff; }
-        .sp-shift    { background-color: #b45309; color: #fff; }
-        .off         { background-color: #3f3f46; color: #a1a1aa; }
+        /* Цвета смен (без текста внутри) */
+        .day-shift   { background-color: #166534; }
+        .night-shift { background-color: #4338ca; }
+        .sp-shift    { background-color: #b45309; }
+        .off-status  { background-color: #3f3f46; color: #a1a1aa; font-size: 10px; } /* Для меток типа "О" или "ПХ" */
         .weekend     { background-color: #1f2937 !important; color: #94a3b8; }
 
         .highlighted-row td { background-color: #1e2937 !important; color: #fff; border-top: 1px solid #3b82f6; border-bottom: 1px solid #3b82f6; }
         .blurred-row td { opacity: 0.3; filter: grayscale(0.5); }
 
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot { width: 12px; height: 12px; border-radius: 4px; }
     </style>
 </head>
-<body class="bg-[#0a0a0a] text-zinc-100 min-h-screen pb-20">
+<body class="bg-[#0a0a0a] text-zinc-100 min-h-screen pb-24">
 
     <div class="max-w-xl mx-auto">
 
@@ -104,20 +104,20 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-800">
-                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Лагутенков Р.С.</td><td class="off">ПХ</td><td></td><td class="day-shift">1219</td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td class="sp-shift">0828</td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td class="night-shift">1202</td><td class="weekend"></td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td class="night-shift">1202</td><td class="weekend"></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td></td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
-                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Миронов С.А.</td><td class="off">ПХ</td><td></td><td class="day-shift">1219</td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td></td><td class="night-shift">1202</td><td></td><td class="sp-shift">0804</td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td class="night-shift">1202</td><td class="weekend"></td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td class="night-shift">1202</td><td class="weekend"></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td></td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
-                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Куштанов А.А.</td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td class="night-shift">1202</td><td class="weekend"></td><td class="sp-shift">0828</td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td class="weekend"></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td></td><td class="weekend"></td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
-                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Рыжих И.Н.</td><td></td><td></td><td></td><td class="weekend"></td><td class="weekend"></td><td></td><td></td><td></td><td></td><td></td><td class="weekend"></td><td class="weekend"></td><td></td><td></td><td></td><td></td><td class="day-shift">1219</td><td class="weekend"></td><td></td><td></td><td class="day-shift">1219</td><td class="night-shift">1202</td><td></td><td></td><td class="weekend"></td><td class="night-shift">1202</td><td></td><td></td><td class="day-shift">1219</td><td></td><td class="col-stat">5</td><td class="col-stat">60</td></tr>
-                        <tr onclick="highlightRow(this)"><td class="col-name font-medium text-zinc-500">Бондаренко Т.А.</td><td class="off">О</td><td class="off">О</td><td></td><td class="weekend"></td><td class="weekend"></td><td class="off">О</td><td class="off">О</td><td></td><td></td><td class="off">О</td><td class="weekend"></td><td class="weekend"></td><td></td><td class="off">О</td><td></td><td></td><td class="off">О</td><td class="weekend"></td><td></td><td class="off">О</td><td class="off">О</td><td></td><td></td><td class="off">О</td><td class="weekend"></td><td class="off">О</td><td class="off">О</td><td></td><td></td><td></td><td class="col-stat">0</td><td class="col-stat">ОТП</td></tr>
+                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Лагутенков Р.С.</td><td class="off-status">ПХ</td><td></td><td class="day-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="sp-shift"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="night-shift"></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
+                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Миронов С.А.</td><td class="off-status">ПХ</td><td></td><td class="day-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td></td><td class="night-shift"></td><td></td><td class="sp-shift"></td><td class="day-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="night-shift"></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
+                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Куштанов А.А.</td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="night-shift"></td><td class="weekend"></td><td class="sp-shift"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td class="weekend"></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td class="day-shift"></td><td class="weekend"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td></td><td class="col-stat">14</td><td class="col-stat">164</td></tr>
+                        <tr onclick="highlightRow(this)"><td class="col-name font-medium">Рыжих И.Н.</td><td></td><td></td><td></td><td class="weekend"></td><td class="weekend"></td><td></td><td></td><td></td><td></td><td></td><td class="weekend"></td><td class="weekend"></td><td></td><td></td><td></td><td></td><td class="day-shift"></td><td class="weekend"></td><td></td><td></td><td class="day-shift"></td><td class="night-shift"></td><td></td><td></td><td class="weekend"></td><td class="night-shift"></td><td></td><td></td><td class="day-shift"></td><td></td><td class="col-stat">5</td><td class="col-stat">60</td></tr>
+                        <tr onclick="highlightRow(this)"><td class="col-name font-medium text-zinc-500">Бондаренко Т.А.</td><td class="off-status">О</td><td class="off-status">О</td><td></td><td class="weekend"></td><td class="weekend"></td><td class="off-status">О</td><td class="off-status">О</td><td></td><td></td><td class="off-status">О</td><td class="weekend"></td><td class="weekend"></td><td></td><td class="off-status">О</td><td></td><td></td><td class="off-status">О</td><td class="weekend"></td><td></td><td class="off-status">О</td><td class="off-status">О</td><td></td><td></td><td class="off-status">О</td><td class="weekend"></td><td class="off-status">О</td><td class="off-status">О</td><td></td><td></td><td></td><td class="col-stat">0</td><td class="col-stat">ОТП</td></tr>
                     </tbody>
                 </table>
             </div>
 
-            <div class="mt-8 grid grid-cols-2 gap-4 px-2">
-                <div class="flex items-center gap-2 text-sm text-zinc-400"><div class="dot bg-emerald-600"></div> День</div>
-                <div class="flex items-center gap-2 text-sm text-zinc-400"><div class="dot bg-indigo-600"></div> Ночь</div>
-                <div class="flex items-center gap-2 text-sm text-zinc-400"><div class="dot bg-amber-600"></div> Спецподготовка</div>
-                <div class="flex items-center gap-2 text-sm text-zinc-400"><div class="dot bg-zinc-600"></div> Выходной</div>
+            <div class="mt-8 grid grid-cols-2 gap-y-3 px-2">
+                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-emerald-600"></div> День (08:00–20:00)</div>
+                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-indigo-600"></div> Ночь (20:00–08:00)</div>
+                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-amber-600"></div> Спецподготовка</div>
+                <div class="flex items-center gap-3 text-xs text-zinc-400"><div class="dot bg-zinc-600"></div> Выходной / Отпуск</div>
             </div>
         </div>
 
@@ -129,9 +129,9 @@
         </div>
 
         <div id="tab-help" class="tab-content px-4 pt-8">
-            <h2 class="text-2xl font-bold mb-6 text-center">Обратная связь</h2>
+            <h2 class="text-2xl font-bold mb-6 text-center">Разработка</h2>
             <div class="card-bg border border-zinc-800 rounded-3xl p-6">
-                <textarea id="feedback-text" rows="5" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4 outline-none focus:border-blue-500" placeholder="Ваше сообщение..."></textarea>
+                <textarea id="feedback-text" rows="5" class="w-full bg-zinc-900 border border-zinc-700 rounded-2xl p-4 outline-none focus:border-blue-500" placeholder="Опишите баг или предложение..."></textarea>
                 <button onclick="sendFeedback()" class="w-full mt-4 bg-blue-600 py-4 rounded-2xl font-bold active:bg-blue-700">Отправить</button>
             </div>
         </div>
@@ -176,8 +176,7 @@
         const blocksData = {
             1: [{ name: "Руководство S7-400 (PDF)", file: "pdfs/blok-1/S7-400_instalation.pdf" }],
             2: [], 3: [], 4: [], 5: [], 6: [], 
-            other: [{ name: "Общие правила ПТЭ", file: "pdfs/other/rules.pdf" }], 
-            zip: []
+            other: [], zip: []
         };
 
         function switchTab(index) {
@@ -191,15 +190,12 @@
             const data = blocksData[key] || [];
             document.getElementById('modal-block-title').textContent = 
                 key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
-            
             const container = document.getElementById('instructions-list');
             container.innerHTML = data.length ? '' : '<div class="text-center py-10 text-zinc-500">Пока пусто</div>';
-            
             data.forEach(item => {
                 const btn = document.createElement('div');
                 btn.className = "p-5 rounded-2xl card-bg border border-zinc-800 flex items-center gap-4 cursor-pointer active:bg-zinc-800";
                 btn.innerHTML = `<span class="text-2xl">📄</span><span class="font-medium text-sm">${item.name}</span>`;
-                // КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: Открываем в новой вкладке
                 btn.onclick = () => window.open(item.file, '_blank');
                 container.appendChild(btn);
             });
