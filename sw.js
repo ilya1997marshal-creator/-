@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v36'; // Увеличил версию
+const CACHE_NAME = 'ctai-base-v37';
 const ASSETS = [
   './',
   './index.html',
@@ -20,6 +20,18 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
       return response || fetch(event.request);
+    })
+  );
+});
+
+// Активация: удаляем старые кэши, чтобы не занимать место
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key))
+      );
     })
   );
 });
