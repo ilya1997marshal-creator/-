@@ -25,6 +25,7 @@
         .tab-content.active { display: flex; flex-direction: column; }
         .card-bg { background-color: #111827; border-color: #334155; }
 
+        /* График */
         .schedule-container {
             overflow-x: auto;
             border-radius: 12px;
@@ -32,6 +33,8 @@
             background-color: #0f172a;
             -webkit-overflow-scrolling: touch;
             min-height: 200px;
+            display: flex;
+            flex-direction: column;
         }
         .schedule-table { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; min-width: 1050px; }
         .schedule-table th, .schedule-table td {
@@ -45,6 +48,7 @@
         thead th { background-color: #334155; color: #f8fafc; font-weight: 600; text-transform: uppercase; font-size: 9px; }
         thead th.col-name { z-index: 20; background-color: #2563eb; }
 
+        /* Стили смен */
         .shift-D { background-color: #059669 !important; color: transparent !important; } 
         .shift-N { background-color: #4f46e5 !important; color: transparent !important; } 
         .shift-S { background-color: #d97706 !important; color: transparent !important; } 
@@ -53,6 +57,7 @@
         .weekend-cell { background-color: rgba(255, 255, 255, 0.03); }
         thead th.weekend-cell { background-color: #1e293b !important; color: #ef4444 !important; }
 
+        /* Выделение */
         tr.highlighted-row td:not([class*="shift-D"]):not([class*="shift-N"]):not([class*="shift-S"]) { 
             background-color: #1e293b !important; 
         }
@@ -129,7 +134,7 @@
                         <span class="font-bold text-zinc-100 uppercase tracking-widest text-[10px]">Почта</span>
                     </a>
                 </div>
-                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.2</p>
+                <p class="text-center text-[10px] text-zinc-700 mt-12 uppercase tracking-widest font-black">Версия 1.3.3</p>
             </div>
         </div>
     </div>
@@ -177,15 +182,20 @@
         }
 
         function renderSchedule(monthName) {
-            // 1. Сразу обновляем текст и полностью чистим контейнер
             document.getElementById('current-month-display').textContent = `${monthName} 2026`;
             const viewport = document.getElementById('schedule-viewport');
             viewport.innerHTML = ''; 
             currentlyHighlighted = null;
 
-            // 2. Проверяем наличие данных
+            // Проверка наличия данных в data.js
             if (typeof scheduleData === 'undefined' || !scheduleData[monthName]) {
-                viewport.innerHTML = `<div class="py-20 text-center text-zinc-500 font-medium italic px-4">Данные для месяца ${monthName} ещё не внесены</div>`;
+                viewport.innerHTML = `
+                    <div class="flex-1 flex flex-col items-center justify-center py-20 px-6 text-center">
+                        <div class="text-4xl mb-4 opacity-20">📅</div>
+                        <div class="text-zinc-400 font-medium text-sm tracking-wide">
+                            График на данный период<br>находится на утверждении
+                        </div>
+                    </div>`;
                 return;
             }
 
@@ -219,12 +229,14 @@
             viewport.innerHTML = html + `</tbody></table>`;
         }
 
+        /* Кнопки блоков на главной */
         const blocksCont = document.getElementById('blocks-container');
         for(let i=1; i<=6; i++) {
             blocksCont.innerHTML += `<button onclick="openBlockModal(${i})" class="w-full card-bg border border-zinc-800 rounded-2xl p-4 flex items-center justify-between mb-2 text-zinc-200 font-medium active:scale-95 transition-transform"><div class="flex items-center gap-4"><span class="text-blue-500 font-bold text-lg">0${i}</span>Блок ${i}</div><span>›</span></button>`;
         }
 
         function openBlockModal(key) {
+            // Данные берутся из внешнего файла library.js
             const data = (typeof blocksData !== 'undefined') ? blocksData[key] : [];
             document.getElementById('modal-block-title').textContent = key === 'other' ? 'Инструкции' : key === 'zip' ? 'ЗИП АСУ ТП' : `Блок ${key}`;
             const container = document.getElementById('instructions-list');
