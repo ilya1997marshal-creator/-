@@ -12,19 +12,15 @@ function toggleTheme() {
 function switchTab(index) {
     const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
     
-    // Скрываем все вкладки
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     
-    // Показываем нужную
     const targetTab = document.getElementById(tabs[index]);
     if (targetTab) targetTab.classList.add('active');
     
-    // Обновляем кнопки навигации
     document.querySelectorAll('.nav-item').forEach((btn, i) => {
         btn.classList.toggle('active', i === index);
     });
     
-    // Специфическая логика для вкладок
     if(index === 0) updateOnDutyWidget(); 
     if(index === 1) {
         const selector = document.getElementById('month-selector');
@@ -62,7 +58,7 @@ function updateOnDutyWidget() {
     }
 }
 
-// --- ГРАФИК ---
+// --- ГРАФИК (ИСПРАВЛЕННЫЙ СИНТАКСИС) ---
 function renderSchedule(monthName) {
     const display = document.getElementById('current-month-display');
     if(display) display.textContent = monthName + " 2026";
@@ -83,7 +79,6 @@ function renderSchedule(monthName) {
     
     const data = scheduleData["Апрель"];
     const daysInMonth = 30;
-
     const today = new Date();
     const currentDay = today.getDate();
     const isCurrentMonth = monthIndex === today.getMonth();
@@ -127,9 +122,8 @@ function renderSchedule(monthName) {
                 hoursCount += (val === 'S' ? 8 : 12);
             }
         }
-        
         html += `<td class="col-stat">${shiftsCount}</td><td class="col-stat">${hoursCount}</td></tr>`;
-    }); // Исправлено закрытие forEach
+    });
     
     viewport.innerHTML = html + `</tbody></table>`;
 
@@ -157,6 +151,27 @@ function highlightRow(row) {
     }
 }
 
+// --- ФУНКЦИЯ ДЛЯ PDF (WEB SHARE API) ---
+async function downloadAndOpenPDF(url, fileName) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const file = new File([blob], fileName, { type: 'application/pdf' });
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: fileName
+            });
+        } else {
+            window.open(url, '_blank');
+        }
+    } catch (err) {
+        console.error("Ошибка при передаче файла:", err);
+        window.open(url, '_blank');
+    }
+}
+
 // --- МОДАЛЬНОЕ ОКНО ---
 function openBlockModal(key) {
     const title = document.getElementById('modal-block-title');
@@ -170,16 +185,13 @@ function openBlockModal(key) {
     if (key === 'other') {
         title.textContent = 'Инструкции';
         list.innerHTML = `
-            <a href="docs/S7-400_instalation.pdf" 
-               target="_blank" 
-               rel="noopener noreferrer"
-               class="doc-item">
+            <div onclick="downloadAndOpenPDF('docs/S7-400_instalation.pdf', 'S7-400_Manual.pdf')" class="doc-item cursor-pointer">
                 <div class="flex flex-col">
                     <span class="doc-name">Руководство S7-400</span>
-                    <span class="text-[9px] opacity-40 mt-1 uppercase font-bold">Нажмите для просмотра</span>
+                    <span class="text-[9px] opacity-40 mt-1 uppercase font-bold">Открыть или сохранить</span>
                 </div>
-                <span class="text-blue-500 text-xl">📄</span>
-            </a>`;
+                <span class="text-blue-500 text-xl">📂</span>
+            </div>`;
     } else if (key === 'zip') {
         title.textContent = 'ЗИП АСУ ТП';
         list.innerHTML = '<div class="text-center py-20 opacity-20 text-[9px] font-black uppercase">Нет данных</div>';
@@ -214,7 +226,7 @@ function displayAppVersion() {
     }
 }
 
-// --- ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ ---
+// --- ИНИЦИАЛИЗАЦИЯ ---
 window.onload = () => {
     const blocksCont = document.getElementById('blocks-container');
     if (blocksCont) {
@@ -232,7 +244,6 @@ window.onload = () => {
     }
     
     if(localStorage.getItem('theme') === 'light') toggleTheme();
-    
     updateOnDutyWidget(); 
     displayAppVersion(); 
     switchTab(0); 
