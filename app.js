@@ -34,7 +34,7 @@ async function updateVersionNumber() {
             const keys = await caches.keys();
             const cacheKey = keys.find(k => k.toLowerCase().includes('v') || k.toLowerCase().includes('ctai'));
             if (cacheKey) {
-                const match = cacheKey.match(/v\d+/i); // Упростил поиск версии
+                const match = cacheKey.match(/v\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
                 verElement.textContent = "V70"; 
@@ -141,23 +141,39 @@ function openBlockModal(key) {
         mData.items.forEach(item => {
             const div = document.createElement('div');
             div.className = "diag-card mb-3";
+            
             if (item.link) {
+                const btnId = `share-${Math.random().toString(36).substr(2, 9)}`;
                 div.innerHTML = `
                     <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 active:scale-[0.98] transition-transform">
                         <div onclick="window.open('${item.link}', '_blank')" class="flex-1 cursor-pointer">
                             <span class="font-bold text-sm block">${item.title}</span>
                             <span class="text-[9px] opacity-40 uppercase font-black">Открыть документ</span>
                         </div>
-                        <a href="${item.link}" download class="ml-2 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-[10px] font-black uppercase">Сохранить</a>
+                        <button id="${btnId}" class="ml-2 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-[10px] font-black uppercase">Сохранить</button>
                     </div>`;
+                
+                list.appendChild(div);
+                const shareBtn = div.querySelector(`#${btnId}`);
+                shareBtn.onclick = async () => {
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({ title: item.title, url: item.link });
+                        } catch (err) {
+                            if (err.name !== 'AbortError') window.open(item.link, '_blank');
+                        }
+                    } else {
+                        window.open(item.link, '_blank');
+                    }
+                };
             } else {
                 div.innerHTML = `
                     <div class="p-5 bg-white/5 rounded-[2rem] border border-white/5">
                         <div class="text-blue-500 font-black text-[10px] uppercase mb-1">${item.title}</div>
                         <div class="text-sm opacity-80 leading-relaxed">${item.desc}</div>
                     </div>`;
+                list.appendChild(div);
             }
-            list.appendChild(div);
         });
     }
     document.getElementById('block-modal').classList.remove('hidden');
@@ -193,8 +209,6 @@ function showUpdateToast(worker) {
 
 if ('serviceWorker' in navigator) {
     let refreshing = false;
-    
-    // Перезагрузка при активации нового воркера
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
@@ -203,9 +217,7 @@ if ('serviceWorker' in navigator) {
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            // Проверка при загрузке
             if (reg.waiting) showUpdateToast(reg.waiting);
-
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -214,17 +226,14 @@ if ('serviceWorker' in navigator) {
                     }
                 });
             });
-
-            // Авто-проверка обновлений каждые 30 минут
             setInterval(() => reg.update(), 1000 * 60 * 30);
-        });
+        }).catch(err => console.error('SW Error:', err));
     });
 
-    // КРИТИЧЕСКИ ВАЖНО ДЛЯ PWA: Проверка при возврате в приложение
     window.addEventListener('focus', async () => {
         const reg = await navigator.serviceWorker.getRegistration();
         if (reg) {
-            await reg.update(); // Принудительно проверяем файл sw.js на сервере
+            await reg.update();
             if (reg.waiting) showUpdateToast(reg.waiting);
         }
     });
