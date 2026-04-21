@@ -55,9 +55,8 @@ body {
     border: 1px solid var(--border);
     background-color: var(--bg-card);
     width: 100%;
-    /* ДОБАВЛЯЕМ ЭТИ СТРОКИ: */
     padding-top: 5px;
-    padding-bottom: 12px; /* Этот отступ создаст место для скролл-бара */
+    padding-bottom: 12px;
 }
 
 .schedule-table { border-collapse: separate; border-spacing: 0; table-layout: fixed; width: max-content; }
@@ -71,6 +70,31 @@ body {
     border-bottom: 1px solid var(--table-border);
     color: var(--text-main);
     vertical-align: middle;
+    transition: background-color 0.2s;
+}
+
+/* СТИЛИ ПОДСВЕТКИ СЕГОДНЯ */
+.today-column {
+    background-color: rgba(59, 130, 246, 0.08) !important;
+    position: relative;
+}
+
+.today-header {
+    color: var(--accent) !important;
+    font-weight: 900 !important;
+    background: rgba(59, 130, 246, 0.15) !important;
+}
+
+.today-header::after {
+    content: '';
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: var(--accent);
+    border-radius: 50%;
 }
 
 .head-fio { 
@@ -229,7 +253,6 @@ body {
     transition: 0.2s;
 }
 
-/* Новые стили для оживления кнопки */
 .update-action-btn:active { transform: scale(0.96); background: #2563eb; }
 
 .update-action-btn.loading {

@@ -80,6 +80,12 @@ function renderSchedule(monthName) {
     
     const data = scheduleData["Апрель"];
     const daysInMonth = 30;
+
+    // ОПРЕДЕЛЯЕМ ТЕКУЩИЙ ДЕНЬ ДЛЯ ПОДСВЕТКИ
+    const today = new Date();
+    const currentDay = today.getDate();
+    // Проверка, что выбранный месяц в приложении совпадает с текущим реальным месяцем (Апрель)
+    const isCurrentMonth = monthIndex === today.getMonth();
     
     let html = `
         <table class="schedule-table">
@@ -88,7 +94,8 @@ function renderSchedule(monthName) {
                     <th class="col-name head-fio">Ф.И.О.</th>`;
     
     for(let d=1; d<=daysInMonth; d++) {
-        html += `<th>${d}</th>`;
+        const isToday = isCurrentMonth && d === currentDay;
+        html += `<th class="${isToday ? 'today-header' : ''}">${d}</th>`;
     }
     
     html += `
@@ -108,7 +115,10 @@ function renderSchedule(monthName) {
             let val = p.shifts[d-1] || '';
             if (p.name === "Бондаренко Т.А.") val = 'O';
             
+            const isToday = isCurrentMonth && d === currentDay;
             let cellClass = val ? `shift-${val}` : '';
+            if (isToday) cellClass += ' today-column';
+
             html += `<td class="${cellClass}"></td>`;
             
             if(val === 'D' || val === 'N' || val === 'S') {
@@ -121,6 +131,16 @@ function renderSchedule(monthName) {
     });
     
     viewport.innerHTML = html + `</tbody></table>`;
+
+    // АВТОМАТИЧЕСКИЙ СКРОЛЛ К ТЕКУЩЕМУ ДНЮ
+    if (isCurrentMonth) {
+        setTimeout(() => {
+            const todayHeader = document.querySelector('.today-header');
+            if (todayHeader) {
+                todayHeader.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }, 100);
+    }
 }
 
 function highlightRow(row) {
