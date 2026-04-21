@@ -154,30 +154,29 @@ function highlightRow(row) {
     }
 }
 
-// --- НОВАЯ ФУНКЦИЯ ДЛЯ PDF (iOS Friendly) ---
-function handlePDF(url, fileName) {
-    // Если браузер поддерживает Web Share API (iOS Safari это умеет)
-    if (navigator.share) {
-        fetch(url)
-            .then(res => res.blob())
-            .then(blob => {
-                const file = new File([blob], fileName, { type: 'application/pdf' });
-                navigator.share({
-                    files: [file],
-                    title: fileName,
-                }).catch(err => {
-                    // Если отмена или ошибка, просто открываем в новом окне
-                    window.open(url, '_blank');
-                });
-            })
-            .catch(() => window.open(url, '_blank'));
-    } else {
-        // Обычное скачивание для остальных
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        link.target = '_blank';
-        link.click();
+// --- ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ PDF ---
+async function handlePDF(url, fileName) {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        
+        // Создаем Blob URL
+        const blobUrl = URL.createObjectURL(blob);
+        
+        // Открываем в новой вкладке. 
+        // На iOS в PWA это создаст окно с инструментами Safari
+        const newWindow = window.open(blobUrl, '_blank');
+        
+        if (!newWindow) {
+            alert('Пожалуйста, разрешите всплывающие окна');
+        }
+
+        // Чистим память через некоторое время
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+        
+    } catch (error) {
+        console.error('Ошибка открытия PDF:', error);
+        window.open(url, '_blank');
     }
 }
 
@@ -193,14 +192,13 @@ function openBlockModal(key) {
     
     if (key === 'other') {
         title.textContent = 'Инструкции';
-        // Используем кнопку вместо прямой ссылки <a> для контроля открытия
         list.innerHTML = `
             <div onclick="handlePDF('docs/S7-400_instalation.pdf', 'S7-400_Manual.pdf')" class="doc-item cursor-pointer">
                 <div class="flex flex-col">
                     <span class="doc-name">Руководство S7-400</span>
-                    <span class="text-[9px] opacity-40 mt-1 uppercase font-bold">Открыть или Сохранить</span>
+                    <span class="text-[9px] opacity-40 mt-1 uppercase font-bold">Открыть для чтения</span>
                 </div>
-                <span class="text-blue-500 text-xl">📂</span>
+                <span class="text-blue-500 text-xl">📄</span>
             </div>`;
     } else if (key === 'zip') {
         title.textContent = 'ЗИП АСУ ТП';
