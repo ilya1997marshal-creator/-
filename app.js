@@ -1,3 +1,7 @@
+/**
+ * ЦТАИ АСУ ТП - Основной скрипт
+ */
+
 const monthsList = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
 function toggleTheme() {
@@ -9,223 +13,182 @@ function toggleTheme() {
 
 function switchTab(index) {
     const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    const targetTab = document.getElementById(tabs[index]);
-    if (targetTab) targetTab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach((t, i) => {
+        t.classList.toggle('active', i === index);
+    });
     document.querySelectorAll('.nav-item').forEach((btn, i) => {
         btn.classList.toggle('active', i === index);
     });
+    
     if(index === 0) updateOnDutyWidget(); 
-    if(index === 1) {
-        const selector = document.getElementById('month-selector');
-        if(selector) renderSchedule(selector.value);
-    }
+    if(index === 1) renderSchedule(document.getElementById('month-selector').value);
+    if(index === 3) updateVersionNumber(); 
     window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+// Улучшенная функция получения версии из Service Worker
+async function updateVersionNumber() {
+    const verElement = document.getElementById('app-version');
+    if (!verElement) return;
+
+    try {
+        if ('serviceWorker' in navigator) {
+            const keys = await caches.keys();
+            // Ищем ключ кэша, который содержит 'ctai' или 'v'
+            const cacheKey = keys.find(k => k.toLowerCase().includes('v') || k.toLowerCase().includes('ctai'));
+            
+            if (cacheKey) {
+                // Пытаемся вычленить саму версию (например v1.0.56)
+                const match = cacheKey.match(/v\d+\.\d+\.\d+/i);
+                verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
+            } else {
+                verElement.textContent = "V1.0.56"; 
+            }
+        }
+    } catch (e) {
+        verElement.textContent = "V1.0.56";
+    }
 }
 
 function updateOnDutyWidget() {
     const dutyList = document.getElementById('duty-list');
     if (!dutyList) return;
-    const now = new Date();
-    const day = now.getDate(); 
+    const day = new Date().getDate(); 
     const currentMonthData = scheduleData["Апрель"];
+    
     if (!currentMonthData) {
-        dutyList.innerHTML = '<span class="opacity-40">Нет данных</span>';
+        dutyList.innerHTML = '<span class="opacity-40 uppercase text-[10px] font-black">Нет данных</span>';
         return;
     }
+
     const onDuty = currentMonthData
-        .filter(p => {
-            const shift = p.name === "Бондаренко Т.А." ? 'O' : (p.shifts[day - 1] || '');
-            return shift === 'D' || shift === 'S' || shift === 'N';
-        })
-        .map(p => p.name);
-    dutyList.innerHTML = onDuty.length > 0 ? onDuty.join(', ') : '<span class="opacity-40">Сегодня нет смен</span>';
+        .filter(p => ['D', 'S', 'N'].includes(p.shifts[day - 1] || ''))
+        .map(p => p.name.split(' ')[0]);
+    
+    dutyList.innerHTML = onDuty.length > 0 
+        ? onDuty.map(name => `<span class="bg-blue-500/10 px-3 py-1 rounded-full text-blue-500 border border-blue-500/20">${name}</span>`).join('') 
+        : '<span class="opacity-40">Нет активных смен</span>';
 }
 
 function renderSchedule(monthName) {
     const display = document.getElementById('current-month-display');
-    if(display) display.textContent = monthName + " 2026";
     const viewport = document.getElementById('schedule-viewport');
-    if (!viewport) return;
-    const monthIndex = monthsList.indexOf(monthName);
-    if (monthIndex !== 3 && monthIndex !== 4) { 
-        viewport.innerHTML = `<div class="py-24 flex flex-col items-center justify-center opacity-30 text-center"><span class="text-4xl mb-3">📁</span><span class="text-[10px] font-black uppercase tracking-[0.2em]">Нет данных</span></div>`;
+    if(display) display.textContent = monthName + " 2026";
+    if(!viewport) return;
+
+    const data = scheduleData[monthName];
+    if (!data) {
+        viewport.innerHTML = `<div class="py-20 text-center opacity-20 font-black uppercase">Нет данных</div>`;
         return;
     }
-    const data = scheduleData[monthName]; 
-    const daysInMonth = (monthIndex === 4) ? 31 : 30;
+
     const today = new Date();
-    const currentDay = today.getDate();
-    const isCurrentMonth = monthIndex === today.getMonth();
-    
+    const isCurrent = (monthName === "Апрель");
+    const curDay = today.getDate();
+    const daysInMonth = (monthName === "Февраль") ? 28 : (["Апрель", "Июнь", "Сентябрь", "Ноябрь"].includes(monthName) ? 30 : 31);
+
     let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio">Ф.И.О.</th>`;
     for(let d=1; d<=daysInMonth; d++) {
-        const isToday = isCurrentMonth && d === currentDay;
-        html += `<th class="${isToday ? 'today-header' : ''}">${d}</th>`;
+        html += `<th class="${isCurrent && d === curDay ? 'today-header' : ''}">${d}</th>`;
     }
     html += `<th class="col-stat">СМ.</th><th class="col-stat">ЧАС.</th></tr></thead><tbody>`;
+
     data.forEach(p => {
-        let shiftsCount = 0; let hoursCount = 0;
+        let shifts = 0, hours = 0;
         html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
-            let val = p.shifts[d-1] || '';
-            if (p.name === "Бондаренко Т.А.") val = (val === "" ? "О" : val); 
-            const isToday = isCurrentMonth && d === currentDay;
-            let cellClass = val ? `shift-${val}` : '';
-            if (isToday) cellClass += ' today-column';
-            html += `<td class="${cellClass}"></td>`;
-            if(val === 'D' || val === 'N' || val === 'S') {
-                shiftsCount++; hoursCount += (val === 'S' ? 8 : 12);
-            }
+            const s = p.shifts[d-1] || '';
+            const isToday = isCurrent && d === curDay;
+            html += `<td class="shift-${s} ${isToday ? 'today-column' : ''}"></td>`;
+            if(['D', 'N', 'S'].includes(s)) { shifts++; hours += (s === 'S' ? 8 : 12); }
         }
-        html += `<td class="col-stat">${shiftsCount}</td><td class="col-stat">${hoursCount}</td></tr>`;
+        html += `<td class="col-stat font-bold">${shifts}</td><td class="col-stat font-bold">${hours}</td></tr>`;
     });
+    
     viewport.innerHTML = html + `</tbody></table>`;
-    if (isCurrentMonth) {
+
+    if (isCurrent) {
         setTimeout(() => {
-            const todayHeader = document.querySelector('.today-header');
-            if (todayHeader) todayHeader.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }, 100);
+            const todayEl = document.querySelector('.today-header');
+            if (todayEl) todayEl.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }, 200);
     }
 }
 
 function highlightRow(row) {
     const rows = document.querySelectorAll('.schedule-table tbody tr');
-    const isActive = row.classList.contains('highlighted-row');
+    const active = row.classList.contains('highlighted-row');
     rows.forEach(r => r.classList.remove('highlighted-row', 'blurred-row'));
-    if (!isActive) {
+    if (!active) {
         row.classList.add('highlighted-row');
         rows.forEach(r => { if (r !== row) r.classList.add('blurred-row'); });
     }
 }
 
-function viewPDF(url) { window.open(url, '_blank'); }
-
-async function sharePDF(url, fileName) {
-    try {
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const file = new File([blob], fileName, { type: 'application/pdf' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({ files: [file], title: fileName });
-        } else { window.open(url, '_blank'); }
-    } catch (err) { window.open(url, '_blank'); }
-}
-
 function openBlockModal(key) {
-    const title = document.getElementById('modal-block-title');
+    const mData = blockData[key];
     const list = document.getElementById('instructions-list');
-    const modal = document.getElementById('block-modal');
-    if (!list || !title || !modal) return;
-    list.innerHTML = ''; 
-    if (key === 'other') {
-        title.textContent = 'Инструкции';
+    const title = document.getElementById('modal-block-title');
+    if (!mData || !list) return;
+
+    title.textContent = mData.title;
+    list.innerHTML = '';
+
+    if (key === 'siemens_diag') {
         list.innerHTML = `
-            <div class="doc-item flex items-center justify-between p-4 bg-white/5 rounded-2xl mb-2">
-                <div onclick="viewPDF('docs/S7-400_instalation.pdf')" class="flex flex-col flex-1 cursor-pointer">
-                    <span class="doc-name font-bold">Руководство S7-400</span>
-                    <span class="text-[9px] opacity-40 mt-1 uppercase">Нажмите для просмотра</span>
-                </div>
-                <button onclick="sharePDF('docs/S7-400_instalation.pdf', 'S7-400_Manual.pdf')" class="p-3 bg-blue-500/10 rounded-xl">
-                    <span class="text-blue-500 text-sm font-bold uppercase">Сохранить</span>
-                </button>
+            <div class="mb-4">
+                <input type="text" oninput="filterDiag(this.value)" placeholder="Поиск ошибки..." 
+                       class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none">
             </div>`;
-    } else if (key === 'zip') {
-        title.textContent = 'ЗИП АСУ ТП';
-        list.innerHTML = '<div class="text-center py-20 opacity-20 text-[9px] font-black uppercase">Нет данных</div>';
+    }
+
+    if (!mData.items.length) {
+        list.innerHTML += `<div class="py-20 text-center opacity-10 font-black uppercase text-[10px]">Раздел пуст</div>`;
     } else {
-        title.textContent = `Блок ${key}`;
-        list.innerHTML = '<div class="text-center py-20 opacity-20 text-[9px] font-black uppercase">Раздел наполняется</div>';
-    }
-    modal.classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-// --- НОВАЯ ДИАГНОСТИКА ---
-function openDiagnosticModal() {
-    const title = document.getElementById('modal-block-title');
-    const list = document.getElementById('instructions-list');
-    const modal = document.getElementById('block-modal');
-    if (!list || !title || !modal) return;
-
-    title.textContent = 'Диагностика Siemens';
-    let html = `
-        <div class="mb-4">
-            <input type="text" id="diag-search" oninput="filterDiagnostic(this.value)" 
-                   placeholder="Поиск кода или ошибки..." 
-                   class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white">
-        </div>
-        <div id="diag-content" class="space-y-6 pb-6">`;
-
-    for (let category in siemensDiagnostic) {
-        html += `<div class="diag-category-section">
-                    <h4 class="text-blue-500 text-[10px] font-black uppercase mb-3 tracking-[0.2em] opacity-80 ml-2">${category}</h4>`;
-        siemensDiagnostic[category].forEach(item => {
-            html += `
-                <div class="diag-card p-5 bg-white/5 rounded-[2rem] mb-3 border border-white/5 active:scale-[0.98] transition-transform">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-lg font-black">${item.code}</span>
-                    </div>
-                    <p class="text-[13px] font-bold leading-snug">${item.desc}</p>
-                    <div class="mt-3 pt-3 border-t border-white/5">
-                        <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-wider italic">Решение:</p>
-                        <p class="text-[11px] opacity-50 mt-1">${item.action}</p>
-                    </div>
-                </div>`;
+        mData.items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = "diag-card mb-3";
+            
+            if (item.link) {
+                div.innerHTML = `
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 active:scale-[0.98] transition-transform">
+                        <div onclick="window.open('${item.link}', '_blank')" class="flex-1 cursor-pointer">
+                            <span class="font-bold text-sm block">${item.title}</span>
+                            <span class="text-[9px] opacity-40 uppercase font-black">Открыть документ</span>
+                        </div>
+                        <a href="${item.link}" download class="ml-2 px-4 py-2 bg-blue-500/10 text-blue-500 rounded-xl text-[10px] font-black uppercase">
+                            Сохранить
+                        </a>
+                    </div>`;
+            } else {
+                div.innerHTML = `
+                    <div class="p-5 bg-white/5 rounded-[2rem] border border-white/5">
+                        <div class="text-blue-500 font-black text-[10px] uppercase mb-1">${item.title}</div>
+                        <div class="text-sm opacity-80 leading-relaxed">${item.desc}</div>
+                    </div>`;
+            }
+            list.appendChild(div);
         });
-        html += `</div>`;
     }
-    list.innerHTML = html + `</div>`;
-    modal.classList.remove('hidden');
+    document.getElementById('block-modal').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
-function filterDiagnostic(val) {
-    const query = val.toLowerCase();
-    document.querySelectorAll('.diag-card').forEach(card => {
-        card.style.display = card.innerText.toLowerCase().includes(query) ? 'block' : 'none';
-    });
-    document.querySelectorAll('.diag-category-section').forEach(section => {
-        const hasVisible = Array.from(section.querySelectorAll('.diag-card')).some(c => c.style.display !== 'none');
-        section.style.display = hasVisible ? 'block' : 'none';
+function filterDiag(val) {
+    const q = val.toLowerCase();
+    document.querySelectorAll('.diag-card').forEach(c => {
+        c.style.display = c.innerText.toLowerCase().includes(q) ? 'block' : 'none';
     });
 }
 
-function closeBlockModal() { 
-    const modal = document.getElementById('block-modal');
-    if (modal) modal.classList.add('hidden'); 
+function closeBlockModal() {
+    document.getElementById('block-modal').classList.add('hidden');
     document.body.style.overflow = '';
 }
 
-function displayAppVersion() {
-    const versionElement = document.getElementById('app-version');
-    if (!versionElement) return;
-    if ('serviceWorker' in navigator) {
-        caches.keys().then(keys => {
-            const versionKey = keys.find(key => key.startsWith('ctai-base-'));
-            if (versionKey) {
-                const ver = versionKey.split('-').pop(); 
-                versionElement.textContent = `Версия: ${ver.toUpperCase()}`;
-            }
-        });
-    }
-}
-
 window.onload = () => {
-    const blocksCont = document.getElementById('blocks-container');
-    if (blocksCont) {
-        blocksCont.innerHTML = ''; 
-        for (let i = 1; i <= 6; i++) {
-            blocksCont.innerHTML += `
-                <button onclick="openBlockModal(${i})" class="w-full action-btn p-6 rounded-3xl flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <span class="text-blue-500 font-black italic text-xl">0${i}</span>
-                        <span class="font-bold text-sm uppercase">Блок ${i}</span>
-                    </div>
-                    <span class="opacity-30">›</span>
-                </button>`;
-        }
-    }
-    if(localStorage.getItem('theme') === 'light') toggleTheme();
-    updateOnDutyWidget(); displayAppVersion(); switchTab(0); 
+    if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+    updateOnDutyWidget();
+    updateVersionNumber();
+    switchTab(0);
 };
