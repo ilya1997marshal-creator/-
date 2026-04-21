@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v69'; 
+const CACHE_NAME = 'ctai-base-v70'; // Не забывай менять версию при правках!
 const ASSETS = [
   './',
   './index.html',
@@ -34,12 +34,15 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
+          if (key !== CACHE_NAME) {
+            console.log('Удаление старого кэша:', key);
+            return caches.delete(key);
+          }
         })
       );
     })
   );
-  return self.clients.claim();
+  // self.clients.claim(); // УДАЛИЛИ ЭТУ СТРОКУ, чтобы не перехватывать управление мгновенно
 });
 
 // Запросы: сначала ищем в кэше, если нет — идем в сеть

@@ -37,11 +37,11 @@ async function updateVersionNumber() {
                 const match = cacheKey.match(/v\d+\.\d+\.\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V1.0.56"; 
+                verElement.textContent = "V1.0.69"; // Обновил версию для соответствия sw.js
             }
         }
     } catch (e) {
-        verElement.textContent = "V1.0.56";
+        verElement.textContent = "V1.0.69";
     }
 }
 
@@ -174,6 +174,50 @@ function filterDiag(val) {
 function closeBlockModal() {
     document.getElementById('block-modal').classList.add('hidden');
     document.body.style.overflow = '';
+}
+
+// --- СЕКЦИЯ SERVICE WORKER И ОБНОВЛЕНИЙ ---
+
+function showUpdateToast(worker) {
+    const toast = document.querySelector('.update-toast');
+    const btn = document.querySelector('.update-action-btn');
+    if (!toast || !btn) return;
+
+    toast.classList.add('show');
+    btn.onclick = () => {
+        btn.classList.add('loading');
+        btn.innerHTML = '<span class="animate-spin">🔄</span> Обновление...';
+        worker.postMessage({ action: 'skipWaiting' });
+    };
+}
+
+if ('serviceWorker' in navigator) {
+    // Слушаем смену контроллера, чтобы перезагрузить страницу после skipWaiting
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (refreshing) return;
+        refreshing = true;
+        window.location.reload();
+    });
+
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            // 1. Проверка на ожидающее обновление при загрузке
+            if (reg.waiting) {
+                showUpdateToast(reg.waiting);
+            }
+
+            // 2. Слушаем появление нового воркера (процесс установки)
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        showUpdateToast(newWorker);
+                    }
+                });
+            });
+        }).catch(err => console.error('SW Error:', err));
+    });
 }
 
 window.onload = () => {
