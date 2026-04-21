@@ -1,6 +1,5 @@
 const monthsList = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-// --- ТЕМА ---
 function toggleTheme() {
     const isLight = document.body.classList.toggle('light-mode');
     const icon = document.getElementById('theme-icon');
@@ -8,7 +7,6 @@ function toggleTheme() {
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
 }
 
-// --- НАВИГАЦИЯ ---
 function switchTab(index) {
     const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
@@ -25,7 +23,6 @@ function switchTab(index) {
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
-// --- ВИДЖЕТ "НА СМЕНЕ" ---
 function updateOnDutyWidget() {
     const dutyList = document.getElementById('duty-list');
     if (!dutyList) return;
@@ -45,25 +42,18 @@ function updateOnDutyWidget() {
     dutyList.innerHTML = onDuty.length > 0 ? onDuty.join(', ') : '<span class="opacity-40">Сегодня нет смен</span>';
 }
 
-// --- ГРАФИК (С ПОДДЕРЖКОЙ МАЯ) ---
 function renderSchedule(monthName) {
     const display = document.getElementById('current-month-display');
     if(display) display.textContent = monthName + " 2026";
     const viewport = document.getElementById('schedule-viewport');
     if (!viewport) return;
-
     const monthIndex = monthsList.indexOf(monthName);
-    
-    // Проверка доступа: Апрель(3) или Май(4)
     if (monthIndex !== 3 && monthIndex !== 4) { 
         viewport.innerHTML = `<div class="py-24 flex flex-col items-center justify-center opacity-30 text-center"><span class="text-4xl mb-3">📁</span><span class="text-[10px] font-black uppercase tracking-[0.2em]">Нет данных</span></div>`;
         return;
     }
-
     const data = scheduleData[monthName]; 
-    // В мае 31 день, в апреле 30
     const daysInMonth = (monthIndex === 4) ? 31 : 30;
-    
     const today = new Date();
     const currentDay = today.getDate();
     const isCurrentMonth = monthIndex === today.getMonth();
@@ -74,10 +64,8 @@ function renderSchedule(monthName) {
         html += `<th class="${isToday ? 'today-header' : ''}">${d}</th>`;
     }
     html += `<th class="col-stat">СМ.</th><th class="col-stat">ЧАС.</th></tr></thead><tbody>`;
-    
     data.forEach(p => {
-        let shiftsCount = 0;
-        let hoursCount = 0;
+        let shiftsCount = 0; let hoursCount = 0;
         html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             let val = p.shifts[d-1] || '';
@@ -87,14 +75,12 @@ function renderSchedule(monthName) {
             if (isToday) cellClass += ' today-column';
             html += `<td class="${cellClass}"></td>`;
             if(val === 'D' || val === 'N' || val === 'S') {
-                shiftsCount++;
-                hoursCount += (val === 'S' ? 8 : 12);
+                shiftsCount++; hoursCount += (val === 'S' ? 8 : 12);
             }
         }
         html += `<td class="col-stat">${shiftsCount}</td><td class="col-stat">${hoursCount}</td></tr>`;
     });
     viewport.innerHTML = html + `</tbody></table>`;
-    
     if (isCurrentMonth) {
         setTimeout(() => {
             const todayHeader = document.querySelector('.today-header');
@@ -113,10 +99,7 @@ function highlightRow(row) {
     }
 }
 
-// --- PDF ФУНКЦИИ ---
-function viewPDF(url) {
-    window.open(url, '_blank');
-}
+function viewPDF(url) { window.open(url, '_blank'); }
 
 async function sharePDF(url, fileName) {
     try {
@@ -125,23 +108,16 @@ async function sharePDF(url, fileName) {
         const file = new File([blob], fileName, { type: 'application/pdf' });
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({ files: [file], title: fileName });
-        } else {
-            window.open(url, '_blank');
-        }
-    } catch (err) {
-        console.error("Ошибка:", err);
-        window.open(url, '_blank');
-    }
+        } else { window.open(url, '_blank'); }
+    } catch (err) { window.open(url, '_blank'); }
 }
 
-// --- МОДАЛЬНОЕ ОКНО ---
 function openBlockModal(key) {
     const title = document.getElementById('modal-block-title');
     const list = document.getElementById('instructions-list');
     const modal = document.getElementById('block-modal');
     if (!list || !title || !modal) return;
     list.innerHTML = ''; 
-    
     if (key === 'other') {
         title.textContent = 'Инструкции';
         list.innerHTML = `
@@ -163,6 +139,56 @@ function openBlockModal(key) {
     }
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+}
+
+// --- НОВАЯ ДИАГНОСТИКА ---
+function openDiagnosticModal() {
+    const title = document.getElementById('modal-block-title');
+    const list = document.getElementById('instructions-list');
+    const modal = document.getElementById('block-modal');
+    if (!list || !title || !modal) return;
+
+    title.textContent = 'Диагностика Siemens';
+    let html = `
+        <div class="mb-4">
+            <input type="text" id="diag-search" oninput="filterDiagnostic(this.value)" 
+                   placeholder="Поиск кода или ошибки..." 
+                   class="w-full bg-white/5 border border-white/10 rounded-2xl p-4 text-sm focus:outline-none focus:border-blue-500/50 transition-all text-white">
+        </div>
+        <div id="diag-content" class="space-y-6 pb-6">`;
+
+    for (let category in siemensDiagnostic) {
+        html += `<div class="diag-category-section">
+                    <h4 class="text-blue-500 text-[10px] font-black uppercase mb-3 tracking-[0.2em] opacity-80 ml-2">${category}</h4>`;
+        siemensDiagnostic[category].forEach(item => {
+            html += `
+                <div class="diag-card p-5 bg-white/5 rounded-[2rem] mb-3 border border-white/5 active:scale-[0.98] transition-transform">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-lg font-black">${item.code}</span>
+                    </div>
+                    <p class="text-[13px] font-bold leading-snug">${item.desc}</p>
+                    <div class="mt-3 pt-3 border-t border-white/5">
+                        <p class="text-[10px] text-emerald-500 font-bold uppercase tracking-wider italic">Решение:</p>
+                        <p class="text-[11px] opacity-50 mt-1">${item.action}</p>
+                    </div>
+                </div>`;
+        });
+        html += `</div>`;
+    }
+    list.innerHTML = html + `</div>`;
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function filterDiagnostic(val) {
+    const query = val.toLowerCase();
+    document.querySelectorAll('.diag-card').forEach(card => {
+        card.style.display = card.innerText.toLowerCase().includes(query) ? 'block' : 'none';
+    });
+    document.querySelectorAll('.diag-category-section').forEach(section => {
+        const hasVisible = Array.from(section.querySelectorAll('.diag-card')).some(c => c.style.display !== 'none');
+        section.style.display = hasVisible ? 'block' : 'none';
+    });
 }
 
 function closeBlockModal() { 
@@ -201,7 +227,5 @@ window.onload = () => {
         }
     }
     if(localStorage.getItem('theme') === 'light') toggleTheme();
-    updateOnDutyWidget(); 
-    displayAppVersion(); 
-    switchTab(0); 
+    updateOnDutyWidget(); displayAppVersion(); switchTab(0); 
 };

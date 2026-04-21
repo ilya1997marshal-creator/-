@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v65'; 
+const CACHE_NAME = 'ctai-base-v67'; 
 const ASSETS = [
   './',
   './index.html',
