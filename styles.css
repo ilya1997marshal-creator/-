@@ -55,6 +55,9 @@ body {
     border: 1px solid var(--border);
     background-color: var(--bg-card);
     width: 100%;
+    /* ДОБАВЛЯЕМ ЭТИ СТРОКИ: */
+    padding-top: 5px;
+    padding-bottom: 12px; /* Этот отступ создаст место для скролл-бара */
 }
 
 .schedule-table { border-collapse: separate; border-spacing: 0; table-layout: fixed; width: max-content; }
