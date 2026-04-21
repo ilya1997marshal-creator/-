@@ -85,20 +85,19 @@ function renderSchedule(monthName) {
     html += `<th class="col-stat">СМ.</th><th class="col-stat">ЧАС.</th></tr></thead><tbody>`;
 
     data.forEach(p => {
-        let shifts = 0, hours = 0;
+        let shiftsCount = 0, hours = 0;
         html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             const s = p.shifts[d-1] || '';
             const isToday = isCurrent && d === curDay;
             html += `<td class="shift-${s} ${isToday ? 'today-column' : ''}"></td>`;
-            if(['D', 'N', 'S'].includes(s)) { shifts++; hours += (s === 'S' ? 8 : 12); }
+            if(['D', 'N', 'S'].includes(s)) { shiftsCount++; hours += (s === 'S' ? 8 : 12); }
         }
-        html += `<td class="col-stat font-bold">${shifts}</td><td class="col-stat font-bold">${hours}</td></tr>`;
+        html += `<td class="col-stat font-bold">${shiftsCount}</td><td class="col-stat font-bold">${hours}</td></tr>`;
     });
     
     viewport.innerHTML = html + `</tbody></table>`;
 
-    // АВТОСКРОЛЛ К ТЕКУЩЕЙ ДАТЕ
     if (isCurrent) {
         setTimeout(() => {
             const todayHeader = document.querySelector('.today-header');
