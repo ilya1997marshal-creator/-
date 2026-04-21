@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v59'; 
+const CACHE_NAME = 'ctai-base-v60'; 
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './data.js',
   './manifest.json',
   './apple-touch-icon.png',
+  './docs/S7-400_instalation.pdf',
   'https://cdn.tailwindcss.com',
   'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
 ];

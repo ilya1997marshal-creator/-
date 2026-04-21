@@ -81,10 +81,8 @@ function renderSchedule(monthName) {
     const data = scheduleData["Апрель"];
     const daysInMonth = 30;
 
-    // ОПРЕДЕЛЯЕМ ТЕКУЩИЙ ДЕНЬ ДЛЯ ПОДСВЕТКИ
     const today = new Date();
     const currentDay = today.getDate();
-    // Проверка, что выбранный месяц в приложении совпадает с текущим реальным месяцем (Апрель)
     const isCurrentMonth = monthIndex === today.getMonth();
     
     let html = `
@@ -132,7 +130,6 @@ function renderSchedule(monthName) {
     
     viewport.innerHTML = html + `</tbody></table>`;
 
-    // АВТОМАТИЧЕСКИЙ СКРОЛЛ К ТЕКУЩЕМУ ДНЮ
     if (isCurrentMonth) {
         setTimeout(() => {
             const todayHeader = document.querySelector('.today-header');
@@ -157,6 +154,33 @@ function highlightRow(row) {
     }
 }
 
+// --- НОВАЯ ФУНКЦИЯ ДЛЯ PDF (iOS Friendly) ---
+function handlePDF(url, fileName) {
+    // Если браузер поддерживает Web Share API (iOS Safari это умеет)
+    if (navigator.share) {
+        fetch(url)
+            .then(res => res.blob())
+            .then(blob => {
+                const file = new File([blob], fileName, { type: 'application/pdf' });
+                navigator.share({
+                    files: [file],
+                    title: fileName,
+                }).catch(err => {
+                    // Если отмена или ошибка, просто открываем в новом окне
+                    window.open(url, '_blank');
+                });
+            })
+            .catch(() => window.open(url, '_blank'));
+    } else {
+        // Обычное скачивание для остальных
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.target = '_blank';
+        link.click();
+    }
+}
+
 // --- МОДАЛЬНОЕ ОКНО ---
 function openBlockModal(key) {
     const title = document.getElementById('modal-block-title');
@@ -169,11 +193,15 @@ function openBlockModal(key) {
     
     if (key === 'other') {
         title.textContent = 'Инструкции';
+        // Используем кнопку вместо прямой ссылки <a> для контроля открытия
         list.innerHTML = `
-            <a href="docs/S7-400_instalation.pdf" target="_blank" class="doc-item">
-                <span class="doc-name">Руководство S7-400</span>
-                <span class="opacity-20 text-xl">›</span>
-            </a>`;
+            <div onclick="handlePDF('docs/S7-400_instalation.pdf', 'S7-400_Manual.pdf')" class="doc-item cursor-pointer">
+                <div class="flex flex-col">
+                    <span class="doc-name">Руководство S7-400</span>
+                    <span class="text-[9px] opacity-40 mt-1 uppercase font-bold">Открыть или Сохранить</span>
+                </div>
+                <span class="text-blue-500 text-xl">📂</span>
+            </div>`;
     } else if (key === 'zip') {
         title.textContent = 'ЗИП АСУ ТП';
         list.innerHTML = '<div class="text-center py-20 opacity-20 text-[9px] font-black uppercase">Нет данных</div>';
