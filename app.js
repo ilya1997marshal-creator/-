@@ -34,14 +34,14 @@ async function updateVersionNumber() {
             const keys = await caches.keys();
             const cacheKey = keys.find(k => k.toLowerCase().includes('v') || k.toLowerCase().includes('ctai'));
             if (cacheKey) {
-                const match = cacheKey.match(/v\d+\.\d+\.\d+/i);
+                const match = cacheKey.match(/v\d+/i); // Упростил поиск версии
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V1.0.69"; // Обновил версию для соответствия sw.js
+                verElement.textContent = "V70"; 
             }
         }
     } catch (e) {
-        verElement.textContent = "V1.0.69";
+        verElement.textContent = "V70";
     }
 }
 
@@ -192,8 +192,9 @@ function showUpdateToast(worker) {
 }
 
 if ('serviceWorker' in navigator) {
-    // Слушаем смену контроллера, чтобы перезагрузить страницу после skipWaiting
     let refreshing = false;
+    
+    // Перезагрузка при активации нового воркера
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
@@ -202,12 +203,9 @@ if ('serviceWorker' in navigator) {
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            // 1. Проверка на ожидающее обновление при загрузке
-            if (reg.waiting) {
-                showUpdateToast(reg.waiting);
-            }
+            // Проверка при загрузке
+            if (reg.waiting) showUpdateToast(reg.waiting);
 
-            // 2. Слушаем появление нового воркера (процесс установки)
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -216,7 +214,19 @@ if ('serviceWorker' in navigator) {
                     }
                 });
             });
-        }).catch(err => console.error('SW Error:', err));
+
+            // Авто-проверка обновлений каждые 30 минут
+            setInterval(() => reg.update(), 1000 * 60 * 30);
+        });
+    });
+
+    // КРИТИЧЕСКИ ВАЖНО ДЛЯ PWA: Проверка при возврате в приложение
+    window.addEventListener('focus', async () => {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+            await reg.update(); // Принудительно проверяем файл sw.js на сервере
+            if (reg.waiting) showUpdateToast(reg.waiting);
+        }
     });
 }
 
