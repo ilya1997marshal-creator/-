@@ -47,7 +47,6 @@ function updateOnDutyWidget() {
     
     const onDuty = currentMonthData
         .filter(p => {
-            // Бондаренко Т.А. всегда 'O' (Отпуск), остальные по графику
             const shift = p.name === "Бондаренко Т.А." ? 'O' : (p.shifts[day - 1] || '');
             return shift === 'D' || shift === 'S' || shift === 'N';
         })
@@ -70,7 +69,6 @@ function renderSchedule(monthName) {
 
     const monthIndex = monthsList.indexOf(monthName);
     
-    // Пока данные есть только для Апреля
     if (monthIndex !== 3) { 
         viewport.innerHTML = `
             <div class="py-24 flex flex-col items-center justify-center opacity-30 text-center">
@@ -174,17 +172,16 @@ function closeBlockModal() {
     document.body.style.overflow = '';
 }
 
-// --- ВЫВОД ВЕРСИИ (АВТОМАТИЧЕСКИЙ) ---
+// --- ВЫВОД ВЕРСИИ ---
 function displayAppVersion() {
     const versionElement = document.getElementById('app-version');
     if (!versionElement) return;
 
     if ('serviceWorker' in navigator) {
         caches.keys().then(keys => {
-            // Ищем ключ кэша, который начинается с ctai-base-
             const versionKey = keys.find(key => key.startsWith('ctai-base-'));
             if (versionKey) {
-                const versionNumber = versionKey.split('-').pop(); // Получаем v51
+                const versionNumber = versionKey.split('-').pop(); 
                 versionElement.textContent = `Версия системы: ${versionNumber.toUpperCase()}`;
             }
         });
@@ -195,7 +192,7 @@ function displayAppVersion() {
 window.onload = () => {
     const blocksCont = document.getElementById('blocks-container');
     if (blocksCont) {
-        blocksCont.innerHTML = ''; // Очищаем на всякий случай
+        blocksCont.innerHTML = ''; 
         for (let i = 1; i <= 6; i++) {
             blocksCont.innerHTML += `
                 <button onclick="openBlockModal(${i})" class="w-full action-btn p-6 rounded-3xl flex items-center justify-between">
@@ -208,10 +205,9 @@ window.onload = () => {
         }
     }
     
-    // Проверка сохраненной темы
     if(localStorage.getItem('theme') === 'light') toggleTheme();
     
     updateOnDutyWidget(); 
-    displayAppVersion(); // Показываем версию
-    switchTab(0); // Открываем первую вкладку
+    displayAppVersion(); 
+    switchTab(0); 
 };

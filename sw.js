@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v56';
+const CACHE_NAME = 'ctai-base-v55'; // Увеличивай версию здесь для обновления
 const ASSETS = [
   './',
   './index.html',
@@ -8,8 +8,7 @@ const ASSETS = [
   './manifest.json',
   './apple-touch-icon.png',
   'https://cdn.tailwindcss.com',
-  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap',
-  './?v=52' // Это заставляет сервер отдать свежий файл, игнорируя кэш
+  'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap'
 ];
 
 self.addEventListener('install', (event) => {
@@ -25,6 +24,7 @@ self.addEventListener('install', (event) => {
       );
     })
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
