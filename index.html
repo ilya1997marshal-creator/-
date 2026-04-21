@@ -7,10 +7,10 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
     <script>eruda.init();</script>
 </head>
@@ -19,7 +19,6 @@
     <button onclick="toggleTheme()" class="theme-toggle" id="theme-icon">🌙</button>
 
     <div class="max-w-xl mx-auto min-h-screen relative px-4">
-
         <section id="tab-home" class="tab-content active pt-10">
             <div class="flex flex-col items-center mb-8 text-center">
                 <div class="header-icon-main"><span>⚡</span></div>
@@ -82,9 +81,7 @@
                     </div>
                 </div>
             </div>
-
             <div id="schedule-viewport" class="schedule-container shadow-2xl relative z-[10]"></div>
-            
             <div class="mt-8 flex items-center justify-center gap-4 px-2 mb-24 overflow-x-auto whitespace-nowrap no-scrollbar">
                 <div class="legend-badge"><div class="w-2.5 h-2.5 rounded-full bg-[#10b981]"></div><span>День</span></div>
                 <div class="legend-badge"><div class="w-2.5 h-2.5 rounded-full bg-[#6366f1]"></div><span>Ночь</span></div>
@@ -109,7 +106,6 @@
                 <h1 class="text-3xl font-extrabold tracking-tight">Поддержка</h1>
                 <p class="text-zinc-500 text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">Связь с разработчиком</p>
             </div>
-            
             <div class="flex-1 flex flex-col justify-center items-center gap-6 w-full max-w-md mx-auto px-6 mb-20">
                 <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full action-btn p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 active:scale-[0.95] transition-transform">
                     <div class="help-icon text-3xl">✈️</div>
@@ -155,54 +151,31 @@
     <script src="app.js"></script>
     <script>
         let newWorker;
-        
-        console.log("Лог: Запуск скрипта SW");
-
         if ('serviceWorker' in navigator) {
-            // Слушаем смену контроллера, чтобы обновить страницу сразу после активации нового SW
-            navigator.serviceWorker.addEventListener('controllerchange', () => {
-                console.log("Лог: Контроллер изменился. Перезагрузка страницы...");
-                window.location.reload();
-            });
+            navigator.serviceWorker.addEventListener('controllerchange', () => window.location.reload());
 
             navigator.serviceWorker.register('./sw.js').then(reg => {
-                console.log("Лог: SW зарегистрирован");
-
-                // Если обновление уже скачано и ждет (режим ожидания)
                 if (reg.waiting) {
-                    console.log("Лог: Обновление уже в ожидании (reg.waiting)");
                     newWorker = reg.waiting;
                     showUpdateBar();
                 }
-
                 reg.addEventListener('updatefound', () => {
                     newWorker = reg.installing;
-                    console.log("Лог: Найдено новое обновление, статус: " + newWorker.state);
-                    
                     newWorker.addEventListener('statechange', () => {
-                        console.log("Лог: Статус SW сменился на: " + newWorker.state);
-                        // Показываем плашку, только когда SW полностью загрузился
                         if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                             showUpdateBar();
                         }
                     });
                 });
-            }).catch(err => console.error("Лог: Ошибка SW:", err));
+            });
 
             function showUpdateBar() {
-                console.log("Лог: Отображение плашки обновления на экране");
-                const toast = document.getElementById('update-toast');
-                if (toast) toast.classList.add('show');
+                document.getElementById('update-toast').classList.add('show');
             }
 
             document.getElementById('update-btn').addEventListener('click', () => {
-                console.log("Лог: Нажата кнопка подтверждения обновления");
-                if (newWorker) {
-                    newWorker.postMessage({ action: 'skipWaiting' });
-                } else {
-                    // Страховочный вариант
-                    window.location.reload();
-                }
+                if (newWorker) newWorker.postMessage({ action: 'skipWaiting' });
+                else window.location.reload();
             });
         }
     </script>
