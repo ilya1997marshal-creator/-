@@ -11,8 +11,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-    <script>eruda.init();</script>
 </head>
 <body class="pb-32">
 
@@ -154,7 +152,6 @@
         let refreshing = false;
 
         if ('serviceWorker' in navigator) {
-            // Перезагружаем страницу только когда новый SW действительно вступил в силу
             navigator.serviceWorker.addEventListener('controllerchange', () => {
                 if (refreshing) return;
                 refreshing = true;
@@ -163,7 +160,6 @@
 
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').then(reg => {
-                    // Проверка на наличие обновлений при загрузке
                     reg.update();
 
                     if (reg.waiting) {
