@@ -33,7 +33,7 @@ function updateOnDutyWidget() {
     const day = now.getDate(); 
     const currentMonthData = scheduleData["Апрель"];
     if (!currentMonthData) {
-        dutyList.innerHTML = '<span class="opacity-40">Нет данных на сегодня</span>';
+        dutyList.innerHTML = '<span class="opacity-40">Нет данных</span>';
         return;
     }
     const onDuty = currentMonthData
@@ -42,42 +42,46 @@ function updateOnDutyWidget() {
             return shift === 'D' || shift === 'S' || shift === 'N';
         })
         .map(p => p.name);
-    if (onDuty.length > 0) {
-        dutyList.innerHTML = onDuty.join(', ');
-    } else {
-        dutyList.innerHTML = '<span class="opacity-40">Сегодня нет запланированных смен</span>';
-    }
+    dutyList.innerHTML = onDuty.length > 0 ? onDuty.join(', ') : '<span class="opacity-40">Сегодня нет смен</span>';
 }
 
-// --- ГРАФИК ---
+// --- ГРАФИК (С ПОДДЕРЖКОЙ МАЯ) ---
 function renderSchedule(monthName) {
     const display = document.getElementById('current-month-display');
     if(display) display.textContent = monthName + " 2026";
     const viewport = document.getElementById('schedule-viewport');
     if (!viewport) return;
+
     const monthIndex = monthsList.indexOf(monthName);
-    if (monthIndex !== 3) { 
+    
+    // Проверка доступа: Апрель(3) или Май(4)
+    if (monthIndex !== 3 && monthIndex !== 4) { 
         viewport.innerHTML = `<div class="py-24 flex flex-col items-center justify-center opacity-30 text-center"><span class="text-4xl mb-3">📁</span><span class="text-[10px] font-black uppercase tracking-[0.2em]">Нет данных</span></div>`;
         return;
     }
-    const data = scheduleData["Апрель"];
-    const daysInMonth = 30;
+
+    const data = scheduleData[monthName]; 
+    // В мае 31 день, в апреле 30
+    const daysInMonth = (monthIndex === 4) ? 31 : 30;
+    
     const today = new Date();
     const currentDay = today.getDate();
     const isCurrentMonth = monthIndex === today.getMonth();
+    
     let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio">Ф.И.О.</th>`;
     for(let d=1; d<=daysInMonth; d++) {
         const isToday = isCurrentMonth && d === currentDay;
         html += `<th class="${isToday ? 'today-header' : ''}">${d}</th>`;
     }
     html += `<th class="col-stat">СМ.</th><th class="col-stat">ЧАС.</th></tr></thead><tbody>`;
+    
     data.forEach(p => {
         let shiftsCount = 0;
         let hoursCount = 0;
         html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             let val = p.shifts[d-1] || '';
-            if (p.name === "Бондаренко Т.А.") val = 'O';
+            if (p.name === "Бондаренко Т.А.") val = (val === "" ? "О" : val); 
             const isToday = isCurrentMonth && d === currentDay;
             let cellClass = val ? `shift-${val}` : '';
             if (isToday) cellClass += ' today-column';
@@ -90,6 +94,7 @@ function renderSchedule(monthName) {
         html += `<td class="col-stat">${shiftsCount}</td><td class="col-stat">${hoursCount}</td></tr>`;
     });
     viewport.innerHTML = html + `</tbody></table>`;
+    
     if (isCurrentMonth) {
         setTimeout(() => {
             const todayHeader = document.querySelector('.today-header');
@@ -108,14 +113,11 @@ function highlightRow(row) {
     }
 }
 
-// --- ФУНКЦИИ ДЛЯ PDF ---
-
-// 1. Просто открыть (без поиска, системный просмотр)
+// --- PDF ФУНКЦИИ ---
 function viewPDF(url) {
     window.open(url, '_blank');
 }
 
-// 2. Вызвать меню "Поделиться/Сохранить" (для поиска в Файлах)
 async function sharePDF(url, fileName) {
     try {
         const response = await fetch(url);
@@ -138,12 +140,10 @@ function openBlockModal(key) {
     const list = document.getElementById('instructions-list');
     const modal = document.getElementById('block-modal');
     if (!list || !title || !modal) return;
-    
     list.innerHTML = ''; 
     
     if (key === 'other') {
         title.textContent = 'Инструкции';
-        // Здесь мы разделяем: клик по тексту — просмотр, клик по иконке — меню
         list.innerHTML = `
             <div class="doc-item flex items-center justify-between p-4 bg-white/5 rounded-2xl mb-2">
                 <div onclick="viewPDF('docs/S7-400_instalation.pdf')" class="flex flex-col flex-1 cursor-pointer">
@@ -151,7 +151,7 @@ function openBlockModal(key) {
                     <span class="text-[9px] opacity-40 mt-1 uppercase">Нажмите для просмотра</span>
                 </div>
                 <button onclick="sharePDF('docs/S7-400_instalation.pdf', 'S7-400_Manual.pdf')" class="p-3 bg-blue-500/10 rounded-xl">
-                    <span class="text-blue-500 text-sm font-bold">СОХРАНИТЬ</span>
+                    <span class="text-blue-500 text-sm font-bold uppercase">Сохранить</span>
                 </button>
             </div>`;
     } else if (key === 'zip') {
@@ -161,7 +161,6 @@ function openBlockModal(key) {
         title.textContent = `Блок ${key}`;
         list.innerHTML = '<div class="text-center py-20 opacity-20 text-[9px] font-black uppercase">Раздел наполняется</div>';
     }
-    
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
@@ -179,8 +178,8 @@ function displayAppVersion() {
         caches.keys().then(keys => {
             const versionKey = keys.find(key => key.startsWith('ctai-base-'));
             if (versionKey) {
-                const versionNumber = versionKey.split('-').pop(); 
-                versionElement.textContent = `Версия системы: ${versionNumber.toUpperCase()}`;
+                const ver = versionKey.split('-').pop(); 
+                versionElement.textContent = `Версия: ${ver.toUpperCase()}`;
             }
         });
     }
