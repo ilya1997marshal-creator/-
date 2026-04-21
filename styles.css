@@ -220,6 +220,28 @@ body {
     letter-spacing: 0.05em;
     border: none;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
 }
 
+/* Новые стили для оживления кнопки */
 .update-action-btn:active { transform: scale(0.96); background: #2563eb; }
+
+.update-action-btn.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    background: #52525b;
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+::-webkit-scrollbar { width: 0px; background: transparent; }
