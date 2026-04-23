@@ -32,7 +32,6 @@ async function updateVersionNumber() {
     try {
         if ('serviceWorker' in navigator) {
             const keys = await caches.keys();
-            // Находим самый свежий ключ кэша (обычно последний в массиве)
             const cacheKey = keys.find(k => k.toLowerCase().includes('v'));
             if (cacheKey) {
                 const match = cacheKey.match(/v\d+/i);
@@ -230,12 +229,40 @@ function showUpdateToast(worker) {
     const btn = document.querySelector('.update-action-btn');
     if (!toast || !btn) return;
 
+    // Очищаем предыдущий обработчик
+    btn.replaceWith(btn.cloneNode(true));
+    const newBtn = document.querySelector('.update-action-btn');
+    
     toast.classList.add('show');
-    btn.onclick = () => {
-        btn.classList.add('loading');
-        btn.innerHTML = '<span class="animate-spin">🔄</span> Обновление...';
+    newBtn.onclick = () => {
+        newBtn.classList.add('loading');
+        newBtn.innerHTML = '<span class="animate-spin">🔄</span> Обновление...';
         worker.postMessage({ action: 'skipWaiting' });
     };
+}
+
+// Функция ручной проверки обновлений
+function manualCheckForUpdates() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg) {
+                reg.update();
+                // Показываем временное сообщение
+                const toast = document.querySelector('.update-toast');
+                if (toast) {
+                    const originalContent = toast.innerHTML;
+                    toast.innerHTML = `<div class="text-center">🔍 Проверка обновлений...</div>`;
+                    toast.classList.add('show');
+                    setTimeout(() => {
+                        toast.innerHTML = originalContent;
+                        if (!toast.querySelector('.update-action-btn')) {
+                            toast.classList.remove('show');
+                        }
+                    }, 1500);
+                }
+            }
+        });
+    }
 }
 
 if ('serviceWorker' in navigator) {
@@ -249,7 +276,7 @@ if ('serviceWorker' in navigator) {
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            // Проверка обновлений каждые 10 минут (вместо 30)
+            // Проверка обновлений каждые 10 минут
             setInterval(() => reg.update(), 1000 * 60 * 10);
             
             // Проверка при возвращении на вкладку
@@ -257,6 +284,7 @@ if ('serviceWorker' in navigator) {
                 if (!document.hidden) reg.update();
             });
 
+            // Если есть ожидающий работник, показываем тост
             if (reg.waiting) {
                 showUpdateToast(reg.waiting);
             }
@@ -273,30 +301,18 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Добавляем возможность ручной проверки обновлений (можно вызвать из консоли или с кнопки)
-window.checkForUpdates = function() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistration().then(reg => {
-            if (reg) {
-                reg.update();
-                console.log('Запущена проверка обновлений...');
-                // Можно показать маленькое уведомление
-                const toast = document.querySelector('.update-toast');
-                if (toast) {
-                    const msg = document.createElement('div');
-                    msg.textContent = 'Проверка обновлений...';
-                    msg.className = 'text-xs opacity-60 mt-2';
-                    toast.appendChild(msg);
-                    setTimeout(() => msg.remove(), 2000);
-                }
-            }
-        });
-    }
-};
+// Назначение функции ручной проверки глобально
+window.checkForUpdates = manualCheckForUpdates;
 
 window.onload = () => {
     if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
     updateOnDutyWidget();
     updateVersionNumber();
     switchTab(0);
+    
+    // Привязка кнопки ручной проверки, если она существует
+    const checkBtn = document.getElementById('manual-update-check');
+    if (checkBtn) {
+        checkBtn.addEventListener('click', manualCheckForUpdates);
+    }
 };
