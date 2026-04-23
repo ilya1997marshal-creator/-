@@ -218,22 +218,18 @@ function openBlockModal(key) {
 
         mData.items.forEach(item => {
             if (item.type === 'header') {
-                // Заголовок группы
                 const header = document.createElement('div');
                 header.className = "mt-4 mb-2 first:mt-0";
                 header.innerHTML = `<h4 class="text-xs font-black uppercase tracking-wider text-blue-400/80">${item.title}</h4>`;
                 list.appendChild(header);
                 
-                // Контейнер для элементов группы
                 groupContainer = document.createElement('div');
                 groupContainer.className = "space-y-2 mb-3";
                 list.appendChild(groupContainer);
             } else if (item.type === 'item' || item.code) {
-                // Элемент ошибки
                 const div = document.createElement('div');
                 div.className = "diag-card p-3 bg-white/5 rounded-xl border border-white/5";
                 
-                // Определяем цвет подсветки
                 let codeColorClass = 'bg-red-500/20 text-red-400 shadow-[0_0_8px_rgba(239,68,68,0.3)]';
                 if (item.color === 'orange') {
                     codeColorClass = 'bg-orange-500/20 text-orange-400 shadow-[0_0_8px_rgba(249,115,22,0.3)]';
@@ -257,7 +253,6 @@ function openBlockModal(key) {
                     list.appendChild(div);
                 }
             } else {
-                // Для старых форматов (если вдруг остались)
                 const div = document.createElement('div');
                 div.className = "diag-card mb-3";
                 if (item.link) {
@@ -305,7 +300,6 @@ function filterDiag(val) {
         const text = c.innerText.toLowerCase();
         c.style.display = text.includes(q) ? 'block' : 'none';
     });
-    // Также скрываем заголовки групп, если внутри нет видимых элементов
     const headers = document.querySelectorAll('#instructions-list h4');
     headers.forEach(header => {
         const groupContainer = header.nextElementSibling;
@@ -320,6 +314,52 @@ function filterDiag(val) {
 function closeBlockModal() {
     document.getElementById('block-modal').classList.add('hidden');
     document.body.style.overflow = '';
+}
+
+// ==================== ПОГОДА ====================
+const WEATHER_CONFIG = {
+    lat: 69.4865,
+    lon: 88.3972,
+    timezone: "Asia/Krasnoyarsk"
+};
+
+const weatherCodeMap = {
+    0: "Ясно", 1: "Преимущественно ясно", 2: "Переменная облачность", 3: "Пасмурно",
+    45: "Туман", 48: "Изморозь", 51: "Легкая морось", 53: "Морось", 55: "Сильная морось",
+    56: "Легкая ледяная морось", 57: "Сильная ледяная морось", 61: "Небольшой дождь",
+    63: "Дождь", 65: "Сильный дождь", 66: "Легкий ледяной дождь", 67: "Сильный ледяной дождь",
+    71: "Небольшой снег", 73: "Снег", 75: "Сильный снегопад", 77: "Снежные зерна",
+    80: "Небольшой ливень", 81: "Ливень", 82: "Сильный ливень",
+    85: "Небольшой снегопад", 86: "Сильный снегопад", 95: "Гроза", 96: "Гроза с градом", 99: "Сильная гроза с градом"
+};
+
+async function fetchAndDisplayWeather() {
+    const weatherEl = document.getElementById('weather-widget');
+    if (!weatherEl) return;
+
+    try {
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${WEATHER_CONFIG.lat}&longitude=${WEATHER_CONFIG.lon}&current=temperature_2m,weather_code&timezone=${WEATHER_CONFIG.timezone}`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Ошибка сети');
+        
+        const data = await response.json();
+        const current = data.current;
+        
+        const temp = Math.round(current.temperature_2m);
+        const weatherCode = current.weather_code;
+        const description = weatherCodeMap[weatherCode] || "";
+        
+        // Отображаем только температуру и описание
+        weatherEl.textContent = `${description}, ${temp}°C`;
+    } catch (error) {
+        console.error('Не удалось загрузить погоду:', error);
+        weatherEl.textContent = '';
+    }
+}
+
+function startWeatherUpdates() {
+    fetchAndDisplayWeather();
+    setInterval(fetchAndDisplayWeather, 15 * 60 * 1000);
 }
 
 // ==================== ТЕСТИРОВАНИЕ ====================
@@ -724,6 +764,7 @@ window.onload = () => {
     updateCurrentDateDisplay();
     updateOnDutyWidget();
     updateVersionNumber();
+    startWeatherUpdates(); // <-- ЗАПУСК ПОГОДЫ
     
     const savedMonth = localStorage.getItem('lastSelectedMonth');
     const monthSelector = document.getElementById('month-selector');

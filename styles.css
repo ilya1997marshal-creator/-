@@ -281,10 +281,11 @@ body {
     background: rgba(239, 68, 68, 0.15) !important;
     border-color: rgba(239, 68, 68, 0.4) !important;
 }
-/* Подсказка в тестах */
-#multiple-hint {
-    font-size: 10px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+
+/* Погодный виджет */
+#weather-widget {
+    transition: opacity 0.3s ease;
+}
+#weather-widget:empty {
+    opacity: 0;
 }
