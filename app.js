@@ -9,6 +9,7 @@ let userAnswers = {}; // { questionId: [selectedIndices] }
 let currentIndex = 0;
 let testFinished = false;
 let selectedTestQuestions = allQuestions; // по умолчанию все вопросы ПТЭ
+let answerRevealed = false; // показаны ли правильные ответы в режиме обучения
 
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 function toggleTheme() {
@@ -275,7 +276,6 @@ function shuffleArray(arr) {
     return arr;
 }
 
-// Показать экран выбора режима для выбранного теста
 function showModeSelector() {
     document.getElementById('test-list-screen').classList.add('hidden');
     document.getElementById('test-mode-selector').classList.remove('hidden');
@@ -283,7 +283,6 @@ function showModeSelector() {
     document.getElementById('test-results').classList.add('hidden');
 }
 
-// Вернуться к списку тестов
 function backToTestList() {
     document.getElementById('test-list-screen').classList.remove('hidden');
     document.getElementById('test-mode-selector').classList.add('hidden');
@@ -337,7 +336,6 @@ function renderQuestion() {
     document.getElementById('question-id-display').textContent = q.id;
     document.getElementById('question-text').textContent = q.text;
     
-    // Подсказка о количестве правильных ответов
     const hintEl = document.getElementById('multiple-hint');
     if (q.multiple) {
         const count = q.correct.length;
@@ -353,17 +351,19 @@ function renderQuestion() {
     let html = '';
     q.options.forEach((opt, idx) => {
         const checked = saved.includes(idx) ? 'checked' : '';
+        // В режиме обучения, если ответ уже показан, делаем inputs disabled
+        const disabledAttr = (testMode === 'all' && answerRevealed) ? 'disabled' : '';
         if (isMultiple) {
             html += `
                 <label class="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer">
-                    <input type="checkbox" name="option" value="${idx}" ${checked} class="mt-1">
+                    <input type="checkbox" name="option" value="${idx}" ${checked} class="mt-1" ${disabledAttr}>
                     <span class="text-sm">${opt}</span>
                 </label>
             `;
         } else {
             html += `
                 <label class="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer">
-                    <input type="radio" name="option" value="${idx}" ${checked} class="mt-1">
+                    <input type="radio" name="option" value="${idx}" ${checked} class="mt-1" ${disabledAttr}>
                     <span class="text-sm">${opt}</span>
                 </label>
             `;
@@ -371,7 +371,8 @@ function renderQuestion() {
     });
     container.innerHTML = html;
     
-    if (testMode === 'all' && userAnswers[q.id] !== undefined) {
+    // Если ответ уже показан (в режиме all), подсвечиваем
+    if (testMode === 'all' && answerRevealed) {
         highlightAnswers(q);
     }
     if (testMode === 'review') {
@@ -379,18 +380,64 @@ function renderQuestion() {
     }
     
     document.getElementById('prev-question').disabled = (currentIndex === 0);
+    
     const nextBtn = document.getElementById('next-question');
     const finishBtn = document.getElementById('finish-test');
+    
+    // Определяем текст и действие кнопки
+    if (testMode === 'all' && !answerRevealed) {
+        nextBtn.textContent = 'Ответить →';
+        nextBtn.onclick = () => revealAnswer();
+    } else {
+        nextBtn.textContent = 'Далее →';
+        nextBtn.onclick = () => nextQuestion();
+    }
     
     if (currentIndex === currentQuestions.length - 1) {
         nextBtn.classList.add('hidden');
         finishBtn.classList.remove('hidden');
+        finishBtn.textContent = (testMode === 'all' && !answerRevealed) ? 'Завершить и показать результат' : 'Завершить тест';
+        finishBtn.onclick = () => {
+            if (testMode === 'all' && !answerRevealed) {
+                revealAnswer();
+            } else {
+                finishTest();
+            }
+        };
     } else {
         nextBtn.classList.remove('hidden');
         finishBtn.classList.add('hidden');
     }
     
     updateProgress();
+}
+
+function revealAnswer() {
+    const q = currentQuestions[currentIndex];
+    saveCurrentAnswer(); // сохраняем выбранные варианты
+    answerRevealed = true;
+    highlightAnswers(q);
+    
+    // Обновляем кнопки
+    const nextBtn = document.getElementById('next-question');
+    const finishBtn = document.getElementById('finish-test');
+    
+    if (currentIndex === currentQuestions.length - 1) {
+        nextBtn.classList.add('hidden');
+        finishBtn.classList.remove('hidden');
+        finishBtn.textContent = 'Завершить тест';
+        finishBtn.onclick = () => finishTest();
+    } else {
+        nextBtn.classList.remove('hidden');
+        finishBtn.classList.add('hidden');
+        nextBtn.textContent = 'Далее →';
+        nextBtn.onclick = () => nextQuestion();
+    }
+    
+    // Делаем inputs неактивными
+    const container = document.getElementById('options-container');
+    const inputs = container.querySelectorAll('input');
+    inputs.forEach(input => input.disabled = true);
 }
 
 function highlightAnswers(q) {
@@ -418,13 +465,13 @@ function saveCurrentAnswer() {
         if (input.checked) selected.push(parseInt(input.value));
     });
     userAnswers[q.id] = selected;
-    
-    if (testMode === 'all' || testMode === 'review') {
-        highlightAnswers(q);
-    }
 }
 
 function nextQuestion() {
+    if (testMode === 'all') {
+        // В режиме обучения после показа ответа переходим к следующему
+        answerRevealed = false;
+    }
     saveCurrentAnswer();
     if (currentIndex < currentQuestions.length - 1) {
         currentIndex++;
@@ -433,6 +480,9 @@ function nextQuestion() {
 }
 
 function prevQuestion() {
+    if (testMode === 'all') {
+        answerRevealed = false; // при возврате сбрасываем флаг, можно и сохранять состояние, но для простоты сбросим
+    }
     saveCurrentAnswer();
     if (currentIndex > 0) {
         currentIndex--;
@@ -641,7 +691,7 @@ window.onload = () => {
 
     // Обработчики тестов
     document.getElementById('pte-test-btn').addEventListener('click', () => {
-        selectedTestQuestions = allQuestions; // Пока только один тест
+        selectedTestQuestions = allQuestions;
         showModeSelector();
     });
     document.getElementById('back-to-test-list').addEventListener('click', backToTestList);
@@ -649,13 +699,9 @@ window.onload = () => {
     document.getElementById('start-all-mode').addEventListener('click', startAllMode);
     document.getElementById('exit-test').addEventListener('click', exitTest);
     document.getElementById('prev-question').addEventListener('click', prevQuestion);
-    document.getElementById('next-question').addEventListener('click', nextQuestion);
-    document.getElementById('finish-test').addEventListener('click', finishTest);
+    // next-question и finish-test переопределяются в renderQuestion
     document.getElementById('back-to-mode').addEventListener('click', () => {
         document.getElementById('test-results').classList.add('hidden');
         showModeSelector();
-    });
-    document.getElementById('review-mistakes').addEventListener('click', () => {
-        // Уже настроено в showExamResult
     });
 };
