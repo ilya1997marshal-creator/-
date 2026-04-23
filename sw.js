@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v84'; // Увеличьте версию при каждом деплое
+const CACHE_NAME = 'ctai-base-v85'; // Обязательно меняйте при каждом деплое
 const ASSETS = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Активация: чистим старые версии кэша и ЗАХВАТЫВАЕМ КОНТРОЛЬ НАД КЛИЕНТАМИ
+// Активация: чистим старые версии кэша и ЗАХВАТЫВАЕМ КОНТРОЛЬ
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -41,13 +41,12 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => {
-      // Принудительно берём контроль над всеми открытыми страницами
       return self.clients.claim();
     })
   );
 });
 
-// Запросы: сначала ищем в кэше, если нет — идем в сеть
+// Запросы: сначала кэш, потом сеть
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
@@ -56,7 +55,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-// Сообщение для принудительного обновления через кнопку в UI
+// Сообщение для принудительного обновления
 self.addEventListener('message', (event) => {
   if (event.data && event.data.action === 'skipWaiting') {
     self.skipWaiting();
