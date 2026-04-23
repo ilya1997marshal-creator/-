@@ -37,28 +37,16 @@ async function updateVersionNumber() {
                 const match = cacheKey.match(/v\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V77"; 
+                verElement.textContent = "V79"; 
             }
         }
     } catch (e) {
-        verElement.textContent = "V77";
+        verElement.textContent = "V79";
     }
 }
 
 function updateOnDutyWidget() {
     const dutyList = document.getElementById('duty-list');
-    // Ищем заголовок "На смене:"
-    const headers = document.getElementsByTagName('div');
-    for (let h of headers) {
-        if (h.textContent.includes('На смене:')) {
-            h.style.display = 'flex';
-            h.style.justifyContent = 'center';
-            h.style.width = '100%';
-            h.style.textAlign = 'center';
-            h.classList.add('justify-center', 'text-center', 'w-full');
-        }
-    }
-
     if (!dutyList) return;
 
     const day = new Date().getDate(); 
@@ -73,33 +61,35 @@ function updateOnDutyWidget() {
         .filter(p => p.shifts[day - 1] === 'N')
         .map(p => p.name.split(' ')[0]);
 
-    let html = '';
     if (dayShift.length === 0 && nightShift.length === 0) {
-        html = '<div class="w-full text-center py-2 opacity-30 text-[9px] font-black uppercase tracking-widest">Нет смен</div>';
-    } else {
-        html = `
-            <div class="flex w-full gap-2 pt-0 items-start justify-center">
-                ${dayShift.length > 0 ? `
-                    <div class="flex-1 text-center">
-                        <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1.5 tracking-tighter">День (08-20)</div>
-                        <div class="flex flex-wrap justify-center gap-1">
-                            ${dayShift.map(name => `<span class="bg-emerald-500/5 px-2 py-0.5 rounded-lg text-emerald-500 border border-emerald-500/10 text-[10px] font-bold">${name}</span>`).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-                ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/5 self-stretch my-1"></div>` : ''}
-                ${nightShift.length > 0 ? `
-                    <div class="flex-1 text-center">
-                        <div class="text-[8px] font-black uppercase text-blue-500/60 mb-1.5 tracking-tighter">Ночь (20-08)</div>
-                        <div class="flex flex-wrap justify-center gap-1">
-                            ${nightShift.map(name => `<span class="bg-blue-500/5 px-2 py-0.5 rounded-lg text-blue-500 border border-blue-500/10 text-[10px] font-bold">${name}</span>`).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-            </div>
-        `;
+        dutyList.innerHTML = '<div class="w-full text-center py-2 opacity-30 text-[9px] font-black uppercase tracking-widest">Нет смен</div>';
+        return;
     }
-    dutyList.innerHTML = html;
+
+    // Теперь вставляем ТОЛЬКО блоки с именами, так как заголовок уже есть в index.html
+    dutyList.innerHTML = `
+        <div class="flex w-full gap-2 items-start justify-center">
+            ${dayShift.length > 0 ? `
+                <div class="flex-1 text-center">
+                    <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1.5 tracking-tighter">День (08-20)</div>
+                    <div class="flex flex-wrap justify-center gap-1">
+                        ${dayShift.map(name => `<span class="bg-emerald-500/5 px-2 py-0.5 rounded-lg text-emerald-500 border border-emerald-500/10 text-[10px] font-bold">${name}</span>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+            
+            ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/5 self-stretch my-1"></div>` : ''}
+            
+            ${nightShift.length > 0 ? `
+                <div class="flex-1 text-center">
+                    <div class="text-[8px] font-black uppercase text-blue-500/60 mb-1.5 tracking-tighter">Ночь (20-08)</div>
+                    <div class="flex flex-wrap justify-center gap-1">
+                        ${nightShift.map(name => `<span class="bg-blue-500/5 px-2 py-0.5 rounded-lg text-blue-500 border border-blue-500/10 text-[10px] font-bold">${name}</span>`).join('')}
+                    </div>
+                </div>
+            ` : ''}
+        </div>
+    `;
 }
 
 function renderSchedule(monthName) {
@@ -119,7 +109,7 @@ function renderSchedule(monthName) {
     const curDay = today.getDate();
     const daysInMonth = (monthName === "Февраль") ? 28 : (["Апрель", "Июнь", "Сентябрь", "Ноябрь"].includes(monthName) ? 30 : 31);
 
-    let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio">Ф.И.О.</th>`;
+    let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio text-left pl-4">Ф.И.О.</th>`;
     for(let d=1; d<=daysInMonth; d++) {
         html += `<th class="${isCurrent && d === curDay ? 'today-header' : ''}">${d}</th>`;
     }
@@ -127,7 +117,7 @@ function renderSchedule(monthName) {
 
     data.forEach(p => {
         let shiftsCount = 0, hours = 0;
-        html += `<tr onclick="highlightRow(this)"><td class="col-name">${p.name}</td>`;
+        html += `<tr onclick="highlightRow(this)"><td class="col-name text-left pl-4 font-medium">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             const s = p.shifts[d-1] || '';
             const isToday = isCurrent && d === curDay;
@@ -240,7 +230,6 @@ function showUpdateToast(worker) {
     const btn = document.querySelector('.update-action-btn');
     if (!toast || !btn) return;
 
-    console.log("Показ окна обновления...");
     toast.classList.add('show');
     btn.onclick = () => {
         btn.classList.add('loading');
@@ -252,24 +241,16 @@ function showUpdateToast(worker) {
 if ('serviceWorker' in navigator) {
     let refreshing = false;
     
-    // Перезагрузка при активации нового воркера
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
-        console.log("Контроллер изменился, перезагрузка...");
         window.location.reload();
     });
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            console.log("SW зарегистрирован");
+            if (reg.waiting) showUpdateToast(reg.waiting);
 
-            // 1. Если воркер уже ждет (пользователь просто зашел снова)
-            if (reg.waiting) {
-                showUpdateToast(reg.waiting);
-            }
-
-            // 2. Если воркер устанавливается прямо сейчас
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -278,14 +259,14 @@ if ('serviceWorker' in navigator) {
                     }
                 });
             });
-        }).catch(err => console.error('SW Error:', err));
+        });
     });
 
-    // Проверка обновлений при каждом открытии/фокусе приложения
     window.addEventListener('focus', async () => {
         const reg = await navigator.serviceWorker.getRegistration();
         if (reg) {
             reg.update();
+            if (reg.waiting) showUpdateToast(reg.waiting);
         }
     });
 }
