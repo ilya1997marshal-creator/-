@@ -21,7 +21,6 @@
     <button onclick="toggleTheme()" class="theme-toggle" id="theme-icon">🌙</button>
 
     <div class="max-w-xl mx-auto min-h-screen relative px-4">
-        <!-- Главная -->
         <section id="tab-home" class="tab-content active pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="flex items-center justify-center gap-2">
@@ -30,7 +29,6 @@
                 </div>
                 <p class="text-zinc-500 text-[9px] mt-1 font-extrabold uppercase tracking-[0.2em] opacity-70">Информационная панель подразделения</p>
                 <div id="current-date-display" class="mt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400/70"></div>
-                <!-- Погода -->
                 <div id="weather-widget" class="mt-1 text-xs font-medium text-zinc-400"></div>
             </div>
 
@@ -112,7 +110,6 @@
             </div>
         </section>
 
-        <!-- График -->
         <section id="tab-schedule" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>📅</span></div>
@@ -161,7 +158,6 @@
             </div>
         </section>
 
-        <!-- Тесты -->
         <section id="tab-tests" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>🎓</span></div>
@@ -236,7 +232,72 @@
             </div>
         </section>
 
-        <!-- Поддержка -->
+        <section id="tab-tools" class="tab-content pt-10">
+            <div class="flex flex-col items-center mb-6 text-center">
+                <div class="header-icon-main"><span>🛠️</span></div>
+                <h1 class="text-3xl font-extrabold tracking-tight">Инструменты</h1>
+            </div>
+            
+            <div id="tools-list-screen" class="w-full max-w-md mx-auto px-4">
+                <div class="grid grid-cols-1 gap-4">
+                    <button id="calc-4-20ma-btn" class="w-full action-btn p-5 rounded-2xl flex items-center justify-between active:scale-[0.97]">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 bg-blue-500/10 text-blue-400 rounded-xl flex items-center justify-center text-xl">📊</div>
+                            <span class="font-bold text-sm uppercase tracking-wide">Калькулятор 4–20 мА</span>
+                        </div>
+                        <span class="opacity-30">›</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="calc-4-20ma-screen" class="hidden w-full max-w-md mx-auto px-4">
+                <button id="back-to-tools-list" class="mb-4 action-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1">
+                    ← Назад к списку
+                </button>
+                <div class="action-btn p-6 rounded-3xl">
+                    <h3 class="text-lg font-black uppercase tracking-wide mb-4 text-blue-400">Калькулятор 4–20 мА</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Тип величины</label>
+                            <select id="calc-unit-type" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none">
+                                <option value="pressure">Давление</option>
+                                <option value="temperature">Температура</option>
+                                <option value="level">Уровень</option>
+                                <option value="flow">Расход</option>
+                                <option value="custom">Другое</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Мин. значение</label>
+                                <input type="number" id="calc-min-val" value="0" step="any" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Макс. значение</label>
+                                <input type="number" id="calc-max-val" value="100" step="any" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Единицы измерения</label>
+                            <select id="calc-unit-select" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none"></select>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Ток (мА)</label>
+                                <input type="number" id="calc-current" value="12" step="any" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none" oninput="calcCurrentToValue()">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1 block">Значение</label>
+                                <input type="number" id="calc-value" value="50" step="any" class="calc-input w-full bg-[var(--bg-item)] border border-[var(--border)] rounded-xl p-3 text-sm focus:outline-none" oninput="calcValueToCurrent()">
+                            </div>
+                        </div>
+                        <div id="calc-result" class="text-center text-xs font-bold opacity-60 py-2"></div>
+                        <button onclick="copyCalcResult()" class="w-full action-btn py-3 rounded-xl text-xs font-bold uppercase tracking-wider">Копировать результат</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <section id="tab-help" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-8 text-center">
                 <div class="header-icon-main"><span>📡</span></div>
@@ -266,11 +327,12 @@
     </div>
 
     <nav class="fixed bottom-6 left-4 right-4 max-w-xl mx-auto z-[100] custom-nav shadow-2xl">
-        <div class="flex h-full items-center justify-around px-2">
+        <div class="flex h-full items-center justify-around px-1">
             <button onclick="switchTab(0)" class="nav-item active"><div class="nav-icon">🏠</div><span class="nav-label">Главная</span></button>
             <button onclick="switchTab(1)" class="nav-item"><div class="nav-icon">📅</div><span class="nav-label">График</span></button>
             <button onclick="switchTab(2)" class="nav-item"><div class="nav-icon">🎓</div><span class="nav-label">Тесты</span></button>
-            <button onclick="switchTab(3)" class="nav-item"><div class="nav-icon">📡</div><span class="nav-label">Помощь</span></button>
+            <button onclick="switchTab(3)" class="nav-item"><div class="nav-icon">🛠️</div><span class="nav-label">Инстр.</span></button>
+            <button onclick="switchTab(4)" class="nav-item"><div class="nav-icon">📡</div><span class="nav-label">Помощь</span></button>
         </div>
     </nav>
 

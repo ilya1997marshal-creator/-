@@ -3,12 +3,12 @@
  */
 
 // ==================== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ТЕСТОВ ====================
-let testMode = null; // 'exam', 'all', 'review'
+let testMode = null;
 let currentQuestions = [];
-let userAnswers = {}; // { questionId: [selectedIndices] }
+let userAnswers = {};
 let currentIndex = 0;
 let testFinished = false;
-let selectedTestQuestions = allQuestions; // по умолчанию ПТЭ
+let selectedTestQuestions = allQuestions;
 let answerRevealed = false;
 
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
@@ -20,7 +20,7 @@ function toggleTheme() {
 }
 
 function switchTab(index) {
-    const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-help'];
+    const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-tools', 'tab-help'];
     tabs.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('active', i === index);
@@ -32,7 +32,7 @@ function switchTab(index) {
     
     if(index === 0) { updateOnDutyWidget(); updateCurrentDateDisplay(); }
     if(index === 1) renderSchedule(document.getElementById('month-selector').value);
-    if(index === 3) updateVersionNumber(); 
+    if(index === 4) updateVersionNumber(); 
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
@@ -316,6 +316,90 @@ function closeBlockModal() {
     const modal = document.getElementById('block-modal');
     modal.classList.add('hidden');
     document.body.style.overflow = '';
+}
+
+// ==================== ИНСТРУМЕНТЫ ====================
+function showToolsList() {
+    document.getElementById('tools-list-screen').classList.remove('hidden');
+    document.getElementById('calc-4-20ma-screen').classList.add('hidden');
+}
+
+function openCalc4_20mA() {
+    document.getElementById('tools-list-screen').classList.add('hidden');
+    document.getElementById('calc-4-20ma-screen').classList.remove('hidden');
+    updateUnitSelect();
+    calcCurrentToValue();
+}
+
+// Единицы измерения по типу величины
+const unitMap = {
+    pressure: ['бар', 'МПа', 'кПа', 'кгс/см²', 'атм', 'Па'],
+    temperature: ['°C', '°F', 'K'],
+    level: ['м', 'см', 'мм', '%'],
+    flow: ['м³/ч', 'л/мин', 'л/с'],
+    custom: ['ед.']
+};
+
+function updateUnitSelect() {
+    const type = document.getElementById('calc-unit-type').value;
+    const units = unitMap[type] || unitMap.custom;
+    const select = document.getElementById('calc-unit-select');
+    select.innerHTML = '';
+    units.forEach(unit => {
+        const option = document.createElement('option');
+        option.value = unit;
+        option.textContent = unit;
+        select.appendChild(option);
+    });
+    // При изменении типа пересчитываем
+    calcCurrentToValue();
+}
+
+// Привязываем событие
+document.addEventListener('DOMContentLoaded', function() {
+    const unitTypeEl = document.getElementById('calc-unit-type');
+    if (unitTypeEl) {
+        unitTypeEl.addEventListener('change', updateUnitSelect);
+    }
+});
+
+function calcCurrentToValue() {
+    const minVal = parseFloat(document.getElementById('calc-min-val').value) || 0;
+    const maxVal = parseFloat(document.getElementById('calc-max-val').value) || 100;
+    const current = parseFloat(document.getElementById('calc-current').value) || 4;
+    const clampedCurrent = Math.min(20, Math.max(4, current));
+    const value = minVal + (maxVal - minVal) * (clampedCurrent - 4) / 16;
+    document.getElementById('calc-value').value = Math.round(value * 100) / 100;
+    updateCalcResult();
+}
+
+function calcValueToCurrent() {
+    const minVal = parseFloat(document.getElementById('calc-min-val').value) || 0;
+    const maxVal = parseFloat(document.getElementById('calc-max-val').value) || 100;
+    const value = parseFloat(document.getElementById('calc-value').value) || 0;
+    const current = 4 + (16 * (value - minVal)) / (maxVal - minVal);
+    document.getElementById('calc-current').value = Math.round(current * 100) / 100;
+    updateCalcResult();
+}
+
+function updateCalcResult() {
+    const current = parseFloat(document.getElementById('calc-current').value) || 0;
+    const value = parseFloat(document.getElementById('calc-value').value) || 0;
+    const unit = document.getElementById('calc-unit-select').value || '';
+    const resEl = document.getElementById('calc-result');
+    resEl.textContent = `${current.toFixed(2)} мА ↔ ${value.toFixed(2)} ${unit}`;
+}
+
+function copyCalcResult() {
+    const current = parseFloat(document.getElementById('calc-current').value) || 0;
+    const value = parseFloat(document.getElementById('calc-value').value) || 0;
+    const unit = document.getElementById('calc-unit-select').value || '';
+    const text = `${current.toFixed(2)} мА ↔ ${value.toFixed(2)} ${unit}`;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => alert('Результат скопирован'));
+    } else {
+        alert('Буфер обмена недоступен');
+    }
 }
 
 // ==================== ПОГОДА ====================
@@ -798,4 +882,18 @@ window.onload = () => {
         document.getElementById('test-results').classList.add('hidden');
         showModeSelector();
     });
+
+    // Обработчики инструментов
+    document.getElementById('calc-4-20ma-btn').addEventListener('click', openCalc4_20mA);
+    document.getElementById('back-to-tools-list').addEventListener('click', showToolsList);
+    
+    // Сразу покажем список инструментов при открытии вкладки
+    showToolsList();
+    
+    // Обработчик изменения типа величины для единиц измерения
+    const unitTypeEl = document.getElementById('calc-unit-type');
+    if (unitTypeEl) {
+        unitTypeEl.addEventListener('change', updateUnitSelect);
+        updateUnitSelect(); // начальное заполнение
+    }
 };
