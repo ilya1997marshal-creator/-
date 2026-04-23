@@ -39,10 +39,34 @@ body {
     overflow-x: hidden;
 }
 
-.tab-content { display: none !important; }
-.tab-content.active { display: flex !important; flex-direction: column; animation: fadeIn 0.3s ease; }
+.tab-content {
+    display: none !important;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    transform: translateY(5px);
+}
+.tab-content.active {
+    display: flex !important;
+    flex-direction: column;
+    opacity: 1;
+    transform: translateY(0);
+}
 
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+/* Модальное окно с плавным появлением */
+#block-modal {
+    transition: opacity 0.2s ease;
+    opacity: 0;
+    pointer-events: none;
+}
+#block-modal.hidden {
+    display: flex !important;
+    opacity: 0;
+    pointer-events: none;
+}
+#block-modal:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
+}
 
 .header-icon-main {
     width: 70px; height: 70px;
@@ -161,7 +185,7 @@ body {
     height: 72px; border-radius: 24px; background-color: var(--nav-bg); border: 1px solid var(--border);
     backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }
-.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0.4; transition: opacity 0.2s; }
 .nav-item.active { opacity: 1; color: var(--accent); }
 .nav-label { font-size: 9px; font-weight: 800; text-transform: uppercase; margin-top: 4px; }
 
@@ -282,10 +306,18 @@ body {
     border-color: rgba(239, 68, 68, 0.4) !important;
 }
 
-/* Погодный виджет */
-#weather-widget {
-    transition: opacity 0.3s ease;
-}
-#weather-widget:empty {
+/* Плавное модальное окно */
+#block-modal {
+    transition: opacity 0.2s ease;
     opacity: 0;
+    pointer-events: none;
+    display: flex !important; /* display всегда flex, управляем через opacity */
+}
+#block-modal.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+#block-modal:not(.hidden) {
+    opacity: 1;
+    pointer-events: auto;
 }

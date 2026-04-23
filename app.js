@@ -289,7 +289,8 @@ function openBlockModal(key) {
             }
         });
     }
-    document.getElementById('block-modal').classList.remove('hidden');
+    const modal = document.getElementById('block-modal');
+    modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
@@ -312,7 +313,8 @@ function filterDiag(val) {
 }
 
 function closeBlockModal() {
-    document.getElementById('block-modal').classList.add('hidden');
+    const modal = document.getElementById('block-modal');
+    modal.classList.add('hidden');
     document.body.style.overflow = '';
 }
 
@@ -349,7 +351,6 @@ async function fetchAndDisplayWeather() {
         const weatherCode = current.weather_code;
         const description = weatherCodeMap[weatherCode] || "";
         
-        // Отображаем только температуру и описание
         weatherEl.textContent = `${description}, ${temp}°C`;
     } catch (error) {
         console.error('Не удалось загрузить погоду:', error);
@@ -764,7 +765,7 @@ window.onload = () => {
     updateCurrentDateDisplay();
     updateOnDutyWidget();
     updateVersionNumber();
-    startWeatherUpdates(); // <-- ЗАПУСК ПОГОДЫ
+    startWeatherUpdates();
     
     const savedMonth = localStorage.getItem('lastSelectedMonth');
     const monthSelector = document.getElementById('month-selector');
