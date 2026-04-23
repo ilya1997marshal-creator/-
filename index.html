@@ -21,6 +21,7 @@
     <button onclick="toggleTheme()" class="theme-toggle" id="theme-icon">🌙</button>
 
     <div class="max-w-xl mx-auto min-h-screen relative px-4">
+        <!-- Главная -->
         <section id="tab-home" class="tab-content active pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="flex items-center justify-center gap-2">
@@ -29,6 +30,8 @@
                 </div>
                 <p class="text-zinc-500 text-[9px] mt-1 font-extrabold uppercase tracking-[0.2em] opacity-70">Информационная панель подразделения</p>
                 <div id="current-date-display" class="mt-2 text-[11px] font-bold uppercase tracking-wider text-blue-400/70"></div>
+                <!-- Погода -->
+                <div id="weather-widget" class="mt-1 text-xs font-medium text-zinc-400"></div>
             </div>
 
             <div id="on-duty-container" class="mb-6 flex justify-center">
@@ -45,42 +48,42 @@
                 <button onclick="openBlockModal('block_1')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">01</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 1</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 1</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
                 <button onclick="openBlockModal('block_2')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">02</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 2</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 2</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
                 <button onclick="openBlockModal('block_3')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">03</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 3</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 3</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
                 <button onclick="openBlockModal('block_4')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">04</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 4</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 4</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
                 <button onclick="openBlockModal('block_5')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">05</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 5</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 5</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
                 <button onclick="openBlockModal('block_6')" class="w-full action-btn p-5 rounded-3xl flex items-center justify-between active:scale-[0.97]">
                     <div class="flex items-center gap-4">
                         <span class="text-blue-500 font-black italic text-xl w-10 text-center">06</span>
-                        <span class="font-bold text-sm uppercase tracking-wide">Блок 6</span>
+                        <span class="font-bold text-sm uppercase tracking-wide">Энергоблок 6</span>
                     </div>
                     <span class="opacity-30">›</span>
                 </button>
@@ -109,6 +112,7 @@
             </div>
         </section>
 
+        <!-- График -->
         <section id="tab-schedule" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>📅</span></div>
@@ -157,14 +161,13 @@
             </div>
         </section>
 
-        <!-- ТЕСТЫ -->
+        <!-- Тесты -->
         <section id="tab-tests" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>🎓</span></div>
                 <h1 class="text-3xl font-extrabold tracking-tight">Тесты</h1>
             </div>
             
-            <!-- Экран списка тестов (первый уровень) -->
             <div id="test-list-screen" class="w-full max-w-md mx-auto px-4">
                 <div class="grid grid-cols-1 gap-4">
                     <button id="pte-test-btn" class="w-full action-btn p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 active:scale-[0.95] border border-blue-500/20 bg-blue-500/5">
@@ -180,7 +183,6 @@
                 </div>
             </div>
             
-            <!-- Экран выбора режима (второй уровень) -->
             <div id="test-mode-selector" class="hidden w-full max-w-md mx-auto px-4">
                 <button id="back-to-test-list" class="mb-4 action-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1">
                     ← Назад к списку
@@ -199,7 +201,6 @@
                 </div>
             </div>
             
-            <!-- Экран прохождения теста -->
             <div id="test-runner" class="hidden w-full max-w-xl mx-auto px-2 pb-20">
                 <div class="flex items-center justify-between mb-4">
                     <button id="exit-test" class="action-btn px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider">← Выйти</button>
@@ -212,7 +213,6 @@
                 <div id="question-card" class="action-btn p-6 rounded-3xl mb-4">
                     <div class="text-xs font-black uppercase tracking-wider text-blue-500/70 mb-3">Вопрос <span id="question-id-display">1</span></div>
                     <div id="question-text" class="text-sm font-medium leading-relaxed mb-4"></div>
-                    <!-- Подсказка о количестве правильных ответов (для multiple) -->
                     <div id="multiple-hint" class="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-3"></div>
                     <div id="options-container" class="space-y-3"></div>
                 </div>
@@ -223,7 +223,6 @@
                 <button id="finish-test" class="hidden w-full mt-4 action-btn py-4 rounded-2xl font-bold text-sm uppercase tracking-wider bg-emerald-500/20 border-emerald-500/30 text-emerald-500">Завершить тест</button>
             </div>
             
-            <!-- Экран результатов -->
             <div id="test-results" class="hidden w-full max-w-md mx-auto px-4 pb-20">
                 <div class="action-btn p-8 rounded-[2.5rem] flex flex-col items-center">
                     <div id="result-icon" class="text-6xl mb-4"></div>
@@ -237,6 +236,7 @@
             </div>
         </section>
 
+        <!-- Поддержка -->
         <section id="tab-help" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-8 text-center">
                 <div class="header-icon-main"><span>📡</span></div>
@@ -260,7 +260,7 @@
                 </button>
             </div>
             <div class="text-center mt-2">
-                <span class="text-[10px] font-black opacity-20 uppercase tracking-[0.5em]">Версия <span id="app-version">V85</span></span>
+                <span class="text-[10px] font-black opacity-20 uppercase tracking-[0.5em]">Версия <span id="app-version">V86</span></span>
             </div>
         </section>
     </div>

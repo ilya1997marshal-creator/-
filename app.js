@@ -47,11 +47,11 @@ async function updateVersionNumber() {
                 const match = cacheKey.match(/v\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V85"; 
+                verElement.textContent = "V86"; 
             }
         }
     } catch (e) {
-        verElement.textContent = "V85";
+        verElement.textContent = "V86";
     }
 }
 
@@ -150,7 +150,7 @@ function renderSchedule(monthName) {
         return (dayOfWeek === 0 || dayOfWeek === 6) || holidays2026.includes(dateString);
     }
 
-    let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio text-left pl-4">Ф.И.О.</th>`;
+    let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio">Ф.И.О.</th>`;
     for(let d=1; d<=daysInMonth; d++) {
         const isToday = isCurrent && d === curDay;
         const isHoliday = isWeekendOrHoliday(d);
@@ -160,7 +160,7 @@ function renderSchedule(monthName) {
 
     data.forEach(p => {
         let shiftsCount = 0, hours = 0;
-        html += `<tr onclick="highlightRow(this)"><td class="col-name text-left pl-4 font-medium">${p.name}</td>`;
+        html += `<tr onclick="highlightRow(this)"><td class="col-name text-center font-medium">${p.name}</td>`;
         for(let d=1; d<=daysInMonth; d++) {
             const s = p.shifts[d-1] || '';
             const isToday = isCurrent && d === curDay;

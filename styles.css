@@ -1,4 +1,4 @@
-/* Подключение внешнего шрифта должно быть в самом начале */
+/* Подключение внешнего шрифта */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 :root {
@@ -177,6 +177,7 @@ body {
     border-radius: 50%;
 }
 
+/* Улучшенная колонка Ф.И.О. */
 .head-fio { 
     color: var(--accent) !important; 
     background: var(--bg-item) !important;
@@ -185,13 +186,21 @@ body {
     font-weight: 900 !important;
     border-bottom: 2px solid var(--accent) !important;
     text-align: center !important;
+    font-size: 11px !important;
 }
+
 .col-name { 
     position: sticky; left: 0; z-index: 20; 
-    width: 120px !important; 
+    width: 150px !important; 
     background-color: var(--bg-card) !important; 
-    font-weight: 800; text-align: left !important; padding-left: 10px !important;
+    font-weight: 800; 
+    font-size: 11px !important;
+    text-align: center !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
     border-right: 2px solid var(--accent) !important;
+    white-space: nowrap !important;
+    text-overflow: ellipsis;
 }
 .col-stat { width: 44px !important; font-weight: 900; background: rgba(59, 130, 246, 0.05); color: var(--accent); }
 
