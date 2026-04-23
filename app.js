@@ -37,23 +37,30 @@ async function updateVersionNumber() {
                 const match = cacheKey.match(/v\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V75"; 
+                verElement.textContent = "V76"; 
             }
         }
     } catch (e) {
-        verElement.textContent = "V75";
+        verElement.textContent = "V76";
     }
 }
 
 function updateOnDutyWidget() {
     const dutyList = document.getElementById('duty-list');
+    const dutyHeader = document.querySelector('.duty-header'); // Находим заголовок "На смене"
+    
     if (!dutyList) return;
+    
+    // Центрируем заголовок "На смене" внутри его родительского блока
+    if (dutyHeader) {
+        dutyHeader.classList.add('flex', 'justify-center', 'w-full');
+        dutyHeader.style.textAlign = 'center';
+    }
+
     const day = new Date().getDate(); 
     const currentMonthData = scheduleData["Апрель"];
     if (!currentMonthData) return;
 
-    // Центрируем заголовок виджета через родительский контейнер в index.html (если нужно)
-    // Но здесь мы управляем внутренним контентом
     const dayShift = currentMonthData
         .filter(p => ['D', 'S'].includes(p.shifts[day - 1] || ''))
         .map(p => p.name.split(' ')[0]);
@@ -65,22 +72,22 @@ function updateOnDutyWidget() {
     let html = '';
 
     if (dayShift.length === 0 && nightShift.length === 0) {
-        html = '<div class="w-full text-center py-2 opacity-40 text-[10px] font-black uppercase tracking-widest">Нет активных смен</div>';
+        html = '<div class="w-full text-center py-2 opacity-30 text-[9px] font-black uppercase tracking-widest">Нет смен</div>';
     } else {
         html = `
-            <div class="flex w-full gap-2 pt-0">
+            <div class="flex w-full gap-2 pt-0 items-start">
                 ${dayShift.length > 0 ? `
                     <div class="flex-1 text-center">
-                        <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1 tracking-tighter">День (08-20)</div>
+                        <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1.5 tracking-tighter">День (08-20)</div>
                         <div class="flex flex-wrap justify-center gap-1">
                             ${dayShift.map(name => `<span class="bg-emerald-500/5 px-2 py-0.5 rounded-lg text-emerald-500 border border-emerald-500/10 text-[10px] font-bold">${name}</span>`).join('')}
                         </div>
                     </div>
                 ` : ''}
-                ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/5 self-stretch"></div>` : ''}
+                ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/5 self-stretch my-1"></div>` : ''}
                 ${nightShift.length > 0 ? `
                     <div class="flex-1 text-center">
-                        <div class="text-[8px] font-black uppercase text-blue-500/60 mb-1 tracking-tighter">Ночь (20-08)</div>
+                        <div class="text-[8px] font-black uppercase text-blue-500/60 mb-1.5 tracking-tighter">Ночь (20-08)</div>
                         <div class="flex flex-wrap justify-center gap-1">
                             ${nightShift.map(name => `<span class="bg-blue-500/5 px-2 py-0.5 rounded-lg text-blue-500 border border-blue-500/10 text-[10px] font-bold">${name}</span>`).join('')}
                         </div>
@@ -249,7 +256,9 @@ if ('serviceWorker' in navigator) {
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
+            // Если воркер уже ждет активации при загрузке
             if (reg.waiting) showUpdateToast(reg.waiting);
+            
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
                 newWorker.addEventListener('statechange', () => {
@@ -258,7 +267,6 @@ if ('serviceWorker' in navigator) {
                     }
                 });
             });
-            setInterval(() => reg.update(), 1000 * 60 * 15); // Проверка каждые 15 минут
         }).catch(err => console.error('SW Error:', err));
     });
 
