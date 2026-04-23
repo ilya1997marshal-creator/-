@@ -38,11 +38,11 @@ async function updateVersionNumber() {
                 const match = cacheKey.match(/v\d+/i);
                 verElement.textContent = match ? match[0].toUpperCase() : cacheKey.toUpperCase();
             } else {
-                verElement.textContent = "V80"; 
+                verElement.textContent = "V83"; 
             }
         }
     } catch (e) {
-        verElement.textContent = "V80";
+        verElement.textContent = "V83";
     }
 }
 
@@ -244,15 +244,22 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
-        window.location.reload(true); // Принудительная перезагрузка с сервера
+        window.location.reload();
     });
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            // Проверка на наличие обновлений каждые 30 минут
-            setInterval(() => reg.update(), 1000 * 60 * 30);
+            // Проверка обновлений каждые 10 минут (вместо 30)
+            setInterval(() => reg.update(), 1000 * 60 * 10);
+            
+            // Проверка при возвращении на вкладку
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) reg.update();
+            });
 
-            if (reg.waiting) showUpdateToast(reg.waiting);
+            if (reg.waiting) {
+                showUpdateToast(reg.waiting);
+            }
 
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
@@ -265,6 +272,27 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+// Добавляем возможность ручной проверки обновлений (можно вызвать из консоли или с кнопки)
+window.checkForUpdates = function() {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistration().then(reg => {
+            if (reg) {
+                reg.update();
+                console.log('Запущена проверка обновлений...');
+                // Можно показать маленькое уведомление
+                const toast = document.querySelector('.update-toast');
+                if (toast) {
+                    const msg = document.createElement('div');
+                    msg.textContent = 'Проверка обновлений...';
+                    msg.className = 'text-xs opacity-60 mt-2';
+                    toast.appendChild(msg);
+                    setTimeout(() => msg.remove(), 2000);
+                }
+            }
+        });
+    }
+};
 
 window.onload = () => {
     if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v83'; // Не забывай менять версию при правках!
+const CACHE_NAME = 'ctai-base-v83'; // Увеличьте версию при каждом деплое
 const ASSETS = [
   './',
   './index.html',
@@ -28,7 +28,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Активация: чистим старые версии кэша
+// Активация: чистим старые версии кэша и ЗАХВАТЫВАЕМ КОНТРОЛЬ НАД КЛИЕНТАМИ
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -40,9 +40,11 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
+    }).then(() => {
+      // Принудительно берём контроль над всеми открытыми страницами
+      return self.clients.claim();
     })
   );
-  // self.clients.claim(); // УДАЛИЛИ ЭТУ СТРОКУ, чтобы не перехватывать управление мгновенно
 });
 
 // Запросы: сначала ищем в кэше, если нет — идем в сеть
