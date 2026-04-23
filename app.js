@@ -20,7 +20,7 @@ function switchTab(index) {
         btn.classList.toggle('active', i === index);
     });
     
-    if(index === 0) updateOnDutyWidget(); 
+    if(index === 0) { updateOnDutyWidget(); updateCurrentDateDisplay(); }
     if(index === 1) renderSchedule(document.getElementById('month-selector').value);
     if(index === 3) updateVersionNumber(); 
     window.scrollTo({top: 0, behavior: 'smooth'});
@@ -45,10 +45,18 @@ async function updateVersionNumber() {
     }
 }
 
-// Вспомогательная функция: название месяца по номеру (0-11)
 function getMonthName(monthIndex) {
     const months = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
     return months[monthIndex];
+}
+
+function updateCurrentDateDisplay() {
+    const dateEl = document.getElementById('current-date-display');
+    if (!dateEl) return;
+    const now = new Date();
+    const options = { weekday: 'long', day: 'numeric', month: 'long' };
+    const formatted = now.toLocaleDateString('ru-RU', options);
+    dateEl.textContent = formatted;
 }
 
 function updateOnDutyWidget() {
@@ -74,17 +82,18 @@ function updateOnDutyWidget() {
         .map(p => p.name.split(' ')[0]);
 
     if (dayShift.length === 0 && nightShift.length === 0) {
-        dutyList.innerHTML = '<div class="w-full text-center py-3 opacity-30 text-[10px] font-black uppercase tracking-widest">Нет смен</div>';
+        dutyList.innerHTML = '<div class="text-center py-3 opacity-30 text-[10px] font-black uppercase tracking-widest">Нет смен</div>';
         return;
     }
 
+    // Компактный виджет без растягивания на всю ширину
     dutyList.innerHTML = `
-        <div class="flex w-full gap-2 items-start justify-center">
+        <div class="flex justify-center gap-4">
             ${dayShift.length > 0 ? `
-                <div class="flex-1 text-center">
+                <div class="text-center">
                     <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1 tracking-wider">День</div>
                     <div class="flex flex-col items-center gap-1">
-                        ${dayShift.map(name => `<span class="bg-emerald-500/5 px-3 py-1 rounded-lg text-emerald-500 border border-emerald-500/10 text-xs font-bold">${name}</span>`).join('')}
+                        ${dayShift.map(name => `<span class="bg-emerald-500/5 px-3 py-1 rounded-lg text-emerald-500 border border-emerald-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -92,10 +101,10 @@ function updateOnDutyWidget() {
             ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/10 self-stretch my-1"></div>` : ''}
             
             ${nightShift.length > 0 ? `
-                <div class="flex-1 text-center">
+                <div class="text-center">
                     <div class="text-[8px] font-black uppercase text-blue-400/60 mb-1 tracking-wider">Ночь</div>
                     <div class="flex flex-col items-center gap-1">
-                        ${nightShift.map(name => `<span class="bg-blue-500/5 px-3 py-1 rounded-lg text-blue-400 border border-blue-500/10 text-xs font-bold">${name}</span>`).join('')}
+                        ${nightShift.map(name => `<span class="bg-blue-500/5 px-3 py-1 rounded-lg text-blue-400 border border-blue-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
                     </div>
                 </div>
             ` : ''}
@@ -109,6 +118,8 @@ function renderSchedule(monthName) {
     if(display) display.textContent = monthName + " 2026";
     if(!viewport) return;
 
+    localStorage.setItem('lastSelectedMonth', monthName);
+
     const data = scheduleData[monthName];
     if (!data) {
         viewport.innerHTML = `<div class="py-20 text-center opacity-20 font-black uppercase">Нет данных</div>`;
@@ -121,13 +132,11 @@ function renderSchedule(monthName) {
     const curDay = today.getDate();
     const year = 2026;
     
-    // Определяем количество дней в выбранном месяце
     const daysInMonth = new Date(year, ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"].indexOf(monthName) + 1, 0).getDate();
 
-    // Функция проверки, является ли день выходным или праздничным
     function isWeekendOrHoliday(day) {
         const date = new Date(year, ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"].indexOf(monthName), day);
-        const dayOfWeek = date.getDay(); // 0 - вс, 6 - сб
+        const dayOfWeek = date.getDay();
         const dateString = date.toISOString().split('T')[0];
         return (dayOfWeek === 0 || dayOfWeek === 6) || holidays2026.includes(dateString);
     }
@@ -358,8 +367,17 @@ window.checkForUpdates = manualCheckForUpdates;
 
 window.onload = () => {
     if(localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+    
+    updateCurrentDateDisplay();
     updateOnDutyWidget();
     updateVersionNumber();
+    
+    const savedMonth = localStorage.getItem('lastSelectedMonth');
+    const monthSelector = document.getElementById('month-selector');
+    if (savedMonth && monthSelector) {
+        monthSelector.value = savedMonth;
+    }
+    
     switchTab(0);
     
     const checkBtn = document.getElementById('manual-update-check');
