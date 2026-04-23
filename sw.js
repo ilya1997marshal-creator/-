@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ctai-base-v85'; // Обязательно меняйте при каждом деплое
+const CACHE_NAME = 'ctai-base-v86'; // Обязательно меняйте при каждом деплое
 const ASSETS = [
   './',
   './index.html',
