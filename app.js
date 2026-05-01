@@ -150,6 +150,8 @@ function renderSchedule(monthName) {
         return (dayOfWeek === 0 || dayOfWeek === 6) || holidays2026.includes(dateString);
     }
 
+    const hourMap = { 'A': '8', 'B': '5', 'C': '10' };
+
     let html = `<table class="schedule-table"><thead><tr><th class="col-name head-fio">Ф.И.О.</th>`;
     for(let d=1; d<=daysInMonth; d++) {
         const isToday = isCurrent && d === curDay;
@@ -165,8 +167,19 @@ function renderSchedule(monthName) {
             const s = p.shifts[d-1] || '';
             const isToday = isCurrent && d === curDay;
             const isHoliday = isWeekendOrHoliday(d);
-            html += `<td class="shift-${s} ${isToday ? 'today-column' : ''} ${isHoliday ? 'holiday-column' : ''}"></td>`;
-            if(['D', 'N', 'S'].includes(s)) { shiftsCount++; hours += (s === 'S' ? 8 : 12); }
+            if (hourMap[s]) {
+                html += `<td class="shift-D ${isToday ? 'today-column' : ''} ${isHoliday ? 'holiday-column' : ''}"><span class="hour-num">${hourMap[s]}</span></td>`;
+            } else {
+                html += `<td class="shift-${s} ${isToday ? 'today-column' : ''} ${isHoliday ? 'holiday-column' : ''}"></td>`;
+            }
+            if(['D', 'N', 'S', 'A', 'B', 'C'].includes(s)) {
+                shiftsCount++;
+                if (s === 'S') hours += 12;      // <-- ИСПРАВЛЕНО: спецподготовка теперь 12-часовая
+                else if (s === 'A') hours += 8;
+                else if (s === 'B') hours += 5;
+                else if (s === 'C') hours += 10;
+                else hours += 12; // D,N по 12 часов
+            }
         }
         html += `<td class="col-stat font-bold">${shiftsCount}</td><td class="col-stat font-bold">${hours}</td></tr>`;
     });
@@ -331,7 +344,6 @@ function openCalc4_20mA() {
     calcCurrentToValue();
 }
 
-// Единицы измерения по типу величины
 const unitMap = {
     pressure: ['бар', 'МПа', 'кПа', 'кгс/см²', 'атм', 'Па'],
     temperature: ['°C', '°F', 'K'],
@@ -351,17 +363,8 @@ function updateUnitSelect() {
         option.textContent = unit;
         select.appendChild(option);
     });
-    // При изменении типа пересчитываем
     calcCurrentToValue();
 }
-
-// Привязываем событие
-document.addEventListener('DOMContentLoaded', function() {
-    const unitTypeEl = document.getElementById('calc-unit-type');
-    if (unitTypeEl) {
-        unitTypeEl.addEventListener('change', updateUnitSelect);
-    }
-});
 
 function calcCurrentToValue() {
     const minVal = parseFloat(document.getElementById('calc-min-val').value) || 0;
@@ -851,10 +854,16 @@ window.onload = () => {
     updateVersionNumber();
     startWeatherUpdates();
     
-    const savedMonth = localStorage.getItem('lastSelectedMonth');
     const monthSelector = document.getElementById('month-selector');
-    if (savedMonth && monthSelector) {
-        monthSelector.value = savedMonth;
+    if (monthSelector) {
+        const savedMonth = localStorage.getItem('lastSelectedMonth');
+        const today = new Date();
+        const currentMonthName = getMonthName(today.getMonth());
+        if (savedMonth) {
+            monthSelector.value = savedMonth;
+        } else {
+            monthSelector.value = currentMonthName;
+        }
     }
     
     switchTab(0);
@@ -873,6 +882,10 @@ window.onload = () => {
         selectedTestQuestions = fireSafetyQuestions;
         showModeSelector();
     });
+    document.getElementById('labor-test-btn').addEventListener('click', () => {
+        selectedTestQuestions = laborProtectionQuestions;
+        showModeSelector();
+    });
     document.getElementById('back-to-test-list').addEventListener('click', backToTestList);
     document.getElementById('start-exam-mode').addEventListener('click', startExamMode);
     document.getElementById('start-all-mode').addEventListener('click', startAllMode);
@@ -887,13 +900,11 @@ window.onload = () => {
     document.getElementById('calc-4-20ma-btn').addEventListener('click', openCalc4_20mA);
     document.getElementById('back-to-tools-list').addEventListener('click', showToolsList);
     
-    // Сразу покажем список инструментов при открытии вкладки
     showToolsList();
     
-    // Обработчик изменения типа величины для единиц измерения
     const unitTypeEl = document.getElementById('calc-unit-type');
     if (unitTypeEl) {
         unitTypeEl.addEventListener('change', updateUnitSelect);
-        updateUnitSelect(); // начальное заполнение
+        updateUnitSelect();
     }
 };
