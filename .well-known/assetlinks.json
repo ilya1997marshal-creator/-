@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.ilya1997marshal_creator.twa",
+        "sha256_cert_fingerprints": ["48:E7:A8:62:B6:68:D8:33:5E:C1:E8:28:B1:28:22:ED:05:54:F0:2F:0D:21:56:D0:2D:B8:00:FF:51:D4:F2:12"]
+      }
+    }]
