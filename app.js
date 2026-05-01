@@ -174,7 +174,7 @@ function renderSchedule(monthName) {
             }
             if(['D', 'N', 'S', 'A', 'B', 'C'].includes(s)) {
                 shiftsCount++;
-                if (s === 'S') hours += 12;      // <-- ИСПРАВЛЕНО: спецподготовка теперь 12-часовая
+                if (s === 'S') hours += 12;      // спецподготовка = 12 часов
                 else if (s === 'A') hours += 8;
                 else if (s === 'B') hours += 5;
                 else if (s === 'C') hours += 10;
@@ -854,16 +854,12 @@ window.onload = () => {
     updateVersionNumber();
     startWeatherUpdates();
     
+    // Всегда устанавливаем текущий системный месяц при загрузке
     const monthSelector = document.getElementById('month-selector');
     if (monthSelector) {
-        const savedMonth = localStorage.getItem('lastSelectedMonth');
         const today = new Date();
         const currentMonthName = getMonthName(today.getMonth());
-        if (savedMonth) {
-            monthSelector.value = savedMonth;
-        } else {
-            monthSelector.value = currentMonthName;
-        }
+        monthSelector.value = currentMonthName;
     }
     
     switchTab(0);
