@@ -69,58 +69,149 @@ function updateCurrentDateDisplay() {
     dateEl.textContent = formatted;
 }
 
+// ==================== ЖИВОЙ ВИДЖЕТ «НА СМЕНЕ» ====================
+function getNowKrasnoyarsk() {
+    const now = new Date();
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+    return new Date(utc + (3600000 * 7));
+}
+
 function updateOnDutyWidget() {
     const dutyList = document.getElementById('duty-list');
     if (!dutyList) return;
 
-    const now = new Date();
-    const day = now.getDate();
-    const monthName = getMonthName(now.getMonth());
-    const currentMonthData = scheduleData[monthName];
+    const now = getNowKrasnoyarsk();
+    const currentDay = now.getDate();
+    const currentMonth = now.getMonth();
+    const currentHour = now.getHours();
+    const currentMinutes = now.getMinutes();
+    const currentTotalMinutes = currentHour * 60 + currentMinutes;
+
+    const monthName = getMonthName(currentMonth);
+    const monthData = scheduleData[monthName];
     
-    if (!currentMonthData) {
+    if (!monthData) {
         dutyList.innerHTML = '<div class="w-full text-center py-3 opacity-30 text-[10px] font-black uppercase tracking-widest">Нет данных</div>';
         return;
     }
 
-    const dayShift = currentMonthData
-        .filter(p => ['D', 'S'].includes(p.shifts[day - 1] || ''))
-        .map(p => p.name.split(' ')[0]);
-    
-    const nightShift = currentMonthData
-        .filter(p => p.shifts[day - 1] === 'N')
-        .map(p => p.name.split(' ')[0]);
+    function getShift(person, day) {
+        const idx = day - 1;
+        if (idx < 0 || idx >= person.shifts.length) return '';
+        return person.shifts[idx] || '';
+    }
 
-    if (dayShift.length === 0 && nightShift.length === 0) {
+    function isDayShiftActive(shiftType) {
+        const startMinutes = 8 * 60;
+        let endMinutes;
+        switch (shiftType) {
+            case 'A': endMinutes = 16 * 60; break;
+            case 'B': endMinutes = 13 * 60; break;
+            case 'C': endMinutes = 18 * 60; break;
+            default:  endMinutes = 20 * 60; break;
+        }
+        return currentTotalMinutes >= startMinutes && currentTotalMinutes < endMinutes;
+    }
+
+    const dayShiftNames = [];
+    const nightShiftNames = [];
+    const upcomingDayNames = [];
+    const upcomingNightNames = [];
+
+    monthData.forEach(person => {
+        // Определяем активную ночную смену
+        let nightActive = false;
+        if (currentTotalMinutes >= 20 * 60) {
+            // После 20:00 сегодняшняя ночная смена
+            if (getShift(person, currentDay) === 'N') {
+                nightActive = true;
+            }
+        } else if (currentTotalMinutes < 8 * 60) {
+            // До 08:00 продолжаем вчерашнюю ночную смену
+            const yesterday = new Date(now);
+            yesterday.setDate(currentDay - 1);
+            const yesterdayDay = yesterday.getDate();
+            if (getShift(person, yesterdayDay) === 'N') {
+                nightActive = true;
+            }
+        }
+
+        if (nightActive) {
+            nightShiftNames.push(person.name.split(' ')[0]);
+        }
+
+        // Дневные смены (включая короткие)
+        const shift = getShift(person, currentDay);
+        const dayTypes = ['D', 'S', 'A', 'B', 'C'];
+        if (dayTypes.includes(shift)) {
+            if (isDayShiftActive(shift)) {
+                dayShiftNames.push(person.name.split(' ')[0]);
+            } else if (currentTotalMinutes >= 6 * 60 && currentTotalMinutes < 8 * 60) {
+                // Предстоящие дневные смены (за 2 часа)
+                upcomingDayNames.push(person.name.split(' ')[0]);
+            }
+        }
+
+        // Предстоящие ночные смены (за 2 часа до 20:00)
+        if (currentTotalMinutes >= 18 * 60 && currentTotalMinutes < 20 * 60) {
+            if (getShift(person, currentDay) === 'N' && !nightShiftNames.includes(person.name.split(' ')[0])) {
+                upcomingNightNames.push(person.name.split(' ')[0]);
+            }
+        }
+    });
+
+    if (dayShiftNames.length === 0 && nightShiftNames.length === 0 && upcomingDayNames.length === 0 && upcomingNightNames.length === 0) {
         dutyList.innerHTML = '<div class="text-center py-3 opacity-30 text-[10px] font-black uppercase tracking-widest">Нет смен</div>';
         return;
     }
 
-    dutyList.innerHTML = `
-        <div class="flex justify-center gap-4">
-            ${dayShift.length > 0 ? `
-                <div class="text-center">
-                    <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1 tracking-wider">День</div>
-                    <div class="flex flex-col items-center gap-1">
-                        ${dayShift.map(name => `<span class="bg-emerald-500/5 px-3 py-1 rounded-lg text-emerald-500 border border-emerald-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
-                    </div>
+    let html = '<div class="flex justify-center gap-4 flex-wrap">';
+    
+    if (dayShiftNames.length > 0) {
+        html += `
+            <div class="text-center">
+                <div class="text-[8px] font-black uppercase text-emerald-500/60 mb-1 tracking-wider">День</div>
+                <div class="flex flex-col items-center gap-1">
+                    ${dayShiftNames.map(name => `<span class="bg-emerald-500/5 px-3 py-1 rounded-lg text-emerald-500 border border-emerald-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
                 </div>
-            ` : ''}
-            
-            ${dayShift.length > 0 && nightShift.length > 0 ? `<div class="w-[1px] bg-white/10 self-stretch my-1"></div>` : ''}
-            
-            ${nightShift.length > 0 ? `
-                <div class="text-center">
-                    <div class="text-[8px] font-black uppercase text-blue-400/60 mb-1 tracking-wider">Ночь</div>
-                    <div class="flex flex-col items-center gap-1">
-                        ${nightShift.map(name => `<span class="bg-blue-500/5 px-3 py-1 rounded-lg text-blue-400 border border-blue-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
-                    </div>
+            </div>`;
+    }
+
+    if (nightShiftNames.length > 0) {
+        html += `
+            <div class="text-center">
+                <div class="text-[8px] font-black uppercase text-blue-400/60 mb-1 tracking-wider">Ночь</div>
+                <div class="flex flex-col items-center gap-1">
+                    ${nightShiftNames.map(name => `<span class="bg-blue-500/5 px-3 py-1 rounded-lg text-blue-400 border border-blue-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
                 </div>
-            ` : ''}
-        </div>
-    `;
+            </div>`;
+    }
+
+    if (upcomingDayNames.length > 0) {
+        html += `
+            <div class="text-center">
+                <div class="text-[8px] font-black uppercase text-emerald-500/40 mb-1 tracking-wider">День (ожид.)</div>
+                <div class="flex flex-col items-center gap-1">
+                    ${upcomingDayNames.map(name => `<span class="bg-emerald-500/5 px-3 py-1 rounded-lg text-emerald-500/50 border border-emerald-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
+                </div>
+            </div>`;
+    }
+
+    if (upcomingNightNames.length > 0) {
+        html += `
+            <div class="text-center">
+                <div class="text-[8px] font-black uppercase text-blue-400/40 mb-1 tracking-wider">Ночь (ожид.)</div>
+                <div class="flex flex-col items-center gap-1">
+                    ${upcomingNightNames.map(name => `<span class="bg-blue-500/5 px-3 py-1 rounded-lg text-blue-400/50 border border-blue-500/10 text-xs font-bold whitespace-nowrap">${name}</span>`).join('')}
+                </div>
+            </div>`;
+    }
+
+    html += '</div>';
+    dutyList.innerHTML = html;
 }
 
+// ==================== ГРАФИК ====================
 function renderSchedule(monthName) {
     const display = document.getElementById('current-month-display');
     const viewport = document.getElementById('schedule-viewport');
@@ -174,11 +265,11 @@ function renderSchedule(monthName) {
             }
             if(['D', 'N', 'S', 'A', 'B', 'C'].includes(s)) {
                 shiftsCount++;
-                if (s === 'S') hours += 12;      // спецподготовка = 12 часов
+                if (s === 'S') hours += 12;
                 else if (s === 'A') hours += 8;
                 else if (s === 'B') hours += 5;
                 else if (s === 'C') hours += 10;
-                else hours += 12; // D,N по 12 часов
+                else hours += 12;
             }
         }
         html += `<td class="col-stat font-bold">${shiftsCount}</td><td class="col-stat font-bold">${hours}</td></tr>`;
@@ -854,7 +945,6 @@ window.onload = () => {
     updateVersionNumber();
     startWeatherUpdates();
     
-    // Всегда устанавливаем текущий системный месяц при загрузке
     const monthSelector = document.getElementById('month-selector');
     if (monthSelector) {
         const today = new Date();
