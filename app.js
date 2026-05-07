@@ -10,7 +10,7 @@ let currentIndex = 0;
 let testFinished = false;
 let selectedTestQuestions = allQuestions;
 let answerRevealed = false;
-let lastExamQuestions = [];
+let lastExamQuestions = []; // сохраняем вопросы последнего экзамена
 
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 function toggleTheme() {
@@ -33,7 +33,7 @@ function switchTab(index) {
     
     if(index === 0) { updateOnDutyWidget(); updateCurrentDateDisplay(); }
     if(index === 1) renderSchedule(document.getElementById('month-selector').value);
-    if(index === 4) renderCredentials();
+    if(index === 4) renderCredentials(); // заглушка
     if(index === 5) updateVersionNumber(); 
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -888,29 +888,10 @@ function renderAccessCategoryItems(category, searchQuery) {
 }
 
 function renderCredentials() {
-    // сохраняем для обратной совместимости
+    // сохраняем для обратной совместимости, не используется
 }
 
-// ==================== SERVICE WORKER ====================
-function showUpdateToast(worker) {
-    const toast = document.querySelector('.update-toast');
-    if (!toast) return;
-
-    toast.innerHTML = `
-        <div class="text-lg mb-2">✨ Доступна новая версия</div>
-        <div class="text-sm opacity-60 mb-4">Обновите приложение для улучшения работы</div>
-        <button class="update-action-btn">Обновить сейчас</button>
-    `;
-    const btn = toast.querySelector('.update-action-btn');
-    
-    toast.classList.add('show');
-    btn.onclick = () => {
-        btn.classList.add('loading');
-        btn.innerHTML = '<span class="animate-spin">🔄</span> Обновление...';
-        worker.postMessage({ action: 'skipWaiting' });
-    };
-}
-
+// ==================== SERVICE WORKER (АВТООБНОВЛЕНИЕ) ====================
 function manualCheckForUpdates() {
     if (!('serviceWorker' in navigator)) return;
     
@@ -931,11 +912,12 @@ function manualCheckForUpdates() {
         reg.update().then(() => {
             setTimeout(() => {
                 if (reg.waiting) {
-                    showUpdateToast(reg.waiting);
+                    // Сразу активируем и перезагружаемся
+                    reg.waiting.postMessage({ action: 'skipWaiting' });
                 } else if (reg.installing) {
                     reg.installing.addEventListener('statechange', function onStateChange() {
-                        if (this.state === 'installed' && navigator.serviceWorker.controller) {
-                            showUpdateToast(this);
+                        if (this.state === 'installed') {
+                            this.postMessage({ action: 'skipWaiting' });
                             this.removeEventListener('statechange', onStateChange);
                         }
                     });
@@ -943,8 +925,8 @@ function manualCheckForUpdates() {
                     if (toast) {
                         toast.innerHTML = `
                             <div class="flex flex-col items-center">
-                                <div class="text-sm font-medium mb-4">У вас установлена последняя версия приложения</div>
-                                <button class="update-action-btn">Понятно</button>
+                                <div class="text-sm font-medium mb-4">У вас последняя версия</div>
+                                <button class="update-action-btn">OK</button>
                             </div>
                         `;
                         const okBtn = toast.querySelector('.update-action-btn');
@@ -959,7 +941,6 @@ function manualCheckForUpdates() {
 
 if ('serviceWorker' in navigator) {
     let refreshing = false;
-    
     navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (refreshing) return;
         refreshing = true;
@@ -968,21 +949,22 @@ if ('serviceWorker' in navigator) {
 
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js').then(reg => {
-            setInterval(() => reg.update(), 1000 * 60 * 10);
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) reg.update();
-            });
-
+            // каждые 10 минут проверяем обновления
+            setInterval(() => reg.update(), 600000);
+            
+            // если уже есть ожидающий воркер – сразу активируем
             if (reg.waiting) {
-                showUpdateToast(reg.waiting);
+                reg.waiting.postMessage({ action: 'skipWaiting' });
+                return;
             }
 
+            // когда появляется новый воркер, активируем его немедленно
             reg.addEventListener('updatefound', () => {
                 const newWorker = reg.installing;
-                newWorker.addEventListener('statechange', function onStateChange() {
-                    if (this.state === 'installed' && navigator.serviceWorker.controller) {
-                        showUpdateToast(this);
-                        this.removeEventListener('statechange', onStateChange);
+                newWorker.addEventListener('statechange', () => {
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        newWorker.postMessage({ action: 'skipWaiting' });
+                        // перезагрузка произойдёт через событие controllerchange
                     }
                 });
             });
@@ -991,6 +973,13 @@ if ('serviceWorker' in navigator) {
         const toast = document.querySelector('.update-toast');
         if (toast && !navigator.serviceWorker.controller) {
             toast.classList.remove('show');
+        }
+    });
+
+    // обработчик сообщений от SW
+    navigator.serviceWorker.addEventListener('message', event => {
+        if (event.data && event.data.action === 'skipWaiting') {
+            self.skipWaiting();
         }
     });
 }
