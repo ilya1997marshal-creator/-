@@ -10,7 +10,7 @@ let currentIndex = 0;
 let testFinished = false;
 let selectedTestQuestions = allQuestions;
 let answerRevealed = false;
-let lastExamQuestions = []; // сохраняем вопросы последнего экзамена
+let lastExamQuestions = [];
 
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 function toggleTheme() {
@@ -21,7 +21,7 @@ function toggleTheme() {
 }
 
 function switchTab(index) {
-    const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-tools', 'tab-help'];
+    const tabs = ['tab-home', 'tab-schedule', 'tab-tests', 'tab-tools', 'tab-access', 'tab-help'];
     tabs.forEach((id, i) => {
         const el = document.getElementById(id);
         if (el) el.classList.toggle('active', i === index);
@@ -33,7 +33,8 @@ function switchTab(index) {
     
     if(index === 0) { updateOnDutyWidget(); updateCurrentDateDisplay(); }
     if(index === 1) renderSchedule(document.getElementById('month-selector').value);
-    if(index === 4) updateVersionNumber(); 
+    if(index === 4) renderCredentials();
+    if(index === 5) updateVersionNumber(); 
     window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
@@ -120,15 +121,12 @@ function updateOnDutyWidget() {
     const upcomingNightNames = [];
 
     monthData.forEach(person => {
-        // Определяем активную ночную смену
         let nightActive = false;
         if (currentTotalMinutes >= 20 * 60) {
-            // После 20:00 сегодняшняя ночная смена
             if (getShift(person, currentDay) === 'N') {
                 nightActive = true;
             }
         } else if (currentTotalMinutes < 8 * 60) {
-            // До 08:00 продолжаем вчерашнюю ночную смену
             const yesterday = new Date(now);
             yesterday.setDate(currentDay - 1);
             const yesterdayDay = yesterday.getDate();
@@ -141,19 +139,16 @@ function updateOnDutyWidget() {
             nightShiftNames.push(person.name.split(' ')[0]);
         }
 
-        // Дневные смены (включая короткие)
         const shift = getShift(person, currentDay);
         const dayTypes = ['D', 'S', 'A', 'B', 'C'];
         if (dayTypes.includes(shift)) {
             if (isDayShiftActive(shift)) {
                 dayShiftNames.push(person.name.split(' ')[0]);
             } else if (currentTotalMinutes >= 6 * 60 && currentTotalMinutes < 8 * 60) {
-                // Предстоящие дневные смены (за 2 часа)
                 upcomingDayNames.push(person.name.split(' ')[0]);
             }
         }
 
-        // Предстоящие ночные смены (за 2 часа до 20:00)
         if (currentTotalMinutes >= 18 * 60 && currentTotalMinutes < 20 * 60) {
             if (getShift(person, currentDay) === 'N' && !nightShiftNames.includes(person.name.split(' ')[0])) {
                 upcomingNightNames.push(person.name.split(' ')[0]);
@@ -167,7 +162,6 @@ function updateOnDutyWidget() {
     }
 
     let html = '<div class="flex justify-center gap-4 flex-wrap">';
-    
     if (dayShiftNames.length > 0) {
         html += `
             <div class="text-center">
@@ -177,7 +171,6 @@ function updateOnDutyWidget() {
                 </div>
             </div>`;
     }
-
     if (nightShiftNames.length > 0) {
         html += `
             <div class="text-center">
@@ -187,7 +180,6 @@ function updateOnDutyWidget() {
                 </div>
             </div>`;
     }
-
     if (upcomingDayNames.length > 0) {
         html += `
             <div class="text-center">
@@ -197,7 +189,6 @@ function updateOnDutyWidget() {
                 </div>
             </div>`;
     }
-
     if (upcomingNightNames.length > 0) {
         html += `
             <div class="text-center">
@@ -207,7 +198,6 @@ function updateOnDutyWidget() {
                 </div>
             </div>`;
     }
-
     html += '</div>';
     dutyList.innerHTML = html;
 }
@@ -569,7 +559,7 @@ function startExamMode() {
     testMode = 'exam';
     const shuffled = shuffleArray([...selectedTestQuestions]);
     currentQuestions = shuffled.slice(0, 20);
-    lastExamQuestions = [...currentQuestions]; // сохраняем для просмотра
+    lastExamQuestions = [...currentQuestions];
     userAnswers = {};
     currentIndex = 0;
     testFinished = false;
@@ -817,7 +807,6 @@ function showExamResult(passed, correct, total, mistakes) {
     reviewBtn.onclick = showFullReview;
 }
 
-// Новая функция: показ ВСЕХ вопросов последнего экзамена
 function showFullReview() {
     currentQuestions = lastExamQuestions;
     currentIndex = 0;
@@ -829,6 +818,77 @@ function showFullReview() {
 function updateProgress() {
     const progress = ((currentIndex + 1) / currentQuestions.length) * 100;
     document.getElementById('test-progress').style.width = progress + '%';
+}
+
+// ==================== ДОСТУП (КАТЕГОРИИ) ====================
+let currentAccessCategory = null;
+
+function openAccessCategory(category) {
+    currentAccessCategory = category;
+    document.getElementById('access-modal-title').textContent = category;
+    document.getElementById('access-search').value = '';
+    document.getElementById('access-modal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    renderAccessCategoryItems(category, '');
+}
+
+function closeAccessModal() {
+    document.getElementById('access-modal').classList.add('hidden');
+    document.body.style.overflow = '';
+    currentAccessCategory = null;
+}
+
+function filterAccessCategory() {
+    const searchQuery = document.getElementById('access-search').value.toLowerCase();
+    renderAccessCategoryItems(currentAccessCategory, searchQuery);
+}
+
+function renderAccessCategoryItems(category, searchQuery) {
+    const listEl = document.getElementById('access-category-list');
+    if (!listEl) return;
+    
+    const allItems = credentialsData[category] || [];
+    const filtered = allItems.filter(item => {
+        if (!searchQuery) return true;
+        const q = searchQuery;
+        return (item.system && item.system.toLowerCase().includes(q)) ||
+               (item.login && item.login.toLowerCase().includes(q)) ||
+               (item.password && item.password.toLowerCase().includes(q)) ||
+               (item.ip && item.ip.includes(q)) ||
+               (item.location && item.location.toLowerCase().includes(q)) ||
+               (item.description && item.description.toLowerCase().includes(q));
+    });
+    
+    let html = '';
+    if (filtered.length === 0) {
+        html = '<div class="text-center py-10 opacity-50 text-xs font-black uppercase">Ничего не найдено</div>';
+    } else {
+        filtered.forEach(item => {
+            html += `
+                <div class="bg-white/5 rounded-xl border border-white/5 p-3">
+                    <div class="font-bold text-sm mb-2">${item.system || ''}</div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>
+                            <span class="opacity-50">Логин:</span>
+                            <div class="font-mono bg-white/5 px-2 py-0.5 rounded mt-0.5">${item.login || '—'}</div>
+                        </div>
+                        <div>
+                            <span class="opacity-50">Пароль:</span>
+                            <div class="font-mono bg-white/5 px-2 py-0.5 rounded mt-0.5">${item.password || '—'}</div>
+                        </div>
+                    </div>
+                    ${item.ip ? `<div class="mt-2 text-[10px] opacity-50">IP: ${item.ip}</div>` : ''}
+                    ${item.location ? `<div class="mt-1 text-[10px] opacity-50">📍 ${item.location}</div>` : ''}
+                    ${item.description ? `<div class="mt-1 text-[10px] opacity-50">${item.description}</div>` : ''}
+                </div>
+            `;
+        });
+    }
+    listEl.innerHTML = html;
+}
+
+function renderCredentials() {
+    // сохраняем для обратной совместимости
 }
 
 // ==================== SERVICE WORKER ====================
@@ -959,7 +1019,6 @@ window.onload = () => {
         checkBtn.addEventListener('click', manualCheckForUpdates);
     }
 
-    // Обработчики тестов
     document.getElementById('pte-test-btn').addEventListener('click', () => {
         selectedTestQuestions = allQuestions;
         showModeSelector();
@@ -982,7 +1041,6 @@ window.onload = () => {
         showModeSelector();
     });
 
-    // Обработчики инструментов
     document.getElementById('calc-4-20ma-btn').addEventListener('click', openCalc4_20mA);
     document.getElementById('back-to-tools-list').addEventListener('click', showToolsList);
     

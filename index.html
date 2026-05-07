@@ -21,6 +21,7 @@
     <button onclick="toggleTheme()" class="theme-toggle" id="theme-icon">🌙</button>
 
     <div class="max-w-xl mx-auto min-h-screen relative px-4">
+        <!-- Главная -->
         <section id="tab-home" class="tab-content active pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="flex items-center justify-center gap-2">
@@ -77,6 +78,7 @@
             </div>
         </section>
 
+        <!-- График -->
         <section id="tab-schedule" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>📅</span></div>
@@ -113,6 +115,7 @@
             <div class="text-center mt-2 text-[8px] opacity-50 font-medium">Цифра в ячейке — продолжительность смены (часов)</div>
         </section>
 
+        <!-- Тесты -->
         <section id="tab-tests" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>🎓</span></div>
@@ -174,6 +177,7 @@
             </div>
         </section>
 
+        <!-- Инструменты -->
         <section id="tab-tools" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-6 text-center">
                 <div class="header-icon-main"><span>🛠️</span></div>
@@ -220,6 +224,36 @@
             </div>
         </section>
 
+        <!-- ДОСТУП -->
+        <section id="tab-access" class="tab-content pt-10 pb-20">
+            <div class="flex flex-col items-center mb-8 text-center">
+                <div class="header-icon-main"><span>🔑</span></div>
+                <h1 class="text-3xl font-extrabold tracking-tight">Доступ</h1>
+                <p class="text-zinc-500 text-[9px] mt-1 font-extrabold uppercase tracking-[0.2em] opacity-70">Учётные данные систем</p>
+            </div>
+            <div class="px-4 max-w-md mx-auto">
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="openAccessCategory('Windows')" class="action-btn p-6 rounded-3xl flex flex-col items-center justify-center gap-2 active:scale-95">
+                        <span class="text-3xl">🖥️</span>
+                        <span class="font-black text-sm uppercase">Windows</span>
+                    </button>
+                    <button onclick="openAccessCategory('SCADA/HMI')" class="action-btn p-6 rounded-3xl flex flex-col items-center justify-center gap-2 active:scale-95">
+                        <span class="text-3xl">🖧</span>
+                        <span class="font-black text-sm uppercase">SCADA/HMI</span>
+                    </button>
+                    <button onclick="openAccessCategory('ПЛК')" class="action-btn p-6 rounded-3xl flex flex-col items-center justify-center gap-2 active:scale-95">
+                        <span class="text-3xl">📦</span>
+                        <span class="font-black text-sm uppercase">ПЛК</span>
+                    </button>
+                    <button onclick="openAccessCategory('Коммутаторы')" class="action-btn p-6 rounded-3xl flex flex-col items-center justify-center gap-2 active:scale-95">
+                        <span class="text-3xl">🔀</span>
+                        <span class="font-black text-sm uppercase">Коммутаторы</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Поддержка -->
         <section id="tab-help" class="tab-content pt-10">
             <div class="flex flex-col items-center mb-8 text-center">
                 <div class="header-icon-main"><span>📡</span></div>
@@ -229,8 +263,6 @@
                 <a href="https://t.me/IlyaMar5hal" target="_blank" class="w-full action-btn p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 active:scale-[0.95]"><div class="text-4xl">🤖</div><span class="font-black text-sm uppercase tracking-widest">Telegram</span><span class="text-[10px] opacity-40 font-medium">Связь с разработчиком</span></a>
                 <a href="mailto:admin@ctai.ru" class="w-full action-btn p-8 rounded-[2.5rem] flex flex-col items-center justify-center gap-3 active:scale-[0.95]"><div class="text-4xl">📨</div><span class="font-black text-sm uppercase tracking-widest">Email</span><span class="text-[10px] opacity-40 font-medium">Предложения по улучшению</span></a>
                 <button id="manual-update-check" class="w-full action-btn p-4 rounded-[2rem] flex flex-col items-center justify-center gap-2 active:scale-[0.95]"><div class="text-2xl">📱</div><span class="font-black text-xs uppercase tracking-widest">Проверить обновления</span></button>
-                
-                <!-- Кнопка для скачивания APK -->
                 <div class="w-full max-w-md">
                   <a href="apk/ctai-asutp.apk" class="w-full action-btn p-4 rounded-[2rem] flex flex-col items-center justify-center gap-2 active:scale-[0.95] bg-blue-500/10 border-blue-500/20">
                     <div class="text-2xl">📦</div>
@@ -242,16 +274,35 @@
         </section>
     </div>
 
+    <!-- Навигация -->
     <nav class="fixed bottom-6 left-4 right-4 max-w-xl mx-auto z-[100] custom-nav shadow-2xl">
         <div class="flex h-full items-center justify-around px-1">
             <button onclick="switchTab(0)" class="nav-item active"><div class="nav-icon">🏠</div><span class="nav-label">Главная</span></button>
             <button onclick="switchTab(1)" class="nav-item"><div class="nav-icon">📅</div><span class="nav-label">График</span></button>
             <button onclick="switchTab(2)" class="nav-item"><div class="nav-icon">🎓</div><span class="nav-label">Тесты</span></button>
             <button onclick="switchTab(3)" class="nav-item"><div class="nav-icon">🛠️</div><span class="nav-label">Инстр.</span></button>
-            <button onclick="switchTab(4)" class="nav-item"><div class="nav-icon">📡</div><span class="nav-label">Помощь</span></button>
+            <button onclick="switchTab(4)" class="nav-item"><div class="nav-icon">🔑</div><span class="nav-label">Доступ</span></button>
+            <button onclick="switchTab(5)" class="nav-item"><div class="nav-icon">📡</div><span class="nav-label">Помощь</span></button>
         </div>
     </nav>
 
+    <!-- Модалка категорий доступа -->
+    <div id="access-modal" onclick="if(event.target===this) closeAccessModal()" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center z-[200]">
+        <div class="card-bg border-t sm:border rounded-t-[3rem] sm:rounded-[3rem] w-full max-w-md max-h-[85vh] flex flex-col">
+            <div class="px-8 py-6 border-b flex items-center justify-between">
+                <h3 id="access-modal-title" class="font-black text-xl uppercase tracking-tighter text-main"></h3>
+                <button onclick="closeAccessModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-500/10 font-bold text-lg">✕</button>
+            </div>
+            <div class="px-6 pt-4">
+                <input type="text" id="access-search" oninput="filterAccessCategory()" 
+                       placeholder="Поиск внутри категории..." 
+                       class="w-full bg-white/5 border border-white/10 rounded-2xl p-3 text-sm focus:outline-none">
+            </div>
+            <div id="access-category-list" class="flex-1 overflow-auto p-6 space-y-3"></div>
+        </div>
+    </div>
+
+    <!-- Модалки блоков -->
     <div id="block-modal" onclick="if(event.target===this) closeBlockModal()" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center z-[200]">
         <div class="card-bg border-t sm:border rounded-t-[3rem] sm:rounded-[3rem] w-full max-w-md max-h-[85vh] flex flex-col">
             <div class="px-8 py-6 border-b flex items-center justify-between"><h3 id="modal-block-title" class="font-black text-xl uppercase tracking-tighter text-main"></h3><button onclick="closeBlockModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-zinc-500/10 font-bold text-lg">✕</button></div>
@@ -261,6 +312,7 @@
 
     <div class="update-toast"><div class="text-lg mb-2">✨ Доступна новая версия</div><div class="text-sm opacity-60 mb-4">Обновите приложение для улучшения работы</div><button class="update-action-btn">Обновить сейчас</button></div>
 
+    <script src="credentials.js"></script>
     <script src="data.js"></script>
     <script src="questions.js"></script>
     <script src="questions-fire.js"></script>
