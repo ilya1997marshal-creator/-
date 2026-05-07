@@ -10,6 +10,7 @@ let currentIndex = 0;
 let testFinished = false;
 let selectedTestQuestions = allQuestions;
 let answerRevealed = false;
+let lastExamQuestions = []; // сохраняем вопросы последнего экзамена
 
 // ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 function toggleTheme() {
@@ -568,6 +569,7 @@ function startExamMode() {
     testMode = 'exam';
     const shuffled = shuffleArray([...selectedTestQuestions]);
     currentQuestions = shuffled.slice(0, 20);
+    lastExamQuestions = [...currentQuestions]; // сохраняем для просмотра
     userAnswers = {};
     currentIndex = 0;
     testFinished = false;
@@ -625,7 +627,7 @@ function renderQuestion() {
     let html = '';
     q.options.forEach((opt, idx) => {
         const checked = saved.includes(idx) ? 'checked' : '';
-        const disabledAttr = (testMode === 'all' && answerRevealed) ? 'disabled' : '';
+        const disabledAttr = (testMode === 'all' && answerRevealed) || testMode === 'review' ? 'disabled' : '';
         if (isMultiple) {
             html += `
                 <label class="flex items-start gap-3 p-3 bg-white/5 rounded-xl border border-white/5 cursor-pointer">
@@ -810,16 +812,14 @@ function showExamResult(passed, correct, total, mistakes) {
     details.textContent = `Правильных: ${correct} из ${total}. Ошибок: ${total - correct} (допустимо 2).`;
     
     const reviewBtn = document.getElementById('review-mistakes');
-    if (mistakes.length > 0) {
-        reviewBtn.classList.remove('hidden');
-        reviewBtn.onclick = () => showMistakesReview(mistakes);
-    } else {
-        reviewBtn.classList.add('hidden');
-    }
+    reviewBtn.textContent = 'Просмотреть ответы';
+    reviewBtn.classList.remove('hidden');
+    reviewBtn.onclick = showFullReview;
 }
 
-function showMistakesReview(mistakeIds) {
-    currentQuestions = currentQuestions.filter(q => mistakeIds.includes(q.id));
+// Новая функция: показ ВСЕХ вопросов последнего экзамена
+function showFullReview() {
+    currentQuestions = lastExamQuestions;
     currentIndex = 0;
     testMode = 'review';
     showTestRunner();
